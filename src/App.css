@@ -1,0 +1,56 @@
+.Stepper-Container{
+  border-top: 2px solid black;
+  margin-left: 20%;
+  margin-right: 20%;
+
+}
+
+.Survey-acction{
+  
+  border-width: 50;
+  margin-bottom: 10px;
+  text-align: center;
+  font-family: Arial , sans-serif;
+
+}
+
+.Input-Center{
+  margin-top: 10px;
+  height: calc(70vh - 12rem);
+ 
+  
+}
+.font-size{
+  font-family:  'Arial Narrow Bold', sans-serif;
+  font-size: 28px;
+  margin-bottom: 10px;
+  
+}
+
+.Input-text{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 300px;
+  border-radius: 10%;
+ 
+}
+.left-info{
+  
+}
+
+.input-design{
+  display: flex;
+ 
+  justify-content: space-evenly;
+
+}
+
+.right-container{ 
+
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+  width: 300px;
+}
+
