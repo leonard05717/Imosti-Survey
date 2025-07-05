@@ -1,0 +1,40 @@
+
+.m_9e117634.mantine-Image-root{
+
+}
+
+.m_89d60db1.mantine-Tabs-root{
+margin-top: 100px;
+}
+
+.Tabs-Main{
+    height: 695px;
+    width: 242px;
+    border: 1px dashed black;
+}
+
+.m_89d33d6d.mantine-Tabs-list{
+   display: flex;
+justify-content: start;
+align-items: flex-start;
+padding-left: 40px;
+padding-right: 40px;
+
+
+}
+
+.m_89d60db1.mantine-Tabs-root{
+    display: flex;
+    justify-content: center;
+}
+
+.tab-list{
+    font-size: large; 
+}
+
+
+.mantine-focus-auto.m_c3381914.m_4ec4dce6.mantine-Tabs-tab.tab-list.m_87cf2631.mantine-UnstyledButton-root{
+   
+}
+
+
