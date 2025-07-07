@@ -37,4 +37,23 @@ padding-right: 40px;
    
 }
 
+.m_b0c91715.mantine-Tabs-panel{
+    display: flex;
+    border: 2px solid black;
+    margin-top: -200px;
+    height: 694px;
+    margin-right: -1215px;
+    width: 1295px;
+ 
+}
+
+.item {
+    border: 2px solid #0005;
+    margin-bottom: 3px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+  }
 

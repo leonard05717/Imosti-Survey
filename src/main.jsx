@@ -6,7 +6,8 @@ import '@mantine/core/styles.css';
 import { MantineProvider } from '@mantine/core'
 import { ModalsProvider } from '@mantine/modals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import About from './Admin.jsx';
+import Course from './AdminSide/Course.jsx';
+import Admin from './Admin.jsx';
 
 
 const routers = createBrowserRouter([
@@ -15,8 +16,14 @@ const routers = createBrowserRouter([
     element: <App />
   },
   {
-    path: "/admin",
-    element: <About />
+    path: 'admin',
+    element: <Admin />,
+    children: [
+      {
+        path: 'course',
+        element: <Course />
+      },
+    ]
   },
 ])
 
