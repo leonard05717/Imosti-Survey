@@ -15,11 +15,12 @@ import {
    Input,
    ModalTitle,
    px,
+   Rating,
    
   
 
   } from '@mantine/core';
-import { IconBrandBlackberry, IconCalendar} from '@tabler/icons-react';
+import { IconBrandAndroid, IconBrandBlackberry, IconCalendar} from '@tabler/icons-react';
 
 import { DatePicker ,  DatePickerInput } from '@mantine/dates';
 import { Label } from 'recharts';
@@ -34,6 +35,7 @@ function App() {
   const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));    
   const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
   const [isModalOpen, setIsModalOpen] = useState(false)
+  
 
   const [loading, setLoading] = useState(false)
 
@@ -43,7 +45,24 @@ function App() {
   const [Course, setCourse] = useState('');
   const [RegNo, setRegNo] = useState('');;
   const [valuenowDate, SetvaluenowDate] = useState('');
-  const [Trainingvalue, setTrainingValue] = useState([null, null]);
+  const [Trainingvalue, setTrainingValue] = useState('[null, null]');
+
+  const [Question1a, setQuestionans] = useState('');
+  const [Q1 , setQ1] = useState(['0'])
+
+  const [valueid , setvalueid] = useState();
+  
+ async function setvalue(ID) {
+  setvalueid(ID)
+
+  
+  
+ }
+
+  const handleChange = (id , rate) => {
+    setQ1(prev => ({...prev , [id]: rate}))
+  }
+
 
   const NameTrasfer = (event) => {
     setName(event.target.value); 
@@ -58,7 +77,7 @@ function App() {
     setRegNo(event.target.value); 
   };
 
-  
+
   
   const [QuestionDB, setQuestion] = useState([
     {
@@ -96,7 +115,7 @@ function App() {
 
 
   async function nextStep2() {
-    console.log(Name , Instructor , Course , RegNo , Trainingvalue , valuenowDate)
+    console.log(Q1 ,Question1a)
     
   }
 
@@ -134,23 +153,23 @@ function App() {
   }
 
   async function loadData() {
-    const { error, data } = await supabase.from("A.Services").select();
+    const { error, data } = await supabase.from("Questioner").select("id,Question ").eq("Criteria","A");
     setQuestion(data) 
 
   }
   async function loadData2() {
-    const { error, data } = await supabase.from("B.Facilities").select();
+    const { error, data } = await supabase.from("Questioner").select("id,Question").eq("Criteria","B");
     setQuestion2(data) 
 
   }
   async function loadData3() {
-    const { error, data } = await supabase.from("C.Course").select();
+    const { error, data } = await supabase.from("Questioner").select("id,Question").eq("Criteria","C");
     setQuestion3(data) 
 
   }
 
   async function loadData4() {
-    const { error, data } = await supabase.from("D.Instructor").select();
+    const { error, data } = await supabase.from("Questioner").select("id,Question").eq("Criteria","D");
     setQuestion4(data) 
 
   }
@@ -164,11 +183,12 @@ function App() {
 
   useEffect(() => {
 
-    loadData()
+    
     loadData2()
     loadData3()
     loadData4()
     Feedback1()
+    loadData() 
 
     const sectionSubscription = supabase
     .channel("realtime:users")
@@ -350,26 +370,20 @@ function App() {
 
     
       <div className='Main-Container'>
-      <div>
+      <div style={{backgroundColor:'black'}}>
       
       <div className='logo' style={{ display: 'flex' }}> 
-                <AspectRatio style={{marginLeft: '20px' , marginTop: '20px' , marginBottom: '20px'} } ratio={1} flex="0 0 200px">
-                <Image  
+                <AspectRatio style={{  marginTop: '10px' , marginBottom: '30px'} } ratio={1} flex="0 0 200px">
+                <Image 
+
                 h={100} 
-                w={106}
-                   src="../Picture/Logo.png"
+                w={300}
+                   src="../Picture/Admin-Logo.png"
                   alt="Avatar"
               />
                     </AspectRatio>
                     
-                    <AspectRatio style={{marginLeft: '-100px' ,  marginTop: '55px' , marginBottom: '20px'} } ratio={1} flex="0 0 200px">
-                <Image  
-                h={58} 
-                w={254}
-                   src="../Picture/Name.png"
-                  alt="Avatar"
-              />
-                    </AspectRatio>
+                  
           </div>
       </div>
       <div className='stepper-center'>
@@ -433,8 +447,8 @@ function App() {
                        
                </div>
                </div>
-              Reg#
-              <input style={{width:'300px', marginTop: '-20px'}} onChange={RegTrasfer} id='Reg' className='input' type='text' placeholder= '#' />
+              Company
+              <input style={{width:'300px', marginTop: '-20px'}} onChange={RegTrasfer} id='Reg' className='input' type='text' placeholder= 'Insert full company Name' />
               </div>
 
               </div>
@@ -499,7 +513,7 @@ function App() {
                   <div>
                   {QuestionDB.map((RequestQ1) =>{
                     return(
-                      <div style={{marginBottom: '20px'}}>{RequestQ1.id} . {RequestQ1.Question}</div>
+                      <div style={{marginBottom: '20px'}}> {RequestQ1.Question}</div>
                     )
                   })}
                   </div>
@@ -508,31 +522,37 @@ function App() {
                  <div>
                   {QuestionDB.map((Request1) =>{
                     return(
+
                       <div style={{ gap: '60px',display:'flex' , flexdirection: 'row' , marginBottom: '20px' }}>{Request1.count}
                       <Checkbox      
                    radius="xl"
                   size="md"
                   value={Request1.id}
+                  onChange={() => handleChange(Request1.id , "5")}
                    />
                    <Checkbox
                    radius="xl"
                   size="md"
-                  value={Request1.id}
+                  value="2"
+                  onChange={() => handleChange(Request1.id , "4")}
                    />
                      <Checkbox
                    radius="xl"
                   size="md"
-                  value={Request1.id}
+                  value="3"
+                  onChange={() => handleChange(Request1.id , "3")}
                    />
                      <Checkbox
                    radius="xl"
                   size="md"
-                  value={Request1.id}
+                  value="4"
+                  onChange={() => handleChange(Request1.id , "2")}
                    />
                      <Checkbox
                    radius="xl"
                   size="md"
-                  value={Request1.id}
+                  value="5"
+                  onChange={() => handleChange(Request1.id , "1")}
                    />
                   
                       </div>
@@ -554,7 +574,7 @@ function App() {
                   {Question2DB.map((RequestQ) =>{
                     return(
                       
-                      <div style={{marginBottom: '20px'}}>{RequestQ.id2} . {RequestQ.Question2}</div>
+                      <div style={{marginBottom: '20px'}}>{RequestQ.Question}</div>
                     )
                   })}
                   </div>
@@ -567,27 +587,32 @@ function App() {
                       <Checkbox      
                    radius="xl"
                   size="md"
-                  value={Request3.id2}
+                  value="1"
+                  onChange={() => handleChange(Request3.id , "5")}
                    />
                    <Checkbox
                    radius="xl"
                   size="md"
-                  value={Request3.id2}
+                  value="2"
+                  onChange={() => handleChange(Request3.id , "4")}
                    />
                      <Checkbox
                    radius="xl"
                   size="md"
-                  value={Request3.id2}
+                  value="3"
+                  onChange={() => handleChange(Request3.id , "3")}
                    />
                      <Checkbox
                    radius="xl"
                   size="md"
-                  value={Request3.id2}
+                  value="4"
+                  onChange={() => handleChange(Request3.id , "2")}
                    />
                      <Checkbox
                    radius="xl"
                   size="md"
-                  value={Request3.id2}
+                  value="5"
+                  onChange={() => handleChange(Request3.id , "1")}
                    />
                   
                       </div>
@@ -609,7 +634,7 @@ function App() {
                   {Question3DB.map((RequestQ3) =>{
                     return(
                       
-                      <div style={{marginBottom: '20px'}}>{RequestQ3.id3} . {RequestQ3.Question3}</div>
+                      <div style={{marginBottom: '20px'}}>{RequestQ3.Question}</div>
                     )
                   })}
                   </div>
@@ -622,27 +647,32 @@ function App() {
                       <Checkbox      
                    radius="xl"
                   size="md"
-                  value={RequestQ4.id3}
+                  value="1"
+                  onChange={() => handleChange(RequestQ4.id , "5")}
                    />
                    <Checkbox
                    radius="xl"
                   size="md"
-                  value={RequestQ4.id3}
+                  value="2"
+                  onChange={() => handleChange(RequestQ4.id , "4")}
                    />
                      <Checkbox
                    radius="xl"
                   size="md"
-                  value={RequestQ4.id3}
+                  value="3"
+                  onChange={() => handleChange(RequestQ4.id , "3")}
                    />
                      <Checkbox
                    radius="xl"
                   size="md"
-                  value={RequestQ4.id3}
+                  value="4"
+                  onChange={() => handleChange(RequestQ4.id , "2")}
                    />
                      <Checkbox
                    radius="xl"
                   size="md"
-                  value={RequestQ4.id3}
+                  value="5"
+                  onChange={() => handleChange(RequestQ4.id , "1")}
                    />
                   
                       </div>
@@ -665,7 +695,7 @@ function App() {
                   {Question4DB.map((RequestQ6) =>{
                     return(
                       
-                      <div style={{marginBottom: '20px'}}>{RequestQ6.id4} . {RequestQ6.Question4}</div>
+                      <div style={{marginBottom: '20px'}}>{RequestQ6.Question}</div>
                     )
                   })}
                   </div>
@@ -678,27 +708,32 @@ function App() {
                       <Checkbox      
                    radius="xl"
                   size="md"
-                  value={RequestQ5.id4}
+                  value="1"
+                  onChange={() => handleChange(RequestQ5.id , "5")}
                    />
                    <Checkbox
                    radius="xl"
                   size="md"
-                  value={RequestQ5.id4}
+                  value="2"
+                  onChange={() => handleChange(RequestQ5.id , "4")}
                    />
                      <Checkbox
                    radius="xl"
                   size="md"
-                  value={RequestQ5.id4}
+                  value="3"
+                  onChange={() => handleChange(RequestQ5.id , "3")}
                    />
                      <Checkbox
                    radius="xl"
                   size="md"
-                  value={RequestQ5.id4}
+                  value="4"
+                  onChange={() => handleChange(RequestQ5.id , "2")}
                    />
                      <Checkbox
                    radius="xl"
                   size="md"
-                  value={RequestQ5.id4}
+                  value="5"
+                  onChange={() => handleChange(RequestQ5.id , "1")}
                    />
                   
                       </div>

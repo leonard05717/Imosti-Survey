@@ -20,6 +20,9 @@ import {
    ThemeIcon,
    Paper,
    ScrollArea,
+   Avatar,
+   FileButton,
+   PasswordInput,
   
 
   } from '@mantine/core';
@@ -43,8 +46,10 @@ function Admin() {
     const [StaffS, setStaffS] = useState(false)
     const [IDs, setID] = useState('');
     const [anyQuesttrow, setQ] = useState('');
+    const [Criteriatrow , setCriteriatrow] = useState('');
     
     const [IDStaff, setIDStaff] = useState('');
+    const [file, setFile] = useState('');
 
 
    
@@ -73,8 +78,10 @@ function Admin() {
         First_name:"",
         Last_Name:"",
         Email:"",
+        Contact:"",
         Role:"",
-        Status:""
+        Status:"",
+        Password:""
 
       }
     ]);
@@ -95,6 +102,7 @@ function Admin() {
         <Table.Td>{element.First_Name}</Table.Td>
         <Table.Td>{element.Last_Name}</Table.Td>
         <Table.Td>{element.Email}</Table.Td>
+        <Table.Td>{element.Contact}</Table.Td>
         <Table.Td>{element.Role}</Table.Td>
         <Table.Td>{element.Status == "Active"?(
           <div>
@@ -139,6 +147,13 @@ function Admin() {
       }
     ]);
 
+    const [Feedback, setFeedback] = useState([
+      {
+       QuestionFeedback:"",
+      }
+    ]);
+
+
     async function StaffLoadData() {
       const { error, data } = await supabase.from("Staff-Info").select();
       setStaff(data) 
@@ -146,24 +161,29 @@ function Admin() {
     }
 
     async function loadData() {
-      const { error, data } = await supabase.from("A.Services").select();
+      const { error, data } = await supabase.from("Questioner").select("id,Question").eq("Criteria","A");
       setQuestion(data) 
   
     }
 
     async function loadDataB() {
-      const { error, data } = await supabase.from("B.Facilities").select();
+      const { error, data } = await supabase.from("Questioner").select("id,Question").eq("Criteria","B");
       setQuestionB(data) 
   
     }
     async function loadDataC() {
-      const { error, data } = await supabase.from("C.Course").select();
+      const { error, data } = await supabase.from("Questioner").select("id,Question").eq("Criteria","C");
       setQuestionC(data) 
   
     }
     async function loadDataD() {
-      const { error, data } = await supabase.from("D.Instructor").select();
+      const { error, data } =await supabase.from("Questioner").select("id,Question").eq("Criteria","C");
       setQuestionD(data) 
+  
+    }
+    async function Feedbackload() {
+      const { error, data } = await supabase.from("Feedback-Question").select();
+      setFeedback(data) 
   
     }
 
@@ -176,24 +196,52 @@ function Admin() {
       if(!QuestionAdd) {
         return alert("All field is required")
       }
-  
-      const { error } = await supabase.from(anyQuesttrow).insert({
-        Question: QuestionAdd,
-      })
-  
-      if(error) {
-        console.log(error.message)
-      }else{
-        document.getElementById("AddQuestion").value = ""
-        setQ("")
-        
-        loadData()
-        loadDataB()
-        loadDataC()
-        loadDataD()
-        console.log("Success!")
-        setIsModalOpen(false)
+      
+      if(anyQuesttrow == "Questioner"){
+        const { error } = await supabase.from(anyQuesttrow).insert({
+          Question: QuestionAdd,
+          Criteria: Criteriatrow,
+        })
+        if(error) {
+          console.log(error.message)
+        }else{
+          document.getElementById("AddQuestion").value = ""
+          setQ("")
+          
+          loadData()
+          loadDataB()
+          loadDataC()
+          loadDataD()
+          Feedbackload()
+          console.log("Success!")
+          setIsModalOpen(false)
+        }
       }
+      else{
+        const { error } = await supabase.from(anyQuesttrow).insert({
+          QuestionFeedback: QuestionAdd
+        })
+
+        if(error) {
+          console.log(error.message)
+        }else{
+          document.getElementById("AddQuestion").value = ""
+          setQ("")
+          
+          loadData()
+          loadDataB()
+          loadDataC()
+          loadDataD()
+          Feedbackload()
+          console.log("Success!")
+          setIsModalOpen(false)
+        }
+      }
+
+     
+  
+     
+
      
       
   
@@ -206,6 +254,7 @@ function Admin() {
       await loadDataB()
       await loadDataC()
       await loadDataD()
+      await Feedbackload()
       setIsModalOpenVerify(false)
       console.log("Delete Success")
       setID("")
@@ -222,6 +271,7 @@ function Admin() {
         loadDataC()
         loadDataD()
         StaffLoadData()
+        Feedbackload()
 
         const sectionSubscription = supabase
         .channel("realtime:users")
@@ -363,6 +413,35 @@ function Admin() {
         )
         .subscribe();
 
+       
+
+        const sectionSubscriptionFeed = supabase
+        .channel("realtime:Feedback-Question")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "Feedback-Question" },
+          (payload) => {
+            if (payload.eventType === "INSERT") {
+              setFeedback((prev) => [
+                payload.new,
+                ...prev,
+              ]);
+            } else if (payload.eventType === "UPDATE") {
+              setFeedback((prev) =>
+                prev.map((item) =>
+                  item.id === payload.new.id
+                    ? (payload.new)
+                    : item
+                )
+              );
+            } else if (payload.eventType === "DELETE") {
+              setFeedback((prev) =>
+                prev.filter((item) => item.id !== payload.old.id)
+              );
+            }
+          }
+        )
+        .subscribe();
 
         return () => {
           supabase.removeChannel(sectionSubscription)
@@ -370,6 +449,7 @@ function Admin() {
           supabase.removeChannel(sectionSubscriptionC)
           supabase.removeChannel(sectionSubscriptionD)
           supabase.removeChannel(Staffselection)
+          supabase.removeChannel(sectionSubscriptionFeed)
         }
     
         
@@ -470,10 +550,7 @@ function Admin() {
     <Tabs color='	rgb(241, 101, 41)'  size='xl' variant="pills"  defaultValue="gallery" orientation="vertical" >
     <Tabs.List >
       <div style={{paddingRight:'55px', paddingLeft:'50px' , borderBottom:'2px solid black'}}><Tabs.Tab className='tab-list' leftSection={<IconChartHistogram  size={20}/>} value="Analytics">Analytics</Tabs.Tab></div>
-      <div style={{paddingRight:'63px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconCertificate  size={20}/>} 
-       onClick={() => {
-            navigate("course")}}
-       value="Course">Courses</Tabs.Tab></div>
+      <div style={{paddingRight:'63px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconCertificate  size={20}/>}value="Course">Courses</Tabs.Tab></div>
       <div style={{paddingRight:'90px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconUserShare   size={20}/>} value="Staff">Staff</Tabs.Tab></div>
       <div style={{paddingRight:'23px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconMessage2Cog  size={20}/>} value="Maintenance">Maintenance</Tabs.Tab></div>
       <div style={{paddingRight:'61.5px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconSettings  size={20}/>} value="Settings">Settings</Tabs.Tab></div>
@@ -484,9 +561,37 @@ function Admin() {
         Gallery tab content
       </Tabs.Panel>
 
-      <Tabs.Panel  value="Course">
-        Gallery tab content
-      </Tabs.Panel>
+      <Tabs.Panel  value="Course">   
+      <div style={{width: '1295px'}} >
+        <div style={{backgroundColor:'	rgb(255, 105, 0)' , border: '5px solid 	rgb(255, 105, 0)' , marginTop:'-3px'}} >
+            <h2 style={{marginLeft:'30px' , display:'flex' ,color: 'white' }}>Settings
+            <Input style={{display:'flex' , marginLeft: '420px' , justifyContent:'center' }} leftSection={<IconSearch size={16} />} variant="filled" size="md" radius="xl" placeholder="Search" />
+            <label style={{marginLeft:'400px' , marginTop:'5px'}}>Leo</label>
+            <ThemeIcon  size="xl" color="tranfarent" autoContrast>
+            <IconUser size={30} />
+            </ThemeIcon>
+            </h2> 
+        </div>    
+        <di>
+        <div>
+          <ScrollArea  h={600} style={{borderTop:'2px solid black', backgroundColor:'	rgb(240, 235, 235)'}}>
+          <div style={{backgroundColor:'white', margin:'20px'} }>
+            <Table  highlightOnHover >
+              <Table.Thead>
+                <Table.Tr style={{display:'flex' , justifyContent:'space-between' }}>
+                  <Table.Th style={{marginLeft:'20px'}}>Code</Table.Th>
+                  <Table.Th>Course</Table.Th>
+                  <Table.Th style={{marginRight:'20px'}}>View</Table.Th>
+               </Table.Tr>
+              </Table.Thead>
+             <Table.Tbody></Table.Tbody>
+           </Table>
+          </div>
+          </ScrollArea>
+          </div>
+        </di>            
+      </div>
+       </Tabs.Panel>
 
       <Tabs.Panel  value="Staff">
           <div style={{width: '1295px'}} >
@@ -504,12 +609,13 @@ function Admin() {
           <div>
           <ScrollArea  h={600} style={{borderTop:'2px solid black', backgroundColor:'	rgb(240, 235, 235)'}}>
           <div style={{backgroundColor:'white', margin:'20px'} }>
-            <Table>
+            <Table highlightOnHover>
               <Table.Thead>
                 <Table.Tr>
                   <Table.Th>First Name</Table.Th>
                   <Table.Th>Last Name</Table.Th>
                   <Table.Th>Email</Table.Th>
+                  <Table.Th>Contact No.</Table.Th>
                   <Table.Th>Role</Table.Th>
                   <Table.Th>Status</Table.Th>
                </Table.Tr>
@@ -542,7 +648,7 @@ function Admin() {
               <div style={{marginLeft:'10px'}}>
               <div style={{display:'flex'}}>
               
-                <h3>A.Services</h3><Button style={{display:'flex' , justifyContent: 'center', marginLeft:'950px' , marginTop:'13'}} onClick={() => {Identify('A.Services') }} rightSection={<IconPlus size={14} />}  variant="filled" radius="md">Add</Button>
+                <h3>A.Services</h3><Button style={{display:'flex' , justifyContent: 'center', marginLeft:'950px' , marginTop:'13'}} onClick={() => {Identify('Questioner')  , setCriteriatrow('A')}} rightSection={<IconPlus size={14} />}  variant="filled" radius="md">Add</Button>
                 </div>
                 <div>
                 {QuestionQues.map((keys) => {
@@ -551,7 +657,7 @@ function Admin() {
               <div>{keys.Question}</div>
               <div>
               <ActionIcon color="red" 
-              onClick={() => {handleID(keys.id) , setQ('A.Services')}}     
+              onClick={() => {handleID(keys.id) , setQ('Questioner')}}     
                    >
                 <IconTrash size={17} />
               </ActionIcon>
@@ -568,7 +674,7 @@ function Admin() {
               <h2 style={{display:'flex' , justifyContent: 'center'}}>Training Evaluation</h2>
               <div style={{marginLeft:'10px'}}>
               <div style={{display:'flex'}}>
-                <h3>B.Facilities</h3><Button style={{display:'flex' , justifyContent: 'center', marginLeft:'950px' , marginTop:'13'}} onClick={() => {Identify('B.Facilities') }} rightSection={<IconPlus size={14} />} variant="filled" radius="md">Add</Button>
+                <h3>B.Facilities</h3><Button style={{display:'flex' , justifyContent: 'center', marginLeft:'950px' , marginTop:'13'}} onClick={() => {Identify('Questioner') , setCriteriatrow('B') }} rightSection={<IconPlus size={14} />} variant="filled" radius="md">Add</Button>
                 </div>
                 <div>
                 {QuestionB.map((keyb) => {
@@ -577,7 +683,7 @@ function Admin() {
               <div>{keyb.Question}</div>
               <div>
               <ActionIcon color="red" 
-              onClick={() => {handleID(keyb.id) , setQ('B.Facilities')}}>
+              onClick={() => {handleID(keyb.id) , setQ('Questioner')}}>
                 <IconTrash size={17} />
               </ActionIcon>
               </div>
@@ -592,7 +698,7 @@ function Admin() {
               <h2 style={{display:'flex' , justifyContent: 'center'}}>Training Evaluation</h2>
               <div style={{marginLeft:'10px'}}>
               <div style={{display:'flex'}}>
-                <h3>C.Course</h3><Button style={{display:'flex' , justifyContent: 'center', marginLeft:'950px' , marginTop:'13'}} onClick={() => {Identify('C.Course') }} rightSection={<IconPlus size={14} />} variant="filled" radius="md">Add</Button>
+                <h3>C.Course</h3><Button style={{display:'flex' , justifyContent: 'center', marginLeft:'950px' , marginTop:'13'}} onClick={() => {Identify('Questioner') , setCriteriatrow('C') }} rightSection={<IconPlus size={14} />} variant="filled" radius="md">Add</Button>
                 </div>
                 <div>
                 {QuestionC.map((keyc) => {
@@ -601,7 +707,7 @@ function Admin() {
               <div>{keyc.Question}</div>
               <div>
               <ActionIcon color="red" 
-              onClick={() => {handleID(keyc.id) , setQ('C.Course')}}>
+              onClick={() => {handleID(keyc.id) , setQ('Questioner')}}>
                 <IconTrash size={17} />
               </ActionIcon>
               </div>
@@ -616,7 +722,7 @@ function Admin() {
               <h2 style={{display:'flex' , justifyContent: 'center'}}>Training Evaluation</h2>
               <div style={{marginLeft:'10px'}}>
               <div style={{display:'flex'}}>
-                <h3>D.Instructor</h3><Button style={{display:'flex' , justifyContent: 'center', marginLeft:'950px' , marginTop:'13'}} onClick={() => {Identify('D.Instructor') }} rightSection={<IconPlus size={14} />} variant="filled" radius="md">Add</Button>
+                <h3>D.Instructor</h3><Button style={{display:'flex' , justifyContent: 'center', marginLeft:'950px' , marginTop:'13'}} onClick={() => {Identify('Questioner'), setCriteriatrow('D') }} rightSection={<IconPlus size={14} />} variant="filled" radius="md">Add</Button>
                 </div>
                 <div>
                 {QuestionD.map((keyD) => {
@@ -625,7 +731,31 @@ function Admin() {
               <div>{keyD.Question}</div>
               <div>
               <ActionIcon color="red" 
-              onClick={() => {handleID(keyD.id)  , setQ('D.Instructor')}}>
+              onClick={() => {handleID(keyD.id)  , setQ('Questioner')}}>
+                <IconTrash size={17} />
+              </ActionIcon>
+              </div>
+            </div>
+            )
+          })}
+          </div>     
+          </div>  
+            </div>
+
+            <div style={{backgroundColor: 'whitesmoke' , border:'2px solid black' , margin:'50px'}}>
+              <h2 style={{display:'flex' , justifyContent: 'center'}}>Additional Feedback</h2>
+              <div style={{marginLeft:'10px'}}>
+              <div style={{display:'flex'}}>
+                <h3>Feedback</h3><Button style={{display:'flex' , justifyContent: 'center', marginLeft:'950px' , marginTop:'13'}} onClick={() => {Identify('Feedback-Question')}} rightSection={<IconPlus size={14} />} variant="filled" radius="md">Add</Button>
+                </div>
+                <div>
+                {Feedback.map((keyD) => {
+          return (
+            <div className='item'>
+              <div>{keyD.QuestionFeedback}</div>
+              <div>
+              <ActionIcon color="red" 
+              onClick={() => {handleID(keyD.id)  , setQ('Feedback-Question')}}>
                 <IconTrash size={17} />
               </ActionIcon>
               </div>
@@ -645,7 +775,80 @@ function Admin() {
       </Tabs.Panel>
 
       <Tabs.Panel  value="Settings">
-        Gallery tab content
+        <div>
+        <div style={{backgroundColor:'	rgb(255, 105, 0)' , border: '5px solid 	rgb(255, 105, 0)' , marginTop:'-3px'}} >
+            <h2 style={{marginLeft:'30px' , display:'flex' ,color: 'white' }}>Settings
+            <Input style={{display:'flex' , marginLeft: '420px' , justifyContent:'center' }} leftSection={<IconSearch size={16} />} variant="filled" size="md" radius="xl" placeholder="Search" />
+            <label style={{marginLeft:'400px' , marginTop:'5px'}}>Leo</label>
+            <ThemeIcon  size="xl" color="tranfarent" autoContrast>
+            <IconUser size={30} />
+            </ThemeIcon>
+            
+            </h2> 
+          </div>
+          <ScrollArea  h={600} style={{borderTop:'2px solid black', backgroundColor:'	rgb(240, 235, 235)'}}>
+            <div style={{backgroundColor:'white', margin:'20px'} }>
+                <div style={{ padding:'50px',paddingLeft:'100px' , borderBottom:'2px solid black'}}>
+              <Avatar style={{border: '2px solid black' , width: '150px', height: '150px' }} variant="outline" radius="lg"  src="" />
+                      <Group justify="">
+                         <FileButton onChange={setFile} accept="image/png,image/jpeg">
+                         {(props) => <Button {...props}>Upload image</Button>}
+                         </FileButton>
+                      </Group>
+                </div>
+                <div>
+               
+                <Table variant="vertical" layout="fixed" withTableBorder>
+                {Staff.map((keys) => 
+      <Table.Tbody>
+        
+        <Table.Tr >
+         
+         
+          <Table.Th style={{padding:'20px'}} w={260}>Name:</Table.Th>
+          <Table.Td>{keys.First_Name} {keys.Last_Name}</Table.Td>
+          <Button style={{marginLeft:'350px' , marginTop: '12px'}}  variant="filled">Edit</Button>
+           
+        </Table.Tr>
+          
+
+        <Table.Tr>
+          <Table.Th style={{padding:'20px'}} >Email:</Table.Th>
+          <Table.Td>{keys.Email}</Table.Td>
+          <Button style={{marginLeft:'350px' , marginTop: '12px'}}  variant="filled">Edit</Button>
+        </Table.Tr>
+
+        <Table.Tr>
+          <Table.Th style={{padding:'20px'}} >Contact Number:</Table.Th>
+          <Table.Td>{keys.Contact}</Table.Td>
+          <Button style={{marginLeft:'350px' , marginTop: '12px'}}  variant="filled">Edit</Button>
+        </Table.Tr>
+
+        <Table.Tr>
+          <Table.Th style={{padding:'20px'}}>Role:</Table.Th>
+          <Table.Td>{keys.Role}</Table.Td>
+         
+        </Table.Tr>
+
+        <Table.Tr>
+          <Table.Th style={{padding:'20px'}}>Password:</Table.Th>
+          <Table.Td>{keys.Password}</Table.Td>
+          <Button style={{marginLeft:'340px' , marginTop: '12px'}}  variant="filled">Change</Button>
+        </Table.Tr>
+        
+      </Table.Tbody>
+    )}
+    
+    </Table>
+ 
+  
+                </div>
+           </div>
+          </ScrollArea>
+
+
+
+        </div>
       </Tabs.Panel>
           </div>
       

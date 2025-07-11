@@ -1,5 +1,5 @@
 .Stepper-Container{
-  border-top: 2px solid black;
+ 
   margin-left: 20%;
   margin-right: 20%;
 
@@ -73,7 +73,8 @@
 }
 
 .logo{
- margin-left: 290px;
+ margin-left: 210px;
+ margin-top: -20px;
 }
 
 .Main-text{
@@ -152,9 +153,7 @@ color: azure;
   width: 550px;
   height: 250px;
 }
-.m_9e117634.mantine-Image-root{
-  width: 60p
-}
+
 .m_71ac47fc.mantine-AspectRatio-root{
   width: 300px;
   height: 100px;

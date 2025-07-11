@@ -15,7 +15,7 @@ margin-top: 100px;
 }
 
 .m_89d33d6d.mantine-Tabs-list{
-   display: flex;
+display: flex;
 justify-content: start;
 align-items: flex-start;
 padding-left: 40px;
@@ -57,4 +57,10 @@ padding-right: 40px;
     align-items: center;
     gap: 30px;
   }
+
+.m_4081bf90.mantine-Group-root{
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: -40px;
+ }
 
