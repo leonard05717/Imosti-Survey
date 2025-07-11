@@ -45,7 +45,7 @@ function App() {
   const [Course, setCourse] = useState('');
   const [RegNo, setRegNo] = useState('');;
   const [valuenowDate, SetvaluenowDate] = useState('');
-  const [Trainingvalue, setTrainingValue] = useState('[null, null]');
+  const [Trainingvalue, setTrainingValue] = useState([null, null]);
 
   const [Question1a, setQuestionans] = useState('');
   const [Q1 , setQ1] = useState(['0'])
