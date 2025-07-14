@@ -26,14 +26,15 @@ import {
   
 
   } from '@mantine/core';
-import { IconBrandBlackberry, IconCalendar , IconCertificate, IconChartHistogram, IconEdit, IconExposureMinus1, IconMassage, IconMessage2Cog, IconPlus, IconRowInsertBottom, IconSearch, IconSettings, IconTrash, IconUser, IconUserMinus, IconUserShare,} from '@tabler/icons-react';
+import { IconBrandBlackberry, IconCalendar , IconCertificate, IconChartHistogram, IconDotsVertical, IconEdit, IconExposureMinus1, IconMassage, IconMessage2Cog, IconPlus, IconRowInsertBottom, IconSearch, IconSettings, IconTrash, IconUser, IconUserMinus, IconUserShare,} from '@tabler/icons-react';
 
 import { DatePicker ,  DatePickerInput } from '@mantine/dates';
-import { Label, PieChart } from 'recharts';
+import { BarChart, Label, PieChart } from 'recharts';
 import { data, useNavigate } from 'react-router-dom';
 import { keys, size } from 'lodash';
 import { AreaChart } from '@mantine/charts';
 import '@mantine/core/styles.css';
+
 
 
 
@@ -59,6 +60,7 @@ function Admin() {
       setStaffS(true)    
     }
   
+   
 
 
     async function handleID(id) {
@@ -82,6 +84,15 @@ function Admin() {
         Role:"",
         Status:"",
         Password:""
+
+      }
+    ]);
+
+    const [Coursetable, setCoursetable] = useState([
+      {
+       
+        Course:"" ,
+        Code:""
 
       }
     ]);
@@ -116,6 +127,21 @@ function Admin() {
       </Table.Td>
         
       </Table.Tr>
+    ));
+
+    const CourseRow = Coursetable.map((element) => (
+     
+      <Table.Tr onClick={() => {console.log(element.id)}} >
+      
+         <Table.Td>{element.Code}</Table.Td>
+          <Table.Td>{element.Course}</Table.Td>
+          <Table.Td>
+          <ActionIcon variant="transparent" radius="xs" color='black' aria-label="Settings">
+           <IconDotsVertical style={{ width: '70%', height: '70%' }} stroke={1.5} />
+           </ActionIcon></Table.Td>
+      
+       </Table.Tr>
+       
     ));
 
  
@@ -157,6 +183,12 @@ function Admin() {
     async function StaffLoadData() {
       const { error, data } = await supabase.from("Staff-Info").select();
       setStaff(data) 
+  
+    }
+
+    async function CourseRowLoad() {
+      const { error, data } = await supabase.from("Course").select();
+      setCoursetable(data) 
   
     }
 
@@ -272,6 +304,7 @@ function Admin() {
         loadDataD()
         StaffLoadData()
         Feedbackload()
+        CourseRowLoad()
 
         const sectionSubscription = supabase
         .channel("realtime:users")
@@ -443,6 +476,35 @@ function Admin() {
         )
         .subscribe();
 
+        const sectionCourseRow = supabase
+        .channel("realtime:Course")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "Course" },
+          (payload) => {
+            if (payload.eventType === "INSERT") {
+              setCoursetable((prev) => [
+                payload.new,
+                ...prev,
+              ]);
+            } else if (payload.eventType === "UPDATE") {
+              setCoursetable((prev) =>
+                prev.map((item) =>
+                  item.id === payload.new.id
+                    ? (payload.new)
+                    : item
+                )
+              );
+            } else if (payload.eventType === "DELETE") {
+              setCoursetable((prev) =>
+                prev.filter((item) => item.id !== payload.old.id)
+              );
+            }
+          }
+        )
+        .subscribe();
+
+
         return () => {
           supabase.removeChannel(sectionSubscription)
           supabase.removeChannel(sectionSubscriptionB)
@@ -450,6 +512,7 @@ function Admin() {
           supabase.removeChannel(sectionSubscriptionD)
           supabase.removeChannel(Staffselection)
           supabase.removeChannel(sectionSubscriptionFeed)
+          supabase.removeChannel(sectionCourseRow)
         }
     
         
@@ -558,13 +621,38 @@ function Admin() {
         <div >
           <div className='Tabs-panelborder'>
           <Tabs.Panel  value="Analytics">
-        Gallery tab content
+          <div>
+          <div style={{backgroundColor:'	rgb(255, 105, 0)' , border: '5px solid 	rgb(255, 105, 0)' , marginTop:'-3px'}} >
+            <h2 style={{marginLeft:'30px' , display:'flex' ,color: 'white' }}>Analytics
+            <Input style={{display:'flex' , marginLeft: '420px' , justifyContent:'center' }} leftSection={<IconSearch size={16} />} variant="filled" size="md" radius="xl" placeholder="Search" />
+            <label style={{marginLeft:'400px' , marginTop:'5px'}}>TrySample</label>
+            <ThemeIcon  size="xl" color="tranfarent" autoContrast>
+            <IconUser size={30} />
+            </ThemeIcon>
+            
+            </h2> 
+          </div>
+
+              <div>
+              <BarChart
+                   h={300}
+                   data={data}
+                   dataKey="month"
+                   series={[
+                      { name: 'Smartphones', color: 'violet.6' },
+                      { name: 'Laptops', color: 'blue.6' },
+                      { name: 'Tablets', color: 'teal.6' },
+                   ]}
+                   tickLine="y"
+                  />
+              </div>
+          </div>
       </Tabs.Panel>
 
       <Tabs.Panel  value="Course">   
       <div style={{width: '1295px'}} >
         <div style={{backgroundColor:'	rgb(255, 105, 0)' , border: '5px solid 	rgb(255, 105, 0)' , marginTop:'-3px'}} >
-            <h2 style={{marginLeft:'30px' , display:'flex' ,color: 'white' }}>Settings
+            <h2 style={{marginLeft:'30px' , display:'flex' ,color: 'white' }}>Course
             <Input style={{display:'flex' , marginLeft: '420px' , justifyContent:'center' }} leftSection={<IconSearch size={16} />} variant="filled" size="md" radius="xl" placeholder="Search" />
             <label style={{marginLeft:'400px' , marginTop:'5px'}}>Leo</label>
             <ThemeIcon  size="xl" color="tranfarent" autoContrast>
@@ -578,13 +666,13 @@ function Admin() {
           <div style={{backgroundColor:'white', margin:'20px'} }>
             <Table  highlightOnHover >
               <Table.Thead>
-                <Table.Tr style={{display:'flex' , justifyContent:'space-between' }}>
+                <Table.Tr>
                   <Table.Th style={{marginLeft:'20px'}}>Code</Table.Th>
                   <Table.Th>Course</Table.Th>
                   <Table.Th style={{marginRight:'20px'}}>View</Table.Th>
                </Table.Tr>
               </Table.Thead>
-             <Table.Tbody></Table.Tbody>
+             <Table.Tbody>{CourseRow}</Table.Tbody>
            </Table>
           </div>
           </ScrollArea>
@@ -803,12 +891,9 @@ function Admin() {
       <Table.Tbody>
         
         <Table.Tr >
-         
-         
           <Table.Th style={{padding:'20px'}} w={260}>Name:</Table.Th>
           <Table.Td>{keys.First_Name} {keys.Last_Name}</Table.Td>
           <Button style={{marginLeft:'350px' , marginTop: '12px'}}  variant="filled">Edit</Button>
-           
         </Table.Tr>
           
 

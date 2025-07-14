@@ -25,6 +25,7 @@ import { IconBrandAndroid, IconBrandBlackberry, IconCalendar} from '@tabler/icon
 import { DatePicker ,  DatePickerInput } from '@mantine/dates';
 import { Label } from 'recharts';
 import { useNavigate } from 'react-router-dom';
+import { keys } from 'lodash';
 
 
 
@@ -40,27 +41,32 @@ function App() {
   const [loading, setLoading] = useState(false)
 
   const string = "";
-  const [Name, setName] = useState('');
+  const [Names, setName] = useState('');
   const [Instructor, setInstructor] = useState('');
-  const [Course, setCourse] = useState('');
-  const [RegNo, setRegNo] = useState('');;
+  const [RegNo, setRegNo] = useState('');
   const [valuenowDate, SetvaluenowDate] = useState('');
   const [Trainingvalue, setTrainingValue] = useState([null, null]);
 
-  const [Question1a, setQuestionans] = useState('');
-  const [Q1 , setQ1] = useState(['0'])
-
+  const [Q1 , setQ1] = useState([''])
+  const [Dropselect, setDropselect] = useState('');
   const [valueid , setvalueid] = useState();
-  
- async function setvalue(ID) {
-  setvalueid(ID)
 
+  const [feedbackans , setFeedbackans] = useState(['']);
   
   
+
+
+const trowfeedback = (event) => {
+  const index = 0;
+  setFeedbackans(prev => ({...prev , [index+1]: event.target.value }));
  }
 
+  const Drophandle = (event) => {
+  setDropselect(event.target.value);
+  };
+
   const handleChange = (id , rate) => {
-    setQ1(prev => ({...prev , [id]: rate}))
+    setQ1(prev => ({...prev ,[id]: rate}))
   }
 
 
@@ -78,6 +84,13 @@ function App() {
   };
 
 
+
+  const [Questioncount, setQuestioncount] = useState([
+    {
+      Question: "",
+      id:"",
+    }
+  ])
   
   const [QuestionDB, setQuestion] = useState([
     {
@@ -111,11 +124,20 @@ function App() {
     }
   ])
 
+  const [CourseDrop , setCourseDrop] = useState([
+    {
+      Course:"",
+      Code:"",
+
+    }
+
+  ])
+
 
 
 
   async function nextStep2() {
-    console.log(Q1 ,Question1a)
+    console.log(Q1  , valueid)
     
   }
 
@@ -134,21 +156,53 @@ function App() {
     
     setLoading(true)
 
-   console.log(firstname , CInstructor , CCourse ,TrainingValue,valuenowDate, CReg);
+   
 
    const { error } = await supabase.from("Info-Training").insert({
-    Name: firstname,
-    Instructor:CInstructor,
-    Course:CCourse,
-    TrainingD:TrainingValue,
+    Name: Names,
+    Instructor:Instructor,
+    Course:Dropselect,
+    TrainingD:Trainingvalue,
     DateN:valuenowDate,
-    Reg:CReg,
+    Reg:RegNo,
     
     
   })
+  console.log(error)
   setLoading(false)
+  nextStepQ()
+  }
 
-  
+  async function nextStepQ() {
+    setLoading(true)
+    
+    {Questioncount.map(async (keys) => {
+      const index = 1
+      const { error } = await supabase.from("Score-Save").insert({
+        Name:Names,
+        Score:Q1,
+        QID:keys.id
+      })
+
+      
+      return(index+1)
+    })}
+    
+ 
+  console.log("success2")
+  setLoading(false)
+  setIsModalOpen(false)
+  }
+
+  async function loadCrouseDrop() {
+    const { error, data } = await supabase.from("Course").select("");
+    setCourseDrop(data) 
+
+  }
+
+  async function loadDataQcount() {
+    const { error, data } = await supabase.from("Questioner").select();
+    setQuestioncount(data) 
 
   }
 
@@ -161,6 +215,8 @@ function App() {
     const { error, data } = await supabase.from("Questioner").select("id,Question").eq("Criteria","B");
     setQuestion2(data) 
 
+    const {data2} = await supabase.from("Questioner").select().in("")
+ 
   }
   async function loadData3() {
     const { error, data } = await supabase.from("Questioner").select("id,Question").eq("Criteria","C");
@@ -189,6 +245,8 @@ function App() {
     loadData4()
     Feedback1()
     loadData() 
+    loadCrouseDrop()
+    loadDataQcount()
 
     const sectionSubscription = supabase
     .channel("realtime:users")
@@ -329,6 +387,64 @@ function App() {
       }
     )
     .subscribe();
+
+    const sectionDropdown = supabase
+    .channel("realtime:Course")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "Course" },
+      (payload) => {
+        if (payload.eventType === "INSERT") {
+          setCourseDrop((prev) => [
+            payload.new,
+            ...prev,
+          ]);
+        } else if (payload.eventType === "UPDATE") {
+          setCourseDrop((prev) =>
+            prev.map((item) =>
+              item.id === payload.new.id
+                ? (payload.new)
+                : item
+            )
+          );
+        } else if (payload.eventType === "DELETE") {
+          setCourseDrop((prev) =>
+            prev.filter((item) => item.id !== payload.old.id)
+          );
+        }
+      }
+    )
+    .subscribe();
+
+    const sectionQcount = supabase
+    .channel("realtime:Questioner")
+    .on(
+      "postgres_changes",
+      { event: "*", schema: "public", table: "Questioner" },
+      (payload) => {
+        if (payload.eventType === "INSERT") {
+          setQuestioncount((prev) => [
+            payload.new,
+            ...prev,
+          ]);
+        } else if (payload.eventType === "UPDATE") {
+          setQuestioncount((prev) =>
+            prev.map((item) =>
+              item.id === payload.new.id
+                ? (payload.new)
+                : item
+            )
+          );
+        } else if (payload.eventType === "DELETE") {
+          setQuestioncount((prev) =>
+            prev.filter((item) => item.id !== payload.old.id)
+          );
+        }
+      }
+    )
+    .subscribe();
+
+
     
     return () => {
       supabase.removeChannel(sectionSubscription)
@@ -336,6 +452,8 @@ function App() {
       supabase.removeChannel(section3Subscription)
       supabase.removeChannel(section4Subscription)
       supabase.removeChannel(sectionFeedBack)
+      supabase.removeChannel(sectionDropdown)
+      supabase.removeChannel(sectionQcount)
     }
 
     
@@ -360,9 +478,7 @@ function App() {
                          
           </div>
           <div className='Response'>Your response has been recorded</div> 
-          <Button className='Button-done' onClick={() => {
-            navigate("admin")
-          }}>Done</Button>
+          <Button className='Button-done' onClick={nextStep1}>Done</Button>
 
             
        
@@ -373,7 +489,8 @@ function App() {
       <div style={{backgroundColor:'black'}}>
       
       <div className='logo' style={{ display: 'flex' }}> 
-                <AspectRatio style={{  marginTop: '10px' , marginBottom: '30px'} } ratio={1} flex="0 0 200px">
+                <AspectRatio style={{  marginTop: '10px' , marginBottom: '30px'} } ratio={1} flex="0 0 200px" >
+                
                 <Image 
 
                 h={100} 
@@ -415,7 +532,14 @@ function App() {
                 Instructor:
                 <input style={{marginTop: '-20px'}} onChange={InstructorTrasfer} id='Instructor' className='input' type='text' placeholder='Instructor' />
                 Course:
-                <input style={{marginTop: '-20px'}} onChange={CourseTrasfer} id='Course' className='input' type='text' placeholder= 'Course' />
+                
+                    
+                <select style={{marginTop: '-20px' , padding:'1px'}} id="dropdown" value={Dropselect} onChange={Drophandle}>
+                    <option>-- Select Course --</option>
+                    {CourseDrop.map((dropdown) =>{
+                      return(<option>{dropdown.Code}</option>  ) })}
+                </select>
+              
                 </div>
                 <div className='right-container'>
                 <div className='m_38a85659-mantine-popover-dropdown'>
@@ -423,10 +547,11 @@ function App() {
                      
                          <DatePickerInput
                           type="range"
-                          label="Pick dates range"
+                          label="Training Date"
                           placeholder="Pick dates range"
                           value={Trainingvalue}
                           onChange={setTrainingValue}
+                          labelProps={{ style: { fontWeight: 'bold' } }} 
                           />
 
 
@@ -511,9 +636,9 @@ function App() {
                <Grid style={{marginTop: '20px'}} grow gutter="xl">
                  <Grid.Col style={{ marginLeft: '20px'}} span={4}>
                   <div>
-                  {QuestionDB.map((RequestQ1) =>{
+                  {QuestionDB.map((RequestQ1 , index) =>{
                     return(
-                      <div style={{marginBottom: '20px'}}> {RequestQ1.Question}</div>
+                      <div style={{marginBottom: '20px'}}>{index + 1} . {RequestQ1.Question}</div>
                     )
                   })}
                   </div>
@@ -760,10 +885,10 @@ function App() {
                   <div className='Feedback-question'>
                     <div className='Feedback-input'>
                        <div>
-                       {FeedbackQ.map((Feedbacklist) =>{
+                       {FeedbackQ.map((Feedbacklist , index) =>{
                        return(
-                       <div style={{marginBottom: '20px'}}>{Feedbacklist.id} . {Feedbacklist.QuestionFeedback} 
-                       <Input radius="xl" id={'Feedback'+Feedbacklist.id} placeholder="Input Answer" />
+                       <div style={{marginBottom: '20px'}}>{index + 1} . {Feedbacklist.QuestionFeedback} 
+                       <Input radius="xl" id={'Feedback'+Feedbacklist.id} onChange={trowfeedback} placeholder="Input Answer" />
                        </div>
                        
                        )
@@ -785,12 +910,12 @@ function App() {
               </div>
               <div >
                   <div className='Center-Step4'>
-                    <div className='Borderline-Step4'><label className='Step4'>Name :</label><label style={{marginLeft:'170px'}} >{Name}</label> <br></br> </div>
-                    <div className='Borderline-Step4'><label className='Step4'>Course :</label><label style={{marginLeft:'163px'}} >{Course}</label><br></br></div>
+                    <div className='Borderline-Step4'><label className='Step4'>Name :</label><label style={{marginLeft:'170px'}} >{Names}</label> <br></br> </div>
+                    <div className='Borderline-Step4'><label className='Step4'>Course :</label><label style={{marginLeft:'163px'}} >{Dropselect}</label><br></br></div>
                     <div className='Borderline-Step4'><label className='Step4'>Date :</label><label style={{marginLeft:'178px'}} >{valuenowDate}</label><br></br></div>
                     <div className='Borderline-Step4'><label className='Step4'>Instructor :</label><label style={{marginLeft:'140px'}}>{Instructor}</label><br></br></div>
                     <div className='Borderline-Step4'><label className='Step4'>Training Date :</label><label style={{marginLeft:'110px'}}>{Trainingvalue}</label><br></br></div>
-                    <div className='Borderline-Step4'><label className='Step4'>Reg.# :</label><label style={{marginLeft:'170px'}}>{RegNo}</label></div>
+                    <div className='Borderline-Step4'><label className='Step4'>Company :</label><label style={{marginLeft:'170px'}}>{RegNo}</label></div>
                     </div>
               </div>
               <Group justify="center" mt="xl">
