@@ -72,7 +72,15 @@ padding-right: 40px;
 
  .Coursetext{
     display: flex;
-    
+
  }
+
+ .m_fd1ab0aa.m_54c44539.mantine-Modal-content.m_1b7284a3.mantine-Paper-root::-webkit-scrollbar{
+    overflow: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    overflow-y: hidden;
+ }
+
 
  

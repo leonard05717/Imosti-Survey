@@ -567,20 +567,6 @@ function Admin() {
         
       }, [])
 
-    
-
-      const surveyData = {
-        courseTitle: Coursetable.filter((v) => v.id.toString() === selectedCourseId).map((sc) =>{
-          
-            return(
-              <div>
-                  {sc.Course}
-              </div>
-            )
-        }),
-       
-        
-      };
       
   return (
 <>
@@ -653,12 +639,19 @@ function Admin() {
    
     </Modal>
 
-    <Modal marginTop={20} radius={20} centered='true' opened={modalstudent} onClose={() => { setIsModalOpenStudent(false)}}>
+    <Modal  marginTop={20} radius={20} centered='true' opened={modalstudent} onClose={() => { setIsModalOpenStudent(false)}}>
+    <ScrollArea style={{display:'flex'}}>
     <div style={{ display: 'flex' }}> 
-    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg font-sans">
-      <h2 className="text-xl font-semibold mb-2">Survey Details</h2>
-      <p className="Coursetext">
-        <strong>Course -</strong> {surveyData.courseTitle}
+    <div>
+      <h2 >Survey Details</h2>
+      <p>
+      {Coursetable.filter((v) => v.id.toString() === selectedCourseId).map((sc) =>{ 
+        return(
+          <div>
+          <strong>Course -</strong> {sc.Course}
+          </div>
+        )
+      })}
       </p>
 
       {/*Selectoion for Services*/}
@@ -767,6 +760,7 @@ function Admin() {
 
 
     </div>
+    </ScrollArea>
     </Modal>
 
     
@@ -835,33 +829,9 @@ function Admin() {
         display: 'flex',
         flexDirection: 'column'
       }}>
-
+      
         {header}
-        {students
-          .filter((v) => v.course_id?.toString() === selectedCourseId)
-          .map((stud) => {
-          return (
-            <div>
-              <Text>{stud.Name}</Text>
-              <Divider />
-              {scores.filter((v) => v.training_id.toString() === stud.id.toString()).map((sc) => {
-                return (
-                  <div>
-                    {sc.question.Question} - {sc.score}
-                  </div>
-                )
-              })}
-              <Divider />
-              {feedbacks.filter((v) => v.training_id.toString() === stud.id.toString()).filter((v) => v.answer).map((sc) => {
-                return (
-                  <div>
-                    {sc.feedback.QuestionFeedback} - {sc.answer}
-                  </div>
-                )
-              })}
-            </div>
-          )
-        })}<div>
+        <div>
         <Table>
       <Table.Thead>
         <Table.Tr>
