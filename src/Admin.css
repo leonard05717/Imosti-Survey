@@ -63,4 +63,16 @@ padding-right: 40px;
     justify-content: flex-end;
     margin-bottom: -40px;
  }
+ 
+ .Questiong-answer{
+    display: flex;
+     justify-content: space-between;
+     gap: 80px;
+ }
 
+ .Coursetext{
+    display: flex;
+    
+ }
+
+ 

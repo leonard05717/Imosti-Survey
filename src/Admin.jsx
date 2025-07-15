@@ -33,7 +33,7 @@ import { IconBrandBlackberry, IconCalendar , IconCertificate, IconChartHistogram
 import { DatePicker ,  DatePickerInput } from '@mantine/dates';
 import { BarChart, Label, PieChart } from 'recharts';
 import { data, useNavigate } from 'react-router-dom';
-import { keys, size } from 'lodash';
+import { keys, reduceRight, size } from 'lodash';
 import { AreaChart } from '@mantine/charts';
 import '@mantine/core/styles.css';
 
@@ -47,6 +47,7 @@ function Admin() {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isModalOpenVerify, setIsModalOpenVerify] = useState(false)
     const [StaffS, setStaffS] = useState(false)
+    const [modalstudent , setIsModalOpenStudent ] = useState(false)
     const [IDs, setID] = useState('');
     const [anyQuesttrow, setQ] = useState('');
     const [Criteriatrow , setCriteriatrow] = useState('');
@@ -57,6 +58,7 @@ function Admin() {
   const [selectedCourseId, setSelectedCourseId] = useState("")
   const [scores, setScores] = useState([])
   const [feedbacks, setFeedbacks] = useState([])
+  const [Questionfilter , setQuestionfilter] = useState([])
 
     async function StaffAc(id) {
       setIDStaff(id);
@@ -132,6 +134,27 @@ function Admin() {
       </Table.Tr>
     ));
 
+    const Studrow = students.filter((v) => v.course_id?.toString() === selectedCourseId).map((stud) => {
+        return(
+
+      <Table.Tr key={stud.name}>
+        <Table.Td>{stud.id}</Table.Td>
+        <Table.Td>{stud.Name}</Table.Td>
+        <Table.Td>{stud.TrainingD}</Table.Td>
+        <Table.Td>{stud.Reg}</Table.Td>
+        <Table.Td>{stud.Instructor}</Table.Td>
+        <Table.Td>{stud.DateN}</Table.Td>
+        <Table.Td><ActionIcon onClick={() => {
+           setIsModalOpenStudent(true)
+          }} variant="transparent" radius="xs" color='black' aria-label="Settings">
+            <IconDotsVertical style={{ width: '70%', height: '70%' }} stroke={1.5} />
+           </ActionIcon>
+
+        </Table.Td>
+      </Table.Tr>    
+    )});
+    
+
     const CourseRow = Coursetable.map((element) => (
      
       <Table.Tr>
@@ -143,7 +166,7 @@ function Admin() {
           }}>{element.Course}</Table.Td>
           <Table.Td>
           <ActionIcon onClick={() => {
-            setSelectedPanel("Course-List") 
+           
           }} variant="transparent" radius="xs" color='black' aria-label="Settings">
             <IconDotsVertical style={{ width: '70%', height: '70%' }} stroke={1.5} />
            </ActionIcon></Table.Td>
@@ -166,6 +189,8 @@ function Admin() {
     const [QuestionQues, setQuestion] = useState([
       {
         Question:"",
+        Criteria:"",
+        id:0
       }
     ]);
 
@@ -213,11 +238,13 @@ function Admin() {
       const { data: studentData } = await supabase.from("Info-Training").select();
       const { data: scoreData } = await supabase.from("scores").select("*, question:Questioner(*)");
       const { data: feedbackData } = await supabase.from("feedback_answer").select("*, feedback:Feedback-Question(*)");
+     
       console.log(scoreData)
       setScores(scoreData)
       setQuestion(data) 
       setFeedbacks(feedbackData)
       setStudents(studentData)
+   
     }
 
     async function loadDataB() {
@@ -540,7 +567,21 @@ function Admin() {
         
       }, [])
 
+    
 
+      const surveyData = {
+        courseTitle: Coursetable.filter((v) => v.id.toString() === selectedCourseId).map((sc) =>{
+          
+            return(
+              <div>
+                  {sc.Course}
+              </div>
+            )
+        }),
+       
+        
+      };
+      
   return (
 <>
     <Modal marginTop={20} radius={20} centered='true' opened={isModalOpen} onClose={() => { setIsModalOpen(false)}}>
@@ -611,6 +652,124 @@ function Admin() {
         
    
     </Modal>
+
+    <Modal marginTop={20} radius={20} centered='true' opened={modalstudent} onClose={() => { setIsModalOpenStudent(false)}}>
+    <div style={{ display: 'flex' }}> 
+    <div className="max-w-4xl mx-auto p-6 bg-white shadow-lg rounded-lg font-sans">
+      <h2 className="text-xl font-semibold mb-2">Survey Details</h2>
+      <p className="Coursetext">
+        <strong>Course -</strong> {surveyData.courseTitle}
+      </p>
+
+      {/*Selectoion for Services*/}
+      {students.filter((v) => v.course_id?.toString() === selectedCourseId).map((stud) => {
+              return(
+                <div><h3 className="font-semibold text-gray-800 mb-2">A . Services</h3>
+          {scores.filter((v) => v.training_id.toString() === stud.id.toString()).filter((c) => c.question.Criteria === "A").map((sc) =>{
+              return(
+                <div>
+                
+               <div className="mb-6">
+               <ul className="space-y-1 pl-4">
+              <li className="Questiong-answer">
+                <span>{sc.question.Question}</span>
+                <span>{sc.score}</span>
+              </li>     
+                </ul>
+             </div></div>
+               )})}
+              </div>
+              )})}
+
+
+              {/*Selectoion for Facilities*/}
+              {students.filter((v) => v.course_id?.toString() === selectedCourseId).map((stud) => {
+              return(
+                <div><h3 className="font-semibold text-gray-800 mb-2">B . Facilities</h3>
+          {scores.filter((v) => v.training_id.toString() === stud.id.toString()).filter((c) => c.question.Criteria === "B").map((sc) =>{
+              return(
+                <div>
+                
+               <div className="mb-6">
+               <ul className="space-y-1 pl-4">
+              <li className="Questiong-answer">
+                <span>{sc.question.Question}</span>
+                <span>{sc.score}</span>
+              </li>     
+                </ul>
+             </div></div>
+               )})}
+              </div>
+              )})}
+
+              {/*Selectoion for Course*/}
+              {students.filter((v) => v.course_id?.toString() === selectedCourseId).map((stud) => {
+              return(
+                <div><h3 className="font-semibold text-gray-800 mb-2">B . Course</h3>
+          {scores.filter((v) => v.training_id.toString() === stud.id.toString()).filter((c) => c.question.Criteria === "C").map((sc) =>{
+              return(
+                <div>
+                
+               <div className="mb-6">
+               <ul className="space-y-1 pl-4">
+              <li className="Questiong-answer">
+                <span>{sc.question.Question}</span>
+                <span>{sc.score}</span>
+              </li>     
+                </ul>
+             </div></div>
+               )})}
+              </div>
+              )})}
+
+              {/*Selectoion for Instructor*/}
+              {students.filter((v) => v.course_id?.toString() === selectedCourseId).map((stud) => {
+              return(
+                <div><h3 className="font-semibold text-gray-800 mb-2">B . Course</h3>
+          {scores.filter((v) => v.training_id.toString() === stud.id.toString()).filter((c) => c.question.Criteria === "D").map((sc) =>{
+              return(
+                <div>
+                
+               <div className="mb-6">
+               <ul className="space-y-1 pl-4">
+              <li className="Questiong-answer">
+                <span>{sc.question.Question}</span>
+                <span>{sc.score}</span>
+              </li>     
+                </ul>
+             </div></div>
+               )})}
+              </div>
+              )})}
+
+               {/*Selectoion for Feedback*/}
+               {students.filter((v) => v.course_id?.toString() === selectedCourseId).map((stud) => {
+              return(
+                <div><h3 className="font-semibold text-gray-800 mb-2">FeedBack</h3>
+          {feedbacks.filter((v) => v.training_id.toString() === stud.id.toString()).filter((v) => v.answer).map((sc) => {
+              return(
+                <div>
+               
+               <div className="mb-6">
+               <ul className="space-y-1 pl-4">
+              <li className="Questiong-answer" style={{marginLeft: '-20px'}}>
+                <span>{sc.feedback.QuestionFeedback}?</span>
+              </li>   
+              <li className="Questiong-answer">
+                <span>{sc.answer}</span>
+              </li>   
+                </ul>
+             </div></div>
+               )})}
+              </div>
+              )})}
+    </div>
+
+
+    </div>
+    </Modal>
+
+    
      
     
     <div className='Devider-tabs'>
@@ -702,7 +861,22 @@ function Admin() {
               })}
             </div>
           )
-        })}
+        })}<div>
+        <Table>
+      <Table.Thead>
+        <Table.Tr>
+          <Table.Th>ID</Table.Th>
+          <Table.Th>Name</Table.Th>
+          <Table.Th>Training Date</Table.Th>
+          <Table.Th>Company</Table.Th>
+          <Table.Th>Instructor</Table.Th>
+          <Table.Th>Date</Table.Th>
+          <Table.Th>View</Table.Th>
+        </Table.Tr>
+      </Table.Thead>
+      <Table.Tbody>{Studrow}</Table.Tbody>
+    </Table>
+        </div>
 
       </div>
            
