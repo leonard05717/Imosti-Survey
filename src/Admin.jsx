@@ -23,6 +23,8 @@ import {
    Avatar,
    FileButton,
    PasswordInput,
+   Text,
+   Divider,
   
 
   } from '@mantine/core';
@@ -50,10 +52,11 @@ function Admin() {
     const [Criteriatrow , setCriteriatrow] = useState('');
     
     const [IDStaff, setIDStaff] = useState('');
+    const [students, setStudents] = useState([])
     const [file, setFile] = useState('');
-
-
-   
+  const [selectedCourseId, setSelectedCourseId] = useState("")
+  const [scores, setScores] = useState([])
+  const [feedbacks, setFeedbacks] = useState([])
 
     async function StaffAc(id) {
       setIDStaff(id);
@@ -61,7 +64,7 @@ function Admin() {
     }
   
    
-
+    const [selectedPanel, setSelectedPanel] = useState("Analytics")
 
     async function handleID(id) {
       setID(id); 
@@ -92,8 +95,8 @@ function Admin() {
       {
        
         Course:"" ,
-        Code:""
-
+        Code:"",
+        id: 0
       }
     ]);
 
@@ -131,20 +134,33 @@ function Admin() {
 
     const CourseRow = Coursetable.map((element) => (
      
-      <Table.Tr onClick={() => {console.log(element.id)}} >
+      <Table.Tr>
       
          <Table.Td>{element.Code}</Table.Td>
-          <Table.Td>{element.Course}</Table.Td>
+          <Table.Td style={{ cursor: 'pointer'}} onClick={() => {
+            setSelectedCourseId(element.id.toString())
+            setSelectedPanel("Course-List")
+          }}>{element.Course}</Table.Td>
           <Table.Td>
-          <ActionIcon variant="transparent" radius="xs" color='black' aria-label="Settings">
-           <IconDotsVertical style={{ width: '70%', height: '70%' }} stroke={1.5} />
+          <ActionIcon onClick={() => {
+            setSelectedPanel("Course-List") 
+          }} variant="transparent" radius="xs" color='black' aria-label="Settings">
+            <IconDotsVertical style={{ width: '70%', height: '70%' }} stroke={1.5} />
            </ActionIcon></Table.Td>
       
        </Table.Tr>
        
     ));
 
- 
+    const header = <div style={{ height: 94, backgroundColor:'	rgb(255, 105, 0)' , border: '5px solid 	rgb(255, 105, 0)' , marginTop:'-3px'}} >
+    <h2 style={{marginLeft:'30px' , display:'flex' ,color: 'white' }}>Course
+    <Input style={{display:'flex' , marginLeft: '420px' , justifyContent:'center' }} leftSection={<IconSearch size={16} />} variant="filled" size="md" radius="xl" placeholder="Search" />
+    <label style={{marginLeft:'400px' , marginTop:'5px'}}>Leo</label>
+    <ThemeIcon  size="xl" color="tranfarent" autoContrast>
+    <IconUser size={30} />
+    </ThemeIcon>
+    </h2> 
+</div>   
     
 
     const [QuestionQues, setQuestion] = useState([
@@ -194,8 +210,14 @@ function Admin() {
 
     async function loadData() {
       const { error, data } = await supabase.from("Questioner").select("id,Question").eq("Criteria","A");
+      const { data: studentData } = await supabase.from("Info-Training").select();
+      const { data: scoreData } = await supabase.from("scores").select("*, question:Questioner(*)");
+      const { data: feedbackData } = await supabase.from("feedback_answer").select("*, feedback:Feedback-Question(*)");
+      console.log(scoreData)
+      setScores(scoreData)
       setQuestion(data) 
-  
+      setFeedbacks(feedbackData)
+      setStudents(studentData)
     }
 
     async function loadDataB() {
@@ -610,13 +632,13 @@ function Admin() {
         </div>
     <div>
     
-    <Tabs color='	rgb(241, 101, 41)'  size='xl' variant="pills"  defaultValue="gallery" orientation="vertical" >
+    <Tabs color='	rgb(241, 101, 41)'  size='xl' variant="pills"  value={selectedPanel} orientation="vertical" >
     <Tabs.List >
-      <div style={{paddingRight:'55px', paddingLeft:'50px' , borderBottom:'2px solid black'}}><Tabs.Tab className='tab-list' leftSection={<IconChartHistogram  size={20}/>} value="Analytics">Analytics</Tabs.Tab></div>
-      <div style={{paddingRight:'63px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconCertificate  size={20}/>}value="Course">Courses</Tabs.Tab></div>
-      <div style={{paddingRight:'90px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconUserShare   size={20}/>} value="Staff">Staff</Tabs.Tab></div>
-      <div style={{paddingRight:'23px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconMessage2Cog  size={20}/>} value="Maintenance">Maintenance</Tabs.Tab></div>
-      <div style={{paddingRight:'61.5px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconSettings  size={20}/>} value="Settings">Settings</Tabs.Tab></div>
+      <div style={{paddingRight:'55px', paddingLeft:'50px' , borderBottom:'2px solid black'}}><Tabs.Tab className='tab-list' leftSection={<IconChartHistogram  size={20}/>} onClick={() => setSelectedPanel("Analytics")} value="Analytics">Analytics</Tabs.Tab></div>
+      <div style={{paddingRight:'63px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconCertificate  size={20}/>} onClick={() => setSelectedPanel("Course")} value="Course">Courses</Tabs.Tab></div>
+      <div style={{paddingRight:'90px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconUserShare   size={20}/>} onClick={() => setSelectedPanel("Staff")} value="Staff">Staff</Tabs.Tab></div>
+      <div style={{paddingRight:'23px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconMessage2Cog  size={20}/>} onClick={() => setSelectedPanel("Maintenance")} value="Maintenance">Maintenance</Tabs.Tab></div>
+      <div style={{paddingRight:'61.5px', paddingLeft:'50px' , borderBottom:'2px solid black'}} className='Line-tab'><Tabs.Tab className='tab-list' leftSection={<IconSettings  size={20}/>} onClick={() => setSelectedPanel("Settings")} value="Settings">Settings</Tabs.Tab></div>
     </Tabs.List>
         <div >
           <div className='Tabs-panelborder'>
@@ -647,6 +669,44 @@ function Admin() {
                   />
               </div>
           </div>
+      </Tabs.Panel>
+
+      <Tabs.Panel value="Course-List">
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+
+        {header}
+        {students
+          .filter((v) => v.course_id?.toString() === selectedCourseId)
+          .map((stud) => {
+          return (
+            <div>
+              <Text>{stud.Name}</Text>
+              <Divider />
+              {scores.filter((v) => v.training_id.toString() === stud.id.toString()).map((sc) => {
+                return (
+                  <div>
+                    {sc.question.Question} - {sc.score}
+                  </div>
+                )
+              })}
+              <Divider />
+              {feedbacks.filter((v) => v.training_id.toString() === stud.id.toString()).filter((v) => v.answer).map((sc) => {
+                return (
+                  <div>
+                    {sc.feedback.QuestionFeedback} - {sc.answer}
+                  </div>
+                )
+              })}
+            </div>
+          )
+        })}
+
+      </div>
+           
+                  
       </Tabs.Panel>
 
       <Tabs.Panel  value="Course">   

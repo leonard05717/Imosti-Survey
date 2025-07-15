@@ -16,6 +16,9 @@ import {
   ModalTitle,
   px,
   Rating,
+  Radio,
+  RadioGroup,
+  Select,
 } from "@mantine/core";
 import {
   IconBrandAndroid,
@@ -30,7 +33,7 @@ import { useNavigate } from "react-router-dom";
 function App() {
   const navigate = useNavigate();
   const [count, setCount] = useState(0);
-  const [active, setActive] = useState(1);
+  const [active, setActive] = useState(0);
   const nextStep = () =>
     setActive((current) => (current < 3 ? current + 1 : current));
   const prevStep = () =>
@@ -39,26 +42,15 @@ function App() {
 
   const [loading, setLoading] = useState(false);
 
-  const string = "";
   const [Name, setName] = useState("");
   const [Instructor, setInstructor] = useState("");
   const [Course, setCourse] = useState("");
   const [RegNo, setRegNo] = useState("");
   const [valuenowDate, SetvaluenowDate] = useState("");
   const [Trainingvalue, setTrainingValue] = useState([null, null]);
+  const [courses, setCourses] = useState([])
 
-  const [Question1a, setQuestionans] = useState("");
-  const [Q1, setQ1] = useState(["0"]);
 
-  const [valueid, setvalueid] = useState();
-
-  async function setvalue(ID) {
-    setvalueid(ID);
-  }
-
-  const handleChange = (id, rate) => {
-    setQ1((prev) => ({ ...prev, [id]: rate }));
-  };
 
   const NameTrasfer = (event) => {
     setName(event.target.value);
@@ -76,58 +68,45 @@ function App() {
   const [QuestionDB, setQuestion] = useState([
     {
       Question: "",
+      value: "",
+      id: 0
     },
   ]);
 
   const [Question2DB, setQuestion2] = useState([
     {
       Question: "",
+      value: "",
+      id: 0
     },
   ]);
 
   const [Question3DB, setQuestion3] = useState([
     {
       Question: "",
+      value: "",
+      id: 0
     },
   ]);
 
   const [Question4DB, setQuestion4] = useState([
     {
       Question: "",
+      value: "",
+      id: 0
     },
   ]);
 
   const [FeedbackQ, setFeedback] = useState([
     {
       QuestionFeedback: "",
+      value: "",
+      id: 0
     },
   ]);
 
-  async function nextStep2() {
-    console.log(Q1, Question1a);
-  }
-
-  async function sample() {
-    const numbers = [10, 21, 32, 20];
-
-    const average = numbers.reduce((acc, val) => acc + val, 0) / numbers.length;
-    const roundedAverage = average.toFixed(2);
-
-    console.log(roundedAverage);
-  }
-
   async function nextStep1() {
     setLoading(true);
-
-    console.log(
-      firstname,
-      CInstructor,
-      CCourse,
-      TrainingValue,
-      valuenowDate,
-      CReg
-    );
-
     const { error } = await supabase.from("Info-Training").insert({
       Name: firstname,
       Instructor: CInstructor,
@@ -142,9 +121,29 @@ function App() {
   async function loadData() {
     const { error, data } = await supabase
       .from("Questioner")
-      .select("id,Question ")
+      .select("id,Question")
       .eq("Criteria", "A");
-    setQuestion(data);
+      const { data2 } = await supabase
+      .from("Questioner")
+      .select("id,Question")
+      .eq("Criteria", "B");
+      const {data3 } = await supabase
+      .from("Questioner")
+      .select("id,Question")
+      .eq("Criteria", "C");
+      const { data4 } = await supabase
+      .from("Questioner")
+      .select("id,Question")
+      .eq("Criteria", "D");
+
+    const { error: courseError, data: dataCourse } = await supabase.from("Course").select();
+    if(courseError) return console.log(courseError.message)
+
+    setCourses(dataCourse)
+    setQuestion(data.map((v) => ({...v, value: ""})));
+    setQuestion2(data2.map((v) => ({...v , value: ""})))
+    setQuestion3(data3.map((v) => ({...v , value: ""})))
+    setQuestion4(data4.map((v) => ({...v , value: ""})))
   }
   async function loadData2() {
     const { error, data } = await supabase
@@ -171,7 +170,67 @@ function App() {
 
   async function Feedback1() {
     const { error, data } = await supabase.from("Feedback-Question").select();
-    setFeedback(data);
+
+    setFeedback(data.map((v) => ({ ...v, value: "" })));
+  }
+
+  async function submitEventHandler() {
+
+    const { data: singeData, error: trainingError } = await supabase.from("Info-Training").insert({
+      Name: Name,
+      Instructor: Instructor,
+      Reg: RegNo,
+      TrainingD: Trainingvalue,
+      DateN: valuenowDate,
+      course_id: Course
+    }).select("*").single();
+
+    if(trainingError) {
+      console.log(trainingError.message)
+      return; 
+    }
+
+    const data = QuestionDB.map((v) => ({
+      question_id: v.id,
+      score: v.value,
+      training_id: singeData.id
+    }))
+
+    const data2 = Question2DB.map((v) => ({
+      question_id: v.id,
+      score: v.value,
+      training_id: singeData.id
+     }))
+
+     const data3 = Question3DB.map((v) => ({
+      question_id: v.id,
+      score: v.value,
+      training_id: singeData.id
+    }))
+    const data4 = Question4DB.map((v) => ({
+      question_id: v.id,
+      score: v.value,
+      training_id: singeData.id
+    }))
+
+    const allData = data.concat(data2 , data3 , data4)
+
+    const { error: scoreError } = await supabase.from("scores").insert(allData);
+    if(scoreError) return console.log(scoreError.message)
+
+
+      const feedback = FeedbackQ.map((v) => ({
+        training_id: singeData.id,
+        feedback_id: v.id,
+        answer: v.value
+      }))
+
+    const { error: feedbackError } = await supabase.from("feedback_answer").insert(feedback)
+    if(feedbackError) return console.log(feedbackError.message);
+
+    console.log(allData)
+    setIsModalOpen(true)
+
   }
 
   useEffect(() => {
@@ -329,7 +388,8 @@ function App() {
         <Button
           className="Button-done"
           onClick={() => {
-            navigate("admin");
+            setIsModalOpen(false)
+            // navigate("admin");
           }}
         >
           Done
@@ -357,6 +417,7 @@ function App() {
           <div className="Stepper-Container">
             <Stepper
               active={active}
+              allowNextStepsSelect={false}
               onStepClick={setActive}
               size="xs"
               iconSize={62}
@@ -403,14 +464,14 @@ function App() {
                         type="text"
                         placeholder="Instructor"
                       />
-                      Course:
+                     Company
                       <input
-                        style={{ marginTop: "-20px" }}
-                        onChange={CourseTrasfer}
-                        id="Course"
+                        style={{ width: "300px", marginTop: "-20px" }}
+                        onChange={RegTrasfer}
+                        id="Reg"
                         className="input"
                         type="text"
-                        placeholder="Course"
+                        placeholder="Insert full company Name"
                       />
                     </div>
                     <div className="right-container">
@@ -437,15 +498,20 @@ function App() {
                           />
                         </div>
                       </div>
-                      Company
-                      <input
-                        style={{ width: "300px", marginTop: "-20px" }}
-                        onChange={RegTrasfer}
-                        id="Reg"
-                        className="input"
-                        type="text"
-                        placeholder="Insert full company Name"
+                      <div style={{marginTop:'-10px'}}>
+                      <Select 
+                        searchable
+                        label="Course"
+                        placeholder="Select Course"
+                        data={courses.map((v) => ({
+                          label: v.Code,
+                          value: v.id.toString()
+                        }))}
+                        value={Course}
+                        onChange={(v) => setCourse(v)}
                       />
+                      </div>
+                      
                     </div>
                   </div>
                   <Group justify="center" mt="xl">
@@ -551,7 +617,7 @@ function App() {
                               <div style={{ marginBottom: "20px" }}>
                                 {" "}
                                 {RequestQ1.Question}
-                              </div>
+                        </div>
                             );
                           })}
                         </div>
@@ -560,6 +626,19 @@ function App() {
                         <div>
                           {QuestionDB.map((Request1) => {
                             return (
+                              <RadioGroup onChange={(value) => {
+                                setQuestion((curr) => {
+                                  return curr.map((v) => {
+                                    if(v.id === Request1.id) {
+                                      return {
+                                        ...v,
+                                        value: value
+                                      }
+                                    }
+                                    return v;
+                                  })
+                                })
+                              }}>
                               <div
                                 style={{
                                   gap: "60px",
@@ -569,47 +648,13 @@ function App() {
                                 }}
                               >
                                 {Request1.count}
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value={Request1.id}
-                                  onChange={() =>
-                                    handleChange(Request1.id, "5")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="2"
-                                  onChange={() =>
-                                    handleChange(Request1.id, "4")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="3"
-                                  onChange={() =>
-                                    handleChange(Request1.id, "3")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="4"
-                                  onChange={() =>
-                                    handleChange(Request1.id, "2")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="5"
-                                  onChange={() =>
-                                    handleChange(Request1.id, "1")
-                                  }
-                                />
+                                <Radio name={Request1.Question} value="5" />
+                                <Radio name={Request1.Question} value="4" />
+                                <Radio name={Request1.Question} value="3" />
+                                <Radio name={Request1.Question} value="2" />
+                                <Radio name={Request1.Question} value="1" />
                               </div>
+                              </RadioGroup>
                             );
                           })}
                         </div>
@@ -635,6 +680,7 @@ function App() {
                         </div>
                       </Grid.Col>
                       <Grid.Col style={{ marginLeft: "-100px" }} span={1.8}>
+                      <div>
                         <div>
                           {Question2DB.map((Request3) => {
                             return (
@@ -646,50 +692,46 @@ function App() {
                                   marginBottom: "20px",
                                 }}
                               >
-                                {Request3.count}
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="1"
-                                  onChange={() =>
-                                    handleChange(Request3.id, "5")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="2"
-                                  onChange={() =>
-                                    handleChange(Request3.id, "4")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="3"
-                                  onChange={() =>
-                                    handleChange(Request3.id, "3")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="4"
-                                  onChange={() =>
-                                    handleChange(Request3.id, "2")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="5"
-                                  onChange={() =>
-                                    handleChange(Request3.id, "1")
-                                  }
-                                />
                               </div>
                             );
                           })}
+                        </div>
+                        <div style={{marginTop:'-60px'}}>
+                          {Question2DB.map((Request1) => {
+                            return (
+                              <RadioGroup onChange={(value) => {
+                                setQuestion2((curr) => {
+                                  return curr.map((v) => {
+                                    if(v.id === Request1.id) {
+                                      return {
+                                        ...v,
+                                        value: value
+                                      }
+                                    }
+                                    return v;
+                                  })
+                                })
+                              }}>
+                              <div
+                                style={{
+                                
+                                  gap: "60px",
+                                  display: "flex",
+                                  flexdirection: "row",
+                                  marginBottom: "20px",
+                                }}
+                              >
+                                {Request1.count}
+                                <Radio name={Request1.Question} value="5" />
+                                <Radio name={Request1.Question} value="4" />
+                                <Radio name={Request1.Question} value="3" />
+                                <Radio name={Request1.Question} value="2" />
+                                <Radio name={Request1.Question} value="1" />
+                              </div>
+                              </RadioGroup>
+                            );
+                          })}
+                        </div>
                         </div>
                       </Grid.Col>
                     </Grid>
@@ -713,62 +755,43 @@ function App() {
                         </div>
                       </Grid.Col>
                       <Grid.Col style={{ marginLeft: "-100px" }} span={1.8}>
-                        <div>
-                          {Question3DB.map((RequestQ4) => {
+                      <div style={{}}>
+                          {Question3DB.map((Request1) => {
                             return (
+                              <RadioGroup onChange={(value) => {
+                                setQuestion3((curr) => {
+                                  return curr.map((v) => {
+                                    if(v.id === Request1.id) {
+                                      return {
+                                        ...v,
+                                        value: value
+                                      }
+                                    }
+                                    return v;
+                                  })
+                                })
+                              }}>
                               <div
                                 style={{
+                                
                                   gap: "60px",
                                   display: "flex",
                                   flexdirection: "row",
                                   marginBottom: "20px",
                                 }}
                               >
-                                {RequestQ4.count}
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="1"
-                                  onChange={() =>
-                                    handleChange(RequestQ4.id, "5")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="2"
-                                  onChange={() =>
-                                    handleChange(RequestQ4.id, "4")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="3"
-                                  onChange={() =>
-                                    handleChange(RequestQ4.id, "3")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="4"
-                                  onChange={() =>
-                                    handleChange(RequestQ4.id, "2")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="5"
-                                  onChange={() =>
-                                    handleChange(RequestQ4.id, "1")
-                                  }
-                                />
+                                {Request1.count}
+                                <Radio name={Request1.Question} value="5" />
+                                <Radio name={Request1.Question} value="4" />
+                                <Radio name={Request1.Question} value="3" />
+                                <Radio name={Request1.Question} value="2" />
+                                <Radio name={Request1.Question} value="1" />
                               </div>
+                              </RadioGroup>
                             );
                           })}
                         </div>
+                        
                       </Grid.Col>
                     </Grid>
 
@@ -792,59 +815,39 @@ function App() {
                         </div>
                       </Grid.Col>
                       <Grid.Col style={{ marginLeft: "-100px" }} span={1.8}>
-                        <div>
-                          {Question4DB.map((RequestQ5) => {
+                      <div style={{}}>
+                          {Question4DB.map((Request1) => {
                             return (
+                              <RadioGroup onChange={(value) => {
+                                setQuestion4((curr) => {
+                                  return curr.map((v) => {
+                                    if(v.id === Request1.id) {
+                                      return {
+                                        ...v,
+                                        value: value
+                                      }
+                                    }
+                                    return v;
+                                  })
+                                })
+                              }}>
                               <div
                                 style={{
+                                
                                   gap: "60px",
                                   display: "flex",
                                   flexdirection: "row",
                                   marginBottom: "20px",
                                 }}
                               >
-                                {RequestQ5.count}
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="1"
-                                  onChange={() =>
-                                    handleChange(RequestQ5.id, "5")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="2"
-                                  onChange={() =>
-                                    handleChange(RequestQ5.id, "4")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="3"
-                                  onChange={() =>
-                                    handleChange(RequestQ5.id, "3")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="4"
-                                  onChange={() =>
-                                    handleChange(RequestQ5.id, "2")
-                                  }
-                                />
-                                <Checkbox
-                                  radius="xl"
-                                  size="md"
-                                  value="5"
-                                  onChange={() =>
-                                    handleChange(RequestQ5.id, "1")
-                                  }
-                                />
+                                {Request1.count}
+                                <Radio name={Request1.Question} value="5" />
+                                <Radio name={Request1.Question} value="4" />
+                                <Radio name={Request1.Question} value="3" />
+                                <Radio name={Request1.Question} value="2" />
+                                <Radio name={Request1.Question} value="1" />
                               </div>
+                              </RadioGroup>
                             );
                           })}
                         </div>
@@ -878,6 +881,20 @@ function App() {
                                 radius="xl"
                                 id={"Feedback" + Feedbacklist.id}
                                 placeholder="Input Answer"
+                                value={Feedbacklist.value}
+                                onChange={(e) => {
+                                  setFeedback((curr) => {
+                                    return curr.map((v) => {
+                                      if(v.id === Feedbacklist.id) {
+                                        return {
+                                          ...v,
+                                          value: e.target.value
+                                        }
+                                      }
+                                      return v;
+                                    })
+                                  })
+                                }}
                               />
                             </div>
                           );
@@ -904,7 +921,7 @@ function App() {
                     </div>
                     <div className="Borderline-Step4">
                       <label className="Step4">Course :</label>
-                      <label style={{ marginLeft: "163px" }}>{Course}</label>
+                      <label style={{ marginLeft: "163px" }}>{courses.find((v) => v.id.toString() === Course)?.Code}</label>
                       <br></br>
                     </div>
                     <div className="Borderline-Step4">
@@ -940,7 +957,8 @@ function App() {
                   </Button>
                   <Button
                     onClick={() => {
-                      setIsModalOpen(true);
+                      submitEventHandler()
+                      // setIsModalOpen(true);
                     }}
                   >
                     {" "}

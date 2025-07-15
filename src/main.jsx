@@ -8,6 +8,8 @@ import { ModalsProvider } from '@mantine/modals';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Course from './AdminSide/Course.jsx';
 import Admin from './Admin.jsx';
+import LoginPage from './LoginPage.jsx';
+import CourseList from './AdminSide/CourseList.jsx';
 
 
 const routers = createBrowserRouter([
@@ -18,12 +20,14 @@ const routers = createBrowserRouter([
   {
     path: 'admin',
     element: <Admin />,
-    children: [
-      {
-        path: 'course',
-        element: <Course />
-      },
-    ]
+  },
+  {
+    path: 'admin/new',
+    element: <CourseList />
+  },
+  {
+    path: 'LoginPage',
+    element: <LoginPage/>,
   },
 ])
 
