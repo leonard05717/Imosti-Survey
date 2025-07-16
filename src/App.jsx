@@ -229,7 +229,7 @@ function App() {
     if(feedbackError) return console.log(feedbackError.message);
 
     console.log(allData)
-    setIsModalOpen(true)
+    
 
   }
 
@@ -388,8 +388,9 @@ function App() {
         <Button
           className="Button-done"
           onClick={() => {
+            submitEventHandler()
             setIsModalOpen(false)
-            // navigate("admin");
+            setActive(0)
           }}
         >
           Done
@@ -956,9 +957,8 @@ function App() {
                     Back
                   </Button>
                   <Button
-                    onClick={() => {
-                      submitEventHandler()
-                      // setIsModalOpen(true);
+                    onClick={() => {           
+                      setIsModalOpen(true);
                     }}
                   >
                     {" "}

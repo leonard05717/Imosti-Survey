@@ -82,5 +82,55 @@ padding-right: 40px;
     overflow-y: hidden;
  }
 
+ .course-CA{
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+   margin-left: 70px;
+ }
+
+ .Average-list{
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+    margin-left: 40px;
+    margin-top: -30px;
+ }
+
+ .Average-listb{
+    display: flex;
+    justify-content: center;
+    gap: 100px;
+    margin-left: 40px;
+    margin-top: -55px;
+ }
+
+ .Average-listc{
+    display: flex;
+    justify-content: center;
+    gap: 113px;
+    margin-left: 43px;
+    margin-top: -55px;
+ }
+
+ .Average-listd{
+    display: flex;
+    justify-content: center;
+    gap: 93px;
+    margin-left: 45px;
+    margin-top: -55px;
+ }
+ 
+ .Question-list{
+    display: flex;
+    justify-content: space-between;
+    margin-top: -25px;
+ 
+ }
+
+ .question-avg{
+    display: flex;
+    margin-left: 100px;
+ }
 
  

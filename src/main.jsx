@@ -5,11 +5,12 @@ import App from './App.jsx'
 import '@mantine/core/styles.css';
 import { MantineProvider } from '@mantine/core'
 import { ModalsProvider } from '@mantine/modals';
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import {useParams , createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Course from './AdminSide/Course.jsx';
 import Admin from './Admin.jsx';
 import LoginPage from './LoginPage.jsx';
 import CourseList from './AdminSide/CourseList.jsx';
+
 
 
 const routers = createBrowserRouter([
@@ -28,6 +29,10 @@ const routers = createBrowserRouter([
   {
     path: 'LoginPage',
     element: <LoginPage/>,
+  },
+  {
+    path: `LoginPage/admin`,
+    element: <Admin />,
   },
 ])
 

@@ -36,6 +36,8 @@ import { data, useNavigate } from 'react-router-dom';
 import { keys, reduceRight, size } from 'lodash';
 import { AreaChart } from '@mantine/charts';
 import '@mantine/core/styles.css';
+import { requestFormReset } from 'react-dom';
+
 
 
 
@@ -48,6 +50,7 @@ function Admin() {
     const [isModalOpenVerify, setIsModalOpenVerify] = useState(false)
     const [StaffS, setStaffS] = useState(false)
     const [modalstudent , setIsModalOpenStudent ] = useState(false)
+    const [CourseModal , setCourseModal ] = useState(false)
     const [IDs, setID] = useState('');
     const [anyQuesttrow, setQ] = useState('');
     const [Criteriatrow , setCriteriatrow] = useState('');
@@ -58,7 +61,10 @@ function Admin() {
   const [selectedCourseId, setSelectedCourseId] = useState("")
   const [scores, setScores] = useState([])
   const [feedbacks, setFeedbacks] = useState([])
-  const [Questionfilter , setQuestionfilter] = useState([])
+  const [StudID ,setStudID] = useState([])
+  const [QuestionData ,setQuestionData] = useState([])
+  const [sample , setsample] = useState([])
+  const [sample1 , setsample1] = useState(0)
 
     async function StaffAc(id) {
       setIDStaff(id);
@@ -112,6 +118,8 @@ function Admin() {
     setStaffS(false)
     console.log("Edit Success")
     }
+    
+   
 
     const rows = Staff.map((element) => (
       <Table.Tr >
@@ -145,7 +153,8 @@ function Admin() {
         <Table.Td>{stud.Instructor}</Table.Td>
         <Table.Td>{stud.DateN}</Table.Td>
         <Table.Td><ActionIcon onClick={() => {
-           setIsModalOpenStudent(true)
+            setStudID(stud.id.toString())
+           setIsModalOpenStudent(true) 
           }} variant="transparent" radius="xs" color='black' aria-label="Settings">
             <IconDotsVertical style={{ width: '70%', height: '70%' }} stroke={1.5} />
            </ActionIcon>
@@ -166,7 +175,8 @@ function Admin() {
           }}>{element.Course}</Table.Td>
           <Table.Td>
           <ActionIcon onClick={() => {
-           
+           setSelectedCourseId(element.id.toString())
+           setCourseModal(true)
           }} variant="transparent" radius="xs" color='black' aria-label="Settings">
             <IconDotsVertical style={{ width: '70%', height: '70%' }} stroke={1.5} />
            </ActionIcon></Table.Td>
@@ -230,17 +240,19 @@ function Admin() {
     async function CourseRowLoad() {
       const { error, data } = await supabase.from("Course").select();
       setCoursetable(data) 
-  
+      
     }
 
     async function loadData() {
       const { error, data } = await supabase.from("Questioner").select("id,Question").eq("Criteria","A");
       const { data: studentData } = await supabase.from("Info-Training").select();
-      const { data: scoreData } = await supabase.from("scores").select("*, question:Questioner(*)");
+      const { data: scoreData } = await supabase.from("scores").select("*, question:Questioner(*), traning:Info-Training(*)");
       const { data: feedbackData } = await supabase.from("feedback_answer").select("*, feedback:Feedback-Question(*)");
-     
+      const { data: QuestionData } = await supabase.from("Questioner").select();
+
       console.log(scoreData)
       setScores(scoreData)
+      setQuestionData(QuestionData)
       setQuestion(data) 
       setFeedbacks(feedbackData)
       setStudents(studentData)
@@ -343,8 +355,6 @@ function Admin() {
       
     }
 
-  
-  
 
       useEffect(() => {
         loadData()
@@ -655,10 +665,10 @@ function Admin() {
       </p>
 
       {/*Selectoion for Services*/}
-      {students.filter((v) => v.course_id?.toString() === selectedCourseId).map((stud) => {
+      {students.filter((v) => v.course_id?.toString() === selectedCourseId).filter((a) => a.id?.toString() === StudID).filter((c) => c.id?.toString() === StudID).map((stud) => {
               return(
                 <div><h3 className="font-semibold text-gray-800 mb-2">A . Services</h3>
-          {scores.filter((v) => v.training_id.toString() === stud.id.toString()).filter((c) => c.question.Criteria === "A").map((sc) =>{
+          {scores.filter((v) => v.training_id.toString() === stud.id.toString()).filter((c) => c.question.Criteria === "A").filter((b) => b.training_id?.toString() === StudID).map((sc) =>{
               return(
                 <div>
                 
@@ -676,10 +686,10 @@ function Admin() {
 
 
               {/*Selectoion for Facilities*/}
-              {students.filter((v) => v.course_id?.toString() === selectedCourseId).map((stud) => {
+              {students.filter((v) => v.course_id?.toString() === selectedCourseId).filter((c) => c.id?.toString() === StudID).map((stud) => {
               return(
                 <div><h3 className="font-semibold text-gray-800 mb-2">B . Facilities</h3>
-          {scores.filter((v) => v.training_id.toString() === stud.id.toString()).filter((c) => c.question.Criteria === "B").map((sc) =>{
+          {scores.filter((v) => v.training_id.toString() === stud.id.toString()).filter((c) => c.question.Criteria === "B").filter((b) => b.training_id?.toString() === StudID).map((sc) =>{
               return(
                 <div>
                 
@@ -696,10 +706,10 @@ function Admin() {
               )})}
 
               {/*Selectoion for Course*/}
-              {students.filter((v) => v.course_id?.toString() === selectedCourseId).map((stud) => {
+              {students.filter((v) => v.course_id?.toString() === selectedCourseId).filter((c) => c.id?.toString() === StudID).map((stud) => {
               return(
                 <div><h3 className="font-semibold text-gray-800 mb-2">B . Course</h3>
-          {scores.filter((v) => v.training_id.toString() === stud.id.toString()).filter((c) => c.question.Criteria === "C").map((sc) =>{
+          {scores.filter((v) => v.training_id.toString() === stud.id.toString()).filter((c) => c.question.Criteria === "C").filter((b) => b.training_id?.toString() === StudID).map((sc) =>{
               return(
                 <div>
                 
@@ -716,10 +726,10 @@ function Admin() {
               )})}
 
               {/*Selectoion for Instructor*/}
-              {students.filter((v) => v.course_id?.toString() === selectedCourseId).map((stud) => {
+              {students.filter((v) => v.course_id?.toString() === selectedCourseId).filter((c) => c.id?.toString() === StudID).map((stud) => {
               return(
                 <div><h3 className="font-semibold text-gray-800 mb-2">B . Course</h3>
-          {scores.filter((v) => v.training_id.toString() === stud.id.toString()).filter((c) => c.question.Criteria === "D").map((sc) =>{
+          {scores.filter((v) => v.training_id.toString() === stud.id.toString()).filter((c) => c.question.Criteria === "D").filter((b) => b.training_id?.toString() === StudID).map((sc) =>{
               return(
                 <div>
                 
@@ -736,17 +746,17 @@ function Admin() {
               )})}
 
                {/*Selectoion for Feedback*/}
-               {students.filter((v) => v.course_id?.toString() === selectedCourseId).map((stud) => {
+               {students.filter((v) => v.course_id?.toString() === selectedCourseId).filter((c) => c.id?.toString() === StudID).map((stud) => {
               return(
                 <div><h3 className="font-semibold text-gray-800 mb-2">FeedBack</h3>
-          {feedbacks.filter((v) => v.training_id.toString() === stud.id.toString()).filter((v) => v.answer).map((sc) => {
+          {feedbacks.filter((v) => v.training_id.toString() === stud.id.toString()).filter((v) => v.answer).filter((b) => b.training_id?.toString() === StudID).map((sc) => {
               return(
                 <div>
                
                <div className="mb-6">
                <ul className="space-y-1 pl-4">
               <li className="Questiong-answer" style={{marginLeft: '-20px'}}>
-                <span>{sc.feedback.QuestionFeedback}?</span>
+                <span>{sc.feedback.QuestionFeedback}</span>
               </li>   
               <li className="Questiong-answer">
                 <span>{sc.answer}</span>
@@ -756,6 +766,243 @@ function Admin() {
                )})}
               </div>
               )})}
+    </div>
+
+
+    </div>
+    </ScrollArea>
+    </Modal>
+
+    <Modal  marginTop={20} radius={20} centered='true' opened={CourseModal} onClose={() => { setCourseModal(false)}}>
+    <ScrollArea style={{display:'flex'}}>
+    <div style={{ display: 'flex' }}> 
+    <div>
+              
+      <h2 >Survey Details</h2>
+      <div>
+      <p style={{display:'flex' }}> 
+      {Coursetable.filter((v) => v.id.toString() === selectedCourseId).map((sc) =>{ 
+        return(
+          <div>
+          <strong>Course -</strong> {sc.Course}
+          </div>
+        )
+      })}
+      </p>
+      </div>
+             
+
+      <div>
+          <div className='course-CA'><h4>CRITERIA</h4> <h4>Average</h4></div>
+        
+          <div>  
+              <p className='Average-list'>
+                <h4>A.Services</h4>
+                <h4>
+                   <div>
+                  {
+                        (() => {
+                            const filteredScores = scores
+                               .filter((c) => c.traning.course_id?.toString() === selectedCourseId)
+                               .filter((v) => v.question.Criteria === "A");
+
+                            const total = filteredScores.reduce((sum, curr) => sum + curr.score, 0);
+                            const count = filteredScores.length;
+
+                        return count > 0 ? (total / count).toFixed(2) : "No scores";
+                         })()
+                  }
+                  </div>
+                </h4>
+               </p> 
+          </div>
+
+          <div>  
+              <p className='Average-listb'>
+                <h4>B.Facilities</h4>
+                <h4>
+                   <div>
+                  {
+                        (() => {
+                            const filteredScores = scores
+                               .filter((c) => c.traning.course_id?.toString() === selectedCourseId)
+                               .filter((v) => v.question.Criteria === "B");
+
+                            const total = filteredScores.reduce((sum, curr) => sum + curr.score, 0);
+                            const count = filteredScores.length;
+
+                        return count > 0 ? (total / count).toFixed(2) : "No scores";
+                         })()
+                  }
+                  </div>
+                </h4>
+               </p> 
+          </div>
+
+
+          <div>  
+              <p className='Average-listc'>
+                <h4>C.Course</h4>
+                <h4>
+                   <div>
+                  {
+                        (() => {
+                            const filteredScores = scores
+                               .filter((c) => c.traning.course_id?.toString() === selectedCourseId)
+                               .filter((v) => v.question.Criteria === "C");
+
+                            const total = filteredScores.reduce((sum, curr) => sum + curr.score, 0);
+                            const count = filteredScores.length;
+
+                        return count > 0 ? (total / count).toFixed(2) : "No scores";
+                         })()
+                  }
+                  </div>
+                </h4>
+               </p> 
+          </div>
+
+          <div>  
+              <p className='Average-listd'>
+                <h4>D.Instructor</h4>
+                <h4>
+                   <div>
+                  {
+                        (() => {
+                            const filteredScores = scores
+                               .filter((c) => c.traning.course_id?.toString() === selectedCourseId)
+                               .filter((v) => v.question.Criteria === "D");
+
+                            const total = filteredScores.reduce((sum, curr) => sum + curr.score, 0);
+                            const count = filteredScores.length;
+
+                        return count > 0 ? (total / count).toFixed(2) : "No scores";
+                         })()
+                  }
+                  </div>
+                </h4>
+               </p> 
+          </div>
+
+            <div>
+              <h3>A.Services</h3>
+              <div>
+                  {QuestionData.filter((v) => v.Criteria === "A").map((qm) => {
+                    return(
+                     <div className='Question-list'>
+                      <h4>{qm.Question}</h4>
+                      <h4 className='question-avg'>
+                      <div>
+                          {
+                            (() => {
+                               const filteredScores = scores
+                                   .filter((v) => v.question.Criteria === "A");
+
+                               const total = filteredScores.reduce((sum, curr) => sum + curr.score, 0);
+                               const count = filteredScores.length;
+
+                        return count > 0 ? (total / count).toFixed(2) : "No scores";
+                         })()
+                           }
+                           </div>
+                       </h4>
+                      </div>
+                    )
+
+                  })}
+              </div>
+            </div>
+
+            <div>
+              <h3>B.Facilities</h3>
+              <div>
+                  {QuestionData.filter((v) => v.Criteria === "B").map((qm) => {
+                    return(
+                     <div className='Question-list'>
+                      <h4>{qm.Question}</h4>
+                      <h4 className='question-avg'>
+                      <div>
+                          {
+                            (() => {
+                               const filteredScores = scores
+                                   .filter((v) => v.question.Criteria === "B");
+
+                               const total = filteredScores.reduce((sum, curr) => sum + curr.score, 0);
+                               const count = filteredScores.length;
+
+                        return count > 0 ? (total / count).toFixed(2) : "No scores";
+                         })()
+                           }
+                           </div>
+                       </h4>
+                      </div>
+                    )
+
+                  })}
+              </div>
+            </div>
+
+            <div>
+              <h3>C.Course</h3>
+              <div>
+                  {QuestionData.filter((v) => v.Criteria === "C").map((qm) => {
+                    return(
+                     <div className='Question-list'>
+                      <h4>{qm.Question}</h4>
+                      <h4 className='question-avg'>
+                      <div>
+                          {
+                            (() => {
+                               const filteredScores = scores
+                                   .filter((v) => v.question.Criteria === "C");
+
+                               const total = filteredScores.reduce((sum, curr) => sum + curr.score, 0);
+                               const count = filteredScores.length;
+
+                        return count > 0 ? (total / count).toFixed(2) : "No scores";
+                         })()
+                           }
+                           </div>
+                       </h4>
+                      </div>
+                    )
+
+                  })}
+              </div>
+            </div>
+
+            <div>
+              <h3>D.Instructor</h3>
+              <div>
+                  {QuestionData.filter((v) => v.Criteria === "D").map((qm) => {
+                    return(
+                     <div className='Question-list'>
+                      <h4>{qm.Question}</h4>
+                      <h4 className='question-avg'>
+                      <div>
+                          {
+                            (() => {
+                               const filteredScores = scores
+                                   .filter((v) => v.question.Criteria === "D");
+
+                               const total = filteredScores.reduce((sum, curr) => sum + curr.score, 0);
+                               const count = filteredScores.length;
+
+                        return count > 0 ? (total / count).toFixed(2) : "No scores";
+                         })()
+                           }
+                           </div>
+                       </h4>
+                      </div>
+                    )
+
+                  })}
+              </div>
+            </div>
+
+
+      </div>
+     
     </div>
 
 
