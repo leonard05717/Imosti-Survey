@@ -12,27 +12,21 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [message, setMessage] = useState('');
   const [Account , setaccount] = useState([])
+  
 
   
   const icon = <IconInfoCircle />;
 
   async function submit() {
     
-    {Account.filter((v) => v.Email === email).filter((c) => c.Role === password).map((a) =>{
-
-      return(
-          <div>
-              {a?(
-                  navigate(`admin`)
-              ):(
-                console.log(error.message)
-              )}
-
-          </div>
-      )
-      
-
-    })}
+   const data = Account.find((v) => v.Email === email && v.Role === password );
+    if(data){
+      window.localStorage.setItem("data" ,JSON.stringify(data))
+      navigate("admin")
+    }
+    else{
+      console.log('Account not found')
+    }
    
   }
 
