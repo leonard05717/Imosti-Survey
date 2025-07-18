@@ -1355,20 +1355,8 @@ function Admin() {
                           }}
                         >
                           Analytics
-                          <Input
-                            style={{
-                              display: "flex",
-                              marginLeft: "420px",
-                              justifyContent: "center",
-                            }}
-                            leftSection={<IconSearch size={16} />}
-                            variant="filled"
-                            size="md"
-                            radius="xl"
-                            placeholder="Search"
-                          />
                           <label
-                            style={{ marginLeft: "400px", marginTop: "5px" }}
+                            style={{ marginLeft: "1020px", marginTop: "5px" }}
                           >
                             {stafflog.filter((v) => v.Role === adminData.Role).map((c) => {
                               return(
@@ -1939,20 +1927,8 @@ function Admin() {
                           }}
                         >
                           Settings
-                          <Input
-                            style={{
-                              display: "flex",
-                              marginLeft: "420px",
-                              justifyContent: "center",
-                            }}
-                            leftSection={<IconSearch size={16} />}
-                            variant="filled"
-                            size="md"
-                            radius="xl"
-                            placeholder="Search"
-                          />
                           <label
-                            style={{ marginLeft: "400px", marginTop: "5px" }}
+                            style={{ marginLeft: "1020px", marginTop: "5px" }}
                           >
                             {stafflog.filter((v) => v.Role === adminData.Role).map((c) => {
                               return(
@@ -2076,16 +2052,17 @@ function Admin() {
                                       </Table.Tr>
 
                                       <Table.Tr>
-                                        <Table.Th style={{ padding: "20px" }}>
+                                        <Table.Th  style={{ padding: "20px" }}>
                                           Password:
                                         </Table.Th>
-                                        <Table.Td>{datas.Password}</Table.Td>
+                                        <Table.Td >{"•".repeat(datas.Password)}</Table.Td>
                                         <Button
                                           style={{
                                             marginLeft: "340px",
                                             marginTop: "12px",
                                           }}
                                           variant="filled"
+
                                         >
                                           Change
                                         </Button>

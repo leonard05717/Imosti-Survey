@@ -48,9 +48,10 @@ function App() {
   const [RegNo, setRegNo] = useState("");
   const [valuenowDate, SetvaluenowDate] = useState("");
   const [Trainingvalue, setTrainingValue] = useState([null, null]);
-  const [courses, setCourses] = useState([])
+  const [courses, setCourses] = useState([]);
 
 
+  
 
   const NameTrasfer = (event) => {
     setName(event.target.value);
@@ -69,7 +70,7 @@ function App() {
     {
       Question: "",
       value: "",
-      id: 0
+      id: 0,
     },
   ]);
 
@@ -77,7 +78,7 @@ function App() {
     {
       Question: "",
       value: "",
-      id: 0
+      id: 0,
     },
   ]);
 
@@ -85,7 +86,7 @@ function App() {
     {
       Question: "",
       value: "",
-      id: 0
+      id: 0,
     },
   ]);
 
@@ -93,7 +94,7 @@ function App() {
     {
       Question: "",
       value: "",
-      id: 0
+      id: 0,
     },
   ]);
 
@@ -101,7 +102,7 @@ function App() {
     {
       QuestionFeedback: "",
       value: "",
-      id: 0
+      id: 0,
     },
   ]);
 
@@ -123,27 +124,29 @@ function App() {
       .from("Questioner")
       .select("id,Question")
       .eq("Criteria", "A");
-      const { data2 } = await supabase
+    const { data2 } = await supabase
       .from("Questioner")
       .select("id,Question")
       .eq("Criteria", "B");
-      const {data3 } = await supabase
+    const { data3 } = await supabase
       .from("Questioner")
       .select("id,Question")
       .eq("Criteria", "C");
-      const { data4 } = await supabase
+    const { data4 } = await supabase
       .from("Questioner")
       .select("id,Question")
       .eq("Criteria", "D");
 
-    const { error: courseError, data: dataCourse } = await supabase.from("Course").select();
-    if(courseError) return console.log(courseError.message)
+    const { error: courseError, data: dataCourse } = await supabase
+      .from("Course")
+      .select();
+    if (courseError) return console.log(courseError.message);
 
-    setCourses(dataCourse)
-    setQuestion(data.map((v) => ({...v, value: ""})));
-    setQuestion2(data2.map((v) => ({...v , value: ""})))
-    setQuestion3(data3.map((v) => ({...v , value: ""})))
-    setQuestion4(data4.map((v) => ({...v , value: ""})))
+    setCourses(dataCourse);
+    setQuestion(data.map((v) => ({ ...v, value: "" })));
+    setQuestion2(data2.map((v) => ({ ...v, value: "" })));
+    setQuestion3(data3.map((v) => ({ ...v, value: "" })));
+    setQuestion4(data4.map((v) => ({ ...v, value: "" })));
   }
   async function loadData2() {
     const { error, data } = await supabase
@@ -174,63 +177,76 @@ function App() {
     setFeedback(data.map((v) => ({ ...v, value: "" })));
   }
 
+  function reset() {
+    setActive(0);
+    setName("");
+    setInstructor("");
+    setCourse("");
+    setRegNo("");
+    SetvaluenowDate("");
+    setTrainingValue("");
+  }
+
   async function submitEventHandler() {
+    const { data: singeData, error: trainingError } = await supabase
+      .from("Info-Training")
+      .insert({
+        Name: Name,
+        Instructor: Instructor,
+        Reg: RegNo,
+        TrainingD: Trainingvalue,
+        DateN: valuenowDate,
+        course_id: Course,
+      })
+      .select("*")
+      .single();
 
-    const { data: singeData, error: trainingError } = await supabase.from("Info-Training").insert({
-      Name: Name,
-      Instructor: Instructor,
-      Reg: RegNo,
-      TrainingD: Trainingvalue,
-      DateN: valuenowDate,
-      course_id: Course
-    }).select("*").single();
-
-    if(trainingError) {
-      console.log(trainingError.message)
-      return; 
+    if (trainingError) {
+      console.log(trainingError.message);
+      return;
     }
 
     const data = QuestionDB.map((v) => ({
       question_id: v.id,
       score: v.value,
-      training_id: singeData.id
-    }))
+      training_id: singeData.id,
+    }));
 
     const data2 = Question2DB.map((v) => ({
       question_id: v.id,
       score: v.value,
-      training_id: singeData.id
-     }))
+      training_id: singeData.id,
+    }));
 
-     const data3 = Question3DB.map((v) => ({
+    const data3 = Question3DB.map((v) => ({
       question_id: v.id,
       score: v.value,
-      training_id: singeData.id
-    }))
+      training_id: singeData.id,
+    }));
     const data4 = Question4DB.map((v) => ({
       question_id: v.id,
       score: v.value,
-      training_id: singeData.id
-    }))
+      training_id: singeData.id,
+    }));
 
-    const allData = data.concat(data2 , data3 , data4)
+    const allData = data.concat(data2, data3, data4);
 
     const { error: scoreError } = await supabase.from("scores").insert(allData);
-    if(scoreError) return console.log(scoreError.message)
+    if (scoreError) return console.log(scoreError.message);
 
+    const feedback = FeedbackQ.map((v) => ({
+      training_id: singeData.id,
+      feedback_id: v.id,
+      answer: v.value,
+    }));
 
-      const feedback = FeedbackQ.map((v) => ({
-        training_id: singeData.id,
-        feedback_id: v.id,
-        answer: v.value
-      }))
+    const { error: feedbackError } = await supabase
+      .from("feedback_answer")
+      .insert(feedback);
+    if (feedbackError) return console.log(feedbackError.message);
 
-    const { error: feedbackError } = await supabase.from("feedback_answer").insert(feedback)
-    if(feedbackError) return console.log(feedbackError.message);
-
-    console.log(allData)
-    
-
+    console.log(allData);
+    reset()
   }
 
   useEffect(() => {
@@ -388,9 +404,9 @@ function App() {
         <Button
           className="Button-done"
           onClick={() => {
-            submitEventHandler()
-            setIsModalOpen(false)
-            setActive(0)
+            submitEventHandler();
+            setIsModalOpen(false);
+            setActive(0);
           }}
         >
           Done
@@ -451,10 +467,11 @@ function App() {
                       <input
                         style={{ marginTop: "-20px" }}
                         onChange={NameTrasfer}
-                        id="Name"
                         className="input"
                         type="text"
                         placeholder="Full Name"
+                        value={Name}
+                        required
                       />
                       Instructor:
                       <input
@@ -464,8 +481,10 @@ function App() {
                         className="input"
                         type="text"
                         placeholder="Instructor"
+                        required
+                        value={Instructor}
                       />
-                     Company
+                      Company
                       <input
                         style={{ width: "300px", marginTop: "-20px" }}
                         onChange={RegTrasfer}
@@ -473,6 +492,8 @@ function App() {
                         className="input"
                         type="text"
                         placeholder="Insert full company Name"
+                        required
+                        value={RegNo}
                       />
                     </div>
                     <div className="right-container">
@@ -484,6 +505,7 @@ function App() {
                             placeholder="Pick dates range"
                             value={Trainingvalue}
                             onChange={setTrainingValue}
+                            required
                           />
                         </div>
                         <div style={{ marginTop: "6px" }}>
@@ -496,30 +518,32 @@ function App() {
                             value={valuenowDate}
                             onChange={SetvaluenowDate}
                             labelProps={{ style: { fontWeight: "bold" } }}
+                            required
                           />
                         </div>
                       </div>
-                      <div style={{marginTop:'-10px'}}>
-                      <Select 
-                        searchable
-                        label="Course"
-                        placeholder="Select Course"
-                        data={courses.map((v) => ({
-                          label: v.Code,
-                          value: v.id.toString()
-                        }))}
-                        value={Course}
-                        onChange={(v) => setCourse(v)}
-                      />
+                      <div style={{ marginTop: "-10px" }}>
+                        <Select
+                          searchable
+                          label="Course"
+                          required
+                          placeholder="Select Course"
+                          data={courses.map((v) => ({
+                            label: v.Code,
+                            value: v.id.toString(),
+                          }))}
+                          value={Course}
+                          onChange={(v) => setCourse(v)}
+                        />
                       </div>
-                      
                     </div>
                   </div>
                   <Group justify="center" mt="xl">
                     <Button variant="default" onClick={prevStep}>
                       Back
                     </Button>
-                    <Button onClick={nextStep}>Next step</Button>
+                    <Button onClick={nextStep} disabled={!(Name && Instructor && RegNo && Trainingvalue && valuenowDate && Course) }
+                >Next step</Button>
                   </Group>
                 </div>
               </Stepper.Step>
@@ -618,7 +642,7 @@ function App() {
                               <div style={{ marginBottom: "20px" }}>
                                 {" "}
                                 {RequestQ1.Question}
-                        </div>
+                              </div>
                             );
                           })}
                         </div>
@@ -627,34 +651,36 @@ function App() {
                         <div>
                           {QuestionDB.map((Request1) => {
                             return (
-                              <RadioGroup onChange={(value) => {
-                                setQuestion((curr) => {
-                                  return curr.map((v) => {
-                                    if(v.id === Request1.id) {
-                                      return {
-                                        ...v,
-                                        value: value
+                              <RadioGroup
+                                onChange={(value) => {
+                                  setQuestion((curr) => {
+                                    return curr.map((v) => {
+                                      if (v.id === Request1.id) {
+                                        return {
+                                          ...v,
+                                          value: value,
+                                        };
                                       }
-                                    }
-                                    return v;
-                                  })
-                                })
-                              }}>
-                              <div
-                                style={{
-                                  gap: "60px",
-                                  display: "flex",
-                                  flexdirection: "row",
-                                  marginBottom: "20px",
+                                      return v;
+                                    });
+                                  });
                                 }}
                               >
-                                {Request1.count}
-                                <Radio name={Request1.Question} value="5" />
-                                <Radio name={Request1.Question} value="4" />
-                                <Radio name={Request1.Question} value="3" />
-                                <Radio name={Request1.Question} value="2" />
-                                <Radio name={Request1.Question} value="1" />
-                              </div>
+                                <div
+                                  style={{
+                                    gap: "60px",
+                                    display: "flex",
+                                    flexdirection: "row",
+                                    marginBottom: "20px",
+                                  }}
+                                >
+                                  {Request1.count}
+                                  <Radio name={Request1.Question} value="5" />
+                                  <Radio name={Request1.Question} value="4" />
+                                  <Radio name={Request1.Question} value="3" />
+                                  <Radio name={Request1.Question} value="2" />
+                                  <Radio name={Request1.Question} value="1" />
+                                </div>
                               </RadioGroup>
                             );
                           })}
@@ -681,58 +707,58 @@ function App() {
                         </div>
                       </Grid.Col>
                       <Grid.Col style={{ marginLeft: "-100px" }} span={1.8}>
-                      <div>
                         <div>
-                          {Question2DB.map((Request3) => {
-                            return (
-                              <div
-                                style={{
-                                  gap: "60px",
-                                  display: "flex",
-                                  flexdirection: "row",
-                                  marginBottom: "20px",
-                                }}
-                              >
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <div style={{marginTop:'-60px'}}>
-                          {Question2DB.map((Request1) => {
-                            return (
-                              <RadioGroup onChange={(value) => {
-                                setQuestion2((curr) => {
-                                  return curr.map((v) => {
-                                    if(v.id === Request1.id) {
-                                      return {
-                                        ...v,
-                                        value: value
-                                      }
-                                    }
-                                    return v;
-                                  })
-                                })
-                              }}>
-                              <div
-                                style={{
-                                
-                                  gap: "60px",
-                                  display: "flex",
-                                  flexdirection: "row",
-                                  marginBottom: "20px",
-                                }}
-                              >
-                                {Request1.count}
-                                <Radio name={Request1.Question} value="5" />
-                                <Radio name={Request1.Question} value="4" />
-                                <Radio name={Request1.Question} value="3" />
-                                <Radio name={Request1.Question} value="2" />
-                                <Radio name={Request1.Question} value="1" />
-                              </div>
-                              </RadioGroup>
-                            );
-                          })}
-                        </div>
+                          <div>
+                            {Question2DB.map((Request3) => {
+                              return (
+                                <div
+                                  style={{
+                                    gap: "60px",
+                                    display: "flex",
+                                    flexdirection: "row",
+                                    marginBottom: "20px",
+                                  }}
+                                ></div>
+                              );
+                            })}
+                          </div>
+                          <div style={{ marginTop: "-60px" }}>
+                            {Question2DB.map((Request1) => {
+                              return (
+                                <RadioGroup
+                                  onChange={(value) => {
+                                    setQuestion2((curr) => {
+                                      return curr.map((v) => {
+                                        if (v.id === Request1.id) {
+                                          return {
+                                            ...v,
+                                            value: value,
+                                          };
+                                        }
+                                        return v;
+                                      });
+                                    });
+                                  }}
+                                >
+                                  <div
+                                    style={{
+                                      gap: "60px",
+                                      display: "flex",
+                                      flexdirection: "row",
+                                      marginBottom: "20px",
+                                    }}
+                                  >
+                                    {Request1.count}
+                                    <Radio name={Request1.Question} value="5" />
+                                    <Radio name={Request1.Question} value="4" />
+                                    <Radio name={Request1.Question} value="3" />
+                                    <Radio name={Request1.Question} value="2" />
+                                    <Radio name={Request1.Question} value="1" />
+                                  </div>
+                                </RadioGroup>
+                              );
+                            })}
+                          </div>
                         </div>
                       </Grid.Col>
                     </Grid>
@@ -756,43 +782,43 @@ function App() {
                         </div>
                       </Grid.Col>
                       <Grid.Col style={{ marginLeft: "-100px" }} span={1.8}>
-                      <div style={{}}>
+                        <div style={{}}>
                           {Question3DB.map((Request1) => {
                             return (
-                              <RadioGroup onChange={(value) => {
-                                setQuestion3((curr) => {
-                                  return curr.map((v) => {
-                                    if(v.id === Request1.id) {
-                                      return {
-                                        ...v,
-                                        value: value
+                              <RadioGroup
+                                onChange={(value) => {
+                                  setQuestion3((curr) => {
+                                    return curr.map((v) => {
+                                      if (v.id === Request1.id) {
+                                        return {
+                                          ...v,
+                                          value: value,
+                                        };
                                       }
-                                    }
-                                    return v;
-                                  })
-                                })
-                              }}>
-                              <div
-                                style={{
-                                
-                                  gap: "60px",
-                                  display: "flex",
-                                  flexdirection: "row",
-                                  marginBottom: "20px",
+                                      return v;
+                                    });
+                                  });
                                 }}
                               >
-                                {Request1.count}
-                                <Radio name={Request1.Question} value="5" />
-                                <Radio name={Request1.Question} value="4" />
-                                <Radio name={Request1.Question} value="3" />
-                                <Radio name={Request1.Question} value="2" />
-                                <Radio name={Request1.Question} value="1" />
-                              </div>
+                                <div
+                                  style={{
+                                    gap: "60px",
+                                    display: "flex",
+                                    flexdirection: "row",
+                                    marginBottom: "20px",
+                                  }}
+                                >
+                                  {Request1.count}
+                                  <Radio name={Request1.Question} value="5" />
+                                  <Radio name={Request1.Question} value="4" />
+                                  <Radio name={Request1.Question} value="3" />
+                                  <Radio name={Request1.Question} value="2" />
+                                  <Radio name={Request1.Question} value="1" />
+                                </div>
                               </RadioGroup>
                             );
                           })}
                         </div>
-                        
                       </Grid.Col>
                     </Grid>
 
@@ -816,38 +842,39 @@ function App() {
                         </div>
                       </Grid.Col>
                       <Grid.Col style={{ marginLeft: "-100px" }} span={1.8}>
-                      <div style={{}}>
+                        <div style={{}}>
                           {Question4DB.map((Request1) => {
                             return (
-                              <RadioGroup onChange={(value) => {
-                                setQuestion4((curr) => {
-                                  return curr.map((v) => {
-                                    if(v.id === Request1.id) {
-                                      return {
-                                        ...v,
-                                        value: value
+                              <RadioGroup
+                                onChange={(value) => {
+                                  setQuestion4((curr) => {
+                                    return curr.map((v) => {
+                                      if (v.id === Request1.id) {
+                                        return {
+                                          ...v,
+                                          value: value,
+                                        };
                                       }
-                                    }
-                                    return v;
-                                  })
-                                })
-                              }}>
-                              <div
-                                style={{
-                                
-                                  gap: "60px",
-                                  display: "flex",
-                                  flexdirection: "row",
-                                  marginBottom: "20px",
+                                      return v;
+                                    });
+                                  });
                                 }}
                               >
-                                {Request1.count}
-                                <Radio name={Request1.Question} value="5" />
-                                <Radio name={Request1.Question} value="4" />
-                                <Radio name={Request1.Question} value="3" />
-                                <Radio name={Request1.Question} value="2" />
-                                <Radio name={Request1.Question} value="1" />
-                              </div>
+                                <div
+                                  style={{
+                                    gap: "60px",
+                                    display: "flex",
+                                    flexdirection: "row",
+                                    marginBottom: "20px",
+                                  }}
+                                >
+                                  {Request1.count}
+                                  <Radio name={Request1.Question} value="5" />
+                                  <Radio name={Request1.Question} value="4" />
+                                  <Radio name={Request1.Question} value="3" />
+                                  <Radio name={Request1.Question} value="2" />
+                                  <Radio name={Request1.Question} value="1" />
+                                </div>
                               </RadioGroup>
                             );
                           })}
@@ -860,7 +887,20 @@ function App() {
                   <Button variant="default" onClick={prevStep}>
                     Back
                   </Button>
-                  <Button onClick={nextStep}>Next step</Button>
+                  <Button 
+                   onClick={() => {
+                      const isAllAnswered1 = QuestionDB.every((q) => q.value && q.value !== "");
+                      const isAllAnswered2 = Question2DB.every((q) => q.value && q.value !== "");
+                      const isAllAnswered3 = Question3DB.every((q) => q.value && q.value !== "");
+                      const isAllAnswered4 = Question4DB.every((q) => q.value && q.value !== "");
+
+                     if (!isAllAnswered1 || !isAllAnswered2 || !isAllAnswered3 || !isAllAnswered4 ) {
+                     alert("Please answer all questions before proceeding.");
+                           return;
+                                }
+                                 nextStep();
+                                      }}
+                       >Next step</Button>
                 </Group>
               </Stepper.Step>
               <Stepper.Step
@@ -886,15 +926,15 @@ function App() {
                                 onChange={(e) => {
                                   setFeedback((curr) => {
                                     return curr.map((v) => {
-                                      if(v.id === Feedbacklist.id) {
+                                      if (v.id === Feedbacklist.id) {
                                         return {
                                           ...v,
-                                          value: e.target.value
-                                        }
+                                          value: e.target.value,
+                                        };
                                       }
                                       return v;
-                                    })
-                                  })
+                                    });
+                                  });
                                 }}
                               />
                             </div>
@@ -905,7 +945,7 @@ function App() {
                   </div>
                 </div>
                 <Group justify="center" mt="xl">
-                  <Button variant="default" onClick={prevStep}>
+                  <Button variant="default"  onClick={prevStep}>
                     Back
                   </Button>
                   <Button onClick={nextStep}>Next step</Button>
@@ -922,7 +962,9 @@ function App() {
                     </div>
                     <div className="Borderline-Step4">
                       <label className="Step4">Course :</label>
-                      <label style={{ marginLeft: "163px" }}>{courses.find((v) => v.id.toString() === Course)?.Code}</label>
+                      <label style={{ marginLeft: "163px" }}>
+                        {courses.find((v) => v.id.toString() === Course)?.Code}
+                      </label>
                       <br></br>
                     </div>
                     <div className="Borderline-Step4">
@@ -957,7 +999,7 @@ function App() {
                     Back
                   </Button>
                   <Button
-                    onClick={() => {           
+                    onClick={() => {
                       setIsModalOpen(true);
                     }}
                   >

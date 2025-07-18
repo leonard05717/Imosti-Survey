@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import './LoginPage.css';
-import { AspectRatio ,Alert, Image } from '@mantine/core';
+import { AspectRatio ,Alert, Image, ActionIcon, PasswordInput } from '@mantine/core';
 import supabase from "./supabase";
 import { data, useNavigate } from 'react-router-dom';
-import { IconInfoCircle } from '@tabler/icons-react';
+import { IconEye, IconInfoCircle } from '@tabler/icons-react';
 
 
 function LoginPage() {
@@ -19,7 +19,7 @@ function LoginPage() {
 
   async function submit() {
     
-   const data = Account.find((v) => v.Email === email && v.Role === password );
+   const data = Account.find((v) => v.Email === email && v.Role === password && v.Status === "Active");
     if(data){
       window.localStorage.setItem("data" ,JSON.stringify(data))
       navigate("admin")
@@ -104,14 +104,14 @@ function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-
+            <div>
             <label>Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <PasswordInput
+                 size="lg"
+                 placeholder="Input placeholder"
+              />
+             
+            </div>
 
             <div className="forgot-password">
               <a href="#">Forgot Password?</a>
