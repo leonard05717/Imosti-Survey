@@ -25,6 +25,7 @@ import {
   PasswordInput,
   Text,
   Divider,
+  Alert,
 } from "@mantine/core";
 import {
   IconBrandBlackberry,
@@ -55,16 +56,23 @@ import "@mantine/core/styles.css";
 import { requestFormReset } from "react-dom";
 
 function Admin() {
+
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpenstaff, setIsModalOpenstaff] = useState(false);
   const [isModalOpenVerify, setIsModalOpenVerify] = useState(false);
   const [StaffS, setStaffS] = useState(false);
+  const [Logout, setLogout] = useState(false);
   const [modalstudent, setIsModalOpenStudent] = useState(false);
   const [CourseModal, setCourseModal] = useState(false);
   const [IDs, setID] = useState("");
   const [anyQuesttrow, setQ] = useState("");
   const [Criteriatrow, setCriteriatrow] = useState("");
+  const [erorrAddstaff , seterrorAddstaff] = useState("");
 
+
+
+  
   const [IDStaff, setIDStaff] = useState("");
   const [students, setStudents] = useState([]);
   const [file, setFile] = useState("");
@@ -77,6 +85,87 @@ function Admin() {
   const [EndvaluenowDate, SetEndvaluenowDate] = useState("");
   const [adminData, setAdminData] = useState(null);
   const [stafflog , setstafflog] = useState([]);
+
+  const [Lname, SetFName] = useState("");
+  const [FName, SetLName] = useState("");
+  const [Email, SetEmail] = useState("");
+  const [Number, SetNumber] = useState("");
+  const [Role, SetRole] = useState("");
+  const [Password, SetPassword] = useState("");
+  const [ConPassword, SetConPassword] = useState("");
+
+  
+
+  const FNameTrasfer = (event) => {
+    SetFName(event.target.value);
+  };
+  const LNameTrasfer = (event) => {
+    SetLName(event.target.value);
+  };
+  const EmailTrasfer = (event) => {
+    SetEmail(event.target.value);
+  };
+  const NumberTrasfer = (event) => {
+    SetNumber(event.target.value);
+  };
+  const RoleTrasfer = (event) => {
+    SetRole(event.target.value);
+  };
+  const PasswordTrasfer = (event) => {
+    SetPassword(event.target.value);
+  };
+  const ConPasswordTrasfer = (event) => {
+    SetConPassword(event.target.value);
+  };
+
+  async function AddStaffModal() {
+
+   if(!FName || !Lname || !Email || !Role || !Number || !Password || !ConPassword){
+
+    console.log("required")
+   }
+   else{
+
+    if(Password == ConPassword){
+      const { data: singeData, error: StaffError } = await supabase
+      .from("Staff-Info")
+      .insert({
+        First_Name: FName,
+        Last_Name: Lname,
+        Email: Email,
+        Role: Role,
+        Contact: Number,
+        Password: Password,
+        Status: "Active"
+      })
+      .select("*")
+      .single();
+
+      loadData()
+      setIsModalOpenstaff(false)
+     
+    if (StaffError) {
+      console.log(StaffError.message);
+      return;
+    }
+    }
+    else{
+      console.log("password not match")
+      seterrorAddstaff("password not match")
+    }
+  
+     
+    
+  }
+   
+    
+  }
+
+  async function logoutevent() {
+    window.localStorage.setItem("data" ,JSON.stringify(""))
+    navigate("/LoginPage")
+
+  }
 
   async function StaffAc(id) {
     setIDStaff(id);
@@ -94,7 +183,8 @@ function Admin() {
     setQ(AnyQuest);
     setIsModalOpen(true);
   }
-
+ 
+  
   const [Staff, setStaff] = useState([
     {
       id: "",
@@ -254,7 +344,13 @@ function Admin() {
           radius="xl"
           placeholder="Search"
         />
-        <label style={{ marginLeft: "400px", marginTop: "5px" }}></label>
+        <label style={{ marginLeft: "400px", marginTop: "5px" }}>
+        {stafflog.filter((v) => v.Role === adminData.Role && v.id === adminData.id).map((c) => {
+                              return(
+                                c.Role
+                              )
+                            })}
+        </label>
         <ThemeIcon size="xl" color="tranfarent" autoContrast>
           <IconUser size={30} />
         </ThemeIcon>
@@ -598,6 +694,7 @@ function Admin() {
 
   return (
     <>
+
       <Modal
         marginTop={20}
         radius={20}
@@ -1228,6 +1325,88 @@ function Admin() {
         </ScrollArea>
       </Modal>
 
+      <Modal
+        opened={isModalOpenstaff}
+        onClose={() => {
+          setIsModalOpenstaff(false);
+          seterrorAddstaff("");
+        }}
+        title="Add Staff"
+        radius={20}
+        overlayProps={{
+          backgroundOpacity: 0.55,
+          blur: 3,
+        }}
+      >
+            <div className="modalforstaff">
+                <div style={{display:'flex' , justifyContent: 'space-around'}}>
+                  <label>First Name</label>
+                  <label>Last Name</label>
+                </div>
+                <div style={{display:'flex' , justifyContent: 'space-around'}}>
+                 <Input required radius="md" placeholder="First Name" onChange={FNameTrasfer} />
+                 <Input required radius="md" placeholder="Last Name" onChange={LNameTrasfer}/>
+                 </div>
+                 <div style={{marginTop:'20px' , display:'flex' , gap:'5px' , flexDirection: 'column'}}>
+                 <label>Email</label>
+                 <Input required radius="md" type="email" placeholder="Enter Email" onChange={EmailTrasfer} />
+                 <label>Number</label>
+                 <Input required radius="md" placeholder="Contact" onChange={NumberTrasfer}/>
+                 <label>Role</label>
+                 <Input required radius="md" placeholder="Role" onChange={RoleTrasfer}/>
+
+                 <PasswordInput required error={erorrAddstaff}  onChange={PasswordTrasfer}  label="Password"  placeholder="Password"/>
+                 <PasswordInput required error={erorrAddstaff} onChange={ConPasswordTrasfer} label="Confirm Password" paceholder="Confirm Paswword"/>
+
+                 </div>
+                 <div style={{marginTop: '10px', display:'flex ' , justifyContent:'flex-end'}}>
+                 
+                 <Button variant="filled" radius="lg" onClick={() => { AddStaffModal()} }>  Confirm</Button>
+                 </div>
+                 
+
+            </div>
+      </Modal>
+
+      <Modal
+        marginTop={20}
+        radius={20}
+        centered="true"
+        opened={Logout}
+        onClose={() => {
+          setLogout(false);
+        }}
+      >
+        <div style={{ display: "flex" }}>
+          <AspectRatio ratio={1} flex="0 0 200px">
+            <Image h={70} w={70} src="../Picture/Logo.png" alt="Avatar" />
+          </AspectRatio>
+          <div className="Aspect-text">
+            International Maritime & Offshore{" "}
+            <div className="Aspect-text2"> Safety Training Institute</div>
+          </div>
+        </div>
+        <div className="Response"></div>
+        <div style={{ display: "flex", justifyContent: "space-evenly" }}>
+          <Button
+            color="rgb(110, 193, 228)"
+            onClick={() => {
+              logoutevent();
+            }}
+          >
+            Yes
+          </Button>
+          <Button
+            color="rgb(255, 105, 0)"
+            onClick={() => {
+              setLogout(false);
+            }}
+          >
+            No
+          </Button>
+        </div>
+      </Modal>
+
       <div className="Devider-tabs">
         <div className="Tabs-Main">
           <div>
@@ -1335,7 +1514,11 @@ function Admin() {
                     Settings
                   </Tabs.Tab>
                 </div>
+                <div style={{marginLeft: '100px' , marginTop: '200px'}}>
+              <Button onClick={() => setLogout(true)}>Log out</Button>
+              </div>
               </Tabs.List>
+             
               <div>
                 <div className="Tabs-panelborder">
                   <Tabs.Panel value="Analytics">
@@ -1358,7 +1541,7 @@ function Admin() {
                           <label
                             style={{ marginLeft: "1020px", marginTop: "5px" }}
                           >
-                            {stafflog.filter((v) => v.Role === adminData.Role).map((c) => {
+                            {stafflog.filter((v) => v.Role === adminData.Role && v.id === adminData.id).map((c) => {
                               return(
                                 c.Role
                               )
@@ -1445,7 +1628,7 @@ function Admin() {
                           <label
                             style={{ marginLeft: "400px", marginTop: "5px" }}
                           >
-                            {stafflog.filter((v) => v.Role === adminData.Role).map((c) => {
+                            {stafflog.filter((v) => v.Role === adminData.Role && v.id === adminData.id).map((c) => {
                               return(
                                 c.Role
                               )
@@ -1521,7 +1704,7 @@ function Admin() {
                           <label
                             style={{ marginLeft: "400px", marginTop: "5px" }}
                           >
-                            {stafflog.filter((v) => v.Role === adminData.Role).map((c) => {
+                            {stafflog.filter((v) => v.Role === adminData.Role && v.id === adminData.id).map((c) => {
                               return(
                                 c.Role
                               )
@@ -1534,13 +1717,38 @@ function Admin() {
                       </div>
 
                       <div>
+                    <div style={{display:'flex',justifyContent:'end'}}>
+                    {/** */}
+                      <Button
+                                    style={{
+                                      marginRight:'100px',
+                                      marginTop:'20px',
+                                      marginBottom:'20px',
+                                      
+                                     
+                                    }}
+                                    onClick={() => {
+                                      setIsModalOpenstaff(true),
+                                      seterrorAddstaff("")
+
+                                    }}
+                                    rightSection={<IconPlus size={14} />}
+                                    variant="filled"
+                                    radius="md"
+                                  >
+                                    Add
+                                  </Button>
+                                  </div>
+                            {/** */}
                         <ScrollArea
                           h={600}
                           style={{ backgroundColor: "	rgb(240, 235, 235)" }}
                         >
+                        
                           <div
                             style={{ backgroundColor: "white", margin: "20px" }}
                           >
+                          
                             <Table highlightOnHover>
                               <Table.Thead>
                                 <Table.Tr>
@@ -1592,7 +1800,7 @@ function Admin() {
                           <label
                             style={{ marginLeft: "400px", marginTop: "5px" }}
                           >
-                            {stafflog.filter((v) => v.Role === adminData.Role).map((c) => {
+                            {stafflog.filter((v) => v.Role === adminData.Role && v.id === adminData.id).map((c) => {
                               return(
                                 c.Role
                               )
@@ -1930,7 +2138,7 @@ function Admin() {
                           <label
                             style={{ marginLeft: "1020px", marginTop: "5px" }}
                           >
-                            {stafflog.filter((v) => v.Role === adminData.Role).map((c) => {
+                            {stafflog.filter((v) => v.Role === adminData.Role && v.id === adminData.id).map((c) => {
                               return(
                                 c.Role
                               )
@@ -2077,9 +2285,11 @@ function Admin() {
                     </div>
                   </Tabs.Panel>
                 </div>
-              </div>
+              </div>     
             </Tabs>
+            
           </div>
+       
         </div>
 
         <div></div>

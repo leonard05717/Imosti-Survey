@@ -22,7 +22,8 @@ function LoginPage() {
    const data = Account.find((v) => v.Email === email && v.Role === password && v.Status === "Active");
     if(data){
       window.localStorage.setItem("data" ,JSON.stringify(data))
-      navigate("admin")
+      navigate("/admin")
+      console.log("sample1")
     }
     else{
       console.log('Account not found')
@@ -109,6 +110,7 @@ function LoginPage() {
             <PasswordInput
                  size="lg"
                  placeholder="Input placeholder"
+                 onChange={(e) => setPassword(e.target.value)}
               />
              
             </div>

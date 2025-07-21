@@ -133,4 +133,10 @@ padding-right: 40px;
     margin-left: 100px;
  }
 
+ .modalforstaff{
+   margin-top: 10px;
+   gap: 10px;
+   flex-direction: column;
+ }
+
  
