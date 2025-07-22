@@ -1034,6 +1034,7 @@ function Admin() {
         onClose={() => {
           setCourseModal(false);
         }}
+        title='aw'
       >
         <ScrollArea style={{ display: "flex" }}>
           <div style={{ display: "flex" }}>
@@ -1531,6 +1532,7 @@ function Admin() {
           </div>
           <div>
             <Tabs
+              allowTabDeactivation
               color='	rgb(241, 101, 41)'
               size='xl'
               variant='pills'

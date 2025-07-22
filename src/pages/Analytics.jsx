@@ -9,9 +9,10 @@ import {
   IconUser,
   IconWallpaperOff,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import DashboardItem from "./components/DashboardItem";
 import PieCourseItem from "./components/PieCourseItem";
+import supabase from "../supabase";
 
 const barChartData = [
   { services: "A. Services", Value: 23 },
@@ -27,7 +28,32 @@ const pieData = [
 ];
 
 function Analytics({ stafflog, adminData }) {
-  const [selectedFilter, setSelectedFilter] = useState("");
+  const [dashboardData, setDashboardData] = useState({
+    totalSurvey: 0,
+    totalCourse: 0,
+  });
+  const [selectedFilter, setSelectedFilter] = useState("Last Week");
+
+  async function fetchDashboardData() {
+    try {
+      const courseCount =
+        (await supabase.from("Course").select("*")).data.length || 0;
+      const surveyCount =
+        (await supabase.from("Info-Training").select("*")).data.length || 0;
+
+      console.log("run");
+      setDashboardData((curr) => ({
+        totalCourse: courseCount,
+        totalSurvey: surveyCount,
+      }));
+    } catch (error) {
+      console.error("Error", error);
+    }
+  }
+
+  useLayoutEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   return (
     <div>
@@ -62,6 +88,7 @@ function Analytics({ stafflog, adminData }) {
           </ThemeIcon>
         </h2>
       </div>
+      <button onClick={fetchDashboardData}>hello</button>
 
       <div
         style={{
@@ -105,7 +132,7 @@ function Analytics({ stafflog, adminData }) {
                     fontSize: 15,
                   }}
                 >
-                  Today
+                  {selectedFilter}
                 </span>
                 <IconChevronDown size={18} />
               </div>
@@ -118,23 +145,23 @@ function Analytics({ stafflog, adminData }) {
               w={190}
             >
               <Menu.Label>Filter</Menu.Label>
-              <Menu.Item>Today</Menu.Item>
-              <Menu.Item>Last Week</Menu.Item>
-              <Menu.Item>Last Month</Menu.Item>
-              <Menu.Item>Last Year</Menu.Item>
-              <Menu.Item>By Specific Month</Menu.Item>
-              <Menu.Sub>
-                <Menu.Sub.Target>
-                  <Menu.Sub.Item>By Specific Year</Menu.Sub.Item>
-                </Menu.Sub.Target>
-                <Menu.Sub.Dropdown w={100}>
-                  <Menu.Item>2021</Menu.Item>
-                  <Menu.Item>2022</Menu.Item>
-                  <Menu.Item>2023</Menu.Item>
-                  <Menu.Item>2024</Menu.Item>
-                  <Menu.Item>2025</Menu.Item>
-                </Menu.Sub.Dropdown>
-              </Menu.Sub>
+              <Menu.Item onClick={(e) => setSelectedFilter("Last Week")}>
+                Last Week
+              </Menu.Item>
+              <Menu.Item onClick={(e) => setSelectedFilter("Last Month")}>
+                Last Month
+              </Menu.Item>
+              <Menu.Item onClick={(e) => setSelectedFilter("Last Year")}>
+                Last Year
+              </Menu.Item>
+              <Menu.Item
+                onClick={(e) => setSelectedFilter("By Specific Month")}
+              >
+                By Specific Month
+              </Menu.Item>
+              <Menu.Item onClick={(e) => setSelectedFilter("By Specific Year")}>
+                By Specific Year
+              </Menu.Item>
             </Menu.Dropdown>
           </Menu>
 
@@ -159,12 +186,12 @@ function Analytics({ stafflog, adminData }) {
               <DashboardItem
                 Icon={IconFileDescription}
                 label='Total Survey'
-                value={10}
+                value={dashboardData.totalSurvey}
               />
               <DashboardItem
                 Icon={IconSchool}
                 label='Total Courses'
-                value={10}
+                value={dashboardData.totalCourse}
               />
             </div>
             <div
