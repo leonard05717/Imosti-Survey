@@ -187,6 +187,7 @@
 
 .clickable-element {
   user-select: none;
+  cursor: pointer;
 }
 
 .clickable-element:hover {

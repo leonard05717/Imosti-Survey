@@ -1,10 +1,11 @@
 import { BarChart, PieChart } from "@mantine/charts";
-import { ActionIcon, Menu, Text, ThemeIcon } from "@mantine/core";
+import { ActionIcon, Button, Menu, Text, ThemeIcon } from "@mantine/core";
 import {
   IconChevronDown,
   IconClipboard,
   IconDotsVertical,
   IconFileDescription,
+  IconPrinter,
   IconSchool,
   IconUser,
   IconWallpaperOff,
@@ -13,6 +14,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import DashboardItem from "./components/DashboardItem";
 import PieCourseItem from "./components/PieCourseItem";
 import supabase from "../supabase";
+import { useDidUpdate } from "@mantine/hooks";
 
 const barChartData = [
   { services: "A. Services", Value: 23 },
@@ -54,6 +56,10 @@ function Analytics({ stafflog, adminData }) {
   useLayoutEffect(() => {
     fetchDashboardData();
   }, []);
+
+  useDidUpdate(() => {
+    console.log("Selected Filter:", selectedFilter);
+  }, [selectedFilter]);
 
   return (
     <div>
@@ -103,77 +109,99 @@ function Analytics({ stafflog, adminData }) {
             position: "relative",
           }}
         >
-          <Menu
-            arrowSize={15}
-            withArrow
-            styles={{
-              arrow: {
-                borderTop: "1px solid #0005",
-                borderLeft: "1px solid #0005",
-              },
+          <div
+            style={{
+              height: 500,
+              width: "calc(100% - 30rem)",
             }}
           >
-            <Menu.Target>
-              <div
-                className='clickable-element'
-                style={{
-                  position: "absolute",
-                  top: 0,
-                  left: 20,
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 4,
-                  cursor: "pointer",
-                  zIndex: 2,
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                height: 50,
+                paddingLeft: 30,
+              }}
+            >
+              <Menu
+                arrowSize={15}
+                withArrow
+                styles={{
+                  arrow: {
+                    borderTop: "1px solid #0005",
+                    borderLeft: "1px solid #0005",
+                  },
                 }}
               >
-                <span
+                <Menu.Target>
+                  <div
+                    className='clickable-element'
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 5,
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 15,
+                      }}
+                    >
+                      {selectedFilter}
+                    </span>
+                    <IconChevronDown size={18} />
+                  </div>
+                </Menu.Target>
+                <Menu.Dropdown
                   style={{
-                    fontSize: 15,
+                    border: "1px solid #0005",
+                    boxShadow: "1px 2px 3px #0005",
                   }}
+                  w={190}
                 >
-                  {selectedFilter}
-                </span>
-                <IconChevronDown size={18} />
-              </div>
-            </Menu.Target>
-            <Menu.Dropdown
-              style={{
-                border: "1px solid #0005",
-                boxShadow: "1px 2px 3px #0005",
-              }}
-              w={190}
-            >
-              <Menu.Label>Filter</Menu.Label>
-              <Menu.Item onClick={(e) => setSelectedFilter("Last Week")}>
-                Last Week
-              </Menu.Item>
-              <Menu.Item onClick={(e) => setSelectedFilter("Last Month")}>
-                Last Month
-              </Menu.Item>
-              <Menu.Item onClick={(e) => setSelectedFilter("Last Year")}>
-                Last Year
-              </Menu.Item>
-              <Menu.Item
-                onClick={(e) => setSelectedFilter("By Specific Month")}
+                  <Menu.Label>Filter</Menu.Label>
+                  <Menu.Item onClick={() => setSelectedFilter("Last Week")}>
+                    Last Week
+                  </Menu.Item>
+                  <Menu.Item onClick={() => setSelectedFilter("Last Month")}>
+                    Last Month
+                  </Menu.Item>
+                  <Menu.Item onClick={() => setSelectedFilter("Last Year")}>
+                    Last Year
+                  </Menu.Item>
+                  <Menu.Item
+                    onClick={() => setSelectedFilter("By Specific Month")}
+                  >
+                    By Specific Month
+                  </Menu.Item>
+                  <Menu.Item
+                    onClick={() => setSelectedFilter("By Specific Year")}
+                  >
+                    By Specific Year
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+              <Button
+                size='xs'
+                leftSection={<IconPrinter size={17} />}
+                variant='outline'
+                color='dark'
               >
-                By Specific Month
-              </Menu.Item>
-              <Menu.Item onClick={(e) => setSelectedFilter("By Specific Year")}>
-                By Specific Year
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
+                Print
+              </Button>
+            </div>
 
-          <BarChart
-            h={500}
-            w='calc(100% - 30rem)'
-            data={barChartData}
-            dataKey='services'
-            series={[{ name: "Value", color: "blue.6" }]}
-            tickLine='y'
-            withLegend
-          />
+            <BarChart
+              h={450}
+              w='100%'
+              data={barChartData}
+              dataKey='services'
+              series={[{ name: "Value", color: "blue.6" }]}
+              tickLine='y'
+              // withLegend
+            />
+          </div>
           <div>
             <div
               style={{

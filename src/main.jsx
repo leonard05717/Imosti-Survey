@@ -41,11 +41,9 @@ const routers = createBrowserRouter([
 ]);
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
-    <MantineProvider>
-      <ModalsProvider>
-        <RouterProvider router={routers} />
-      </ModalsProvider>
-    </MantineProvider>
-  </StrictMode>,
+  <MantineProvider>
+    <ModalsProvider>
+      <RouterProvider router={routers} />
+    </ModalsProvider>
+  </MantineProvider>,
 );
