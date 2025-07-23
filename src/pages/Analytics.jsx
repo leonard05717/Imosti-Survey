@@ -1,5 +1,12 @@
 import { BarChart, PieChart } from "@mantine/charts";
-import { ActionIcon, Button, Menu, Text, ThemeIcon } from "@mantine/core";
+import {
+  ActionIcon,
+  Button,
+  Menu,
+  ScrollAreaAutosize,
+  Text,
+  ThemeIcon,
+} from "@mantine/core";
 import {
   IconChevronDown,
   IconClipboard,
@@ -15,26 +22,29 @@ import DashboardItem from "./components/DashboardItem";
 import PieCourseItem from "./components/PieCourseItem";
 import supabase from "../supabase";
 import { useDidUpdate } from "@mantine/hooks";
+import { subWeeks, subMonths, subYears, isAfter, isBefore } from "date-fns";
 
-const barChartData = [
-  { services: "A. Services", Value: 23 },
-  { services: "B. Facilities", Value: 45 },
-  { services: "C. Course", Value: 12 },
-  { services: "D. Instructor", Value: 34 },
-];
+const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"];
 
-const pieData = [
-  { name: "Course 1", value: 400, color: "green.6" },
-  { name: "Course 2", value: 300, color: "blue.6" },
-  { name: "Course 3", value: 300, color: "red.6" },
-];
-
-function Analytics({ stafflog, adminData }) {
+function Analytics({ stafflog, adminData, scores, courses, students }) {
   const [dashboardData, setDashboardData] = useState({
     totalSurvey: 0,
     totalCourse: 0,
   });
+
+  const [filterBarchart, setFilterBarchart] = useState([
+    new Date(),
+    new Date(),
+  ]);
+
   const [selectedFilter, setSelectedFilter] = useState("Last Week");
+
+  const [barChartData, setBarChartData] = useState([
+    { services: "A. Services", Value: 0 },
+    { services: "B. Facilities", Value: 0 },
+    { services: "C. Course", Value: 0 },
+    { services: "D. Instructor", Value: 0 },
+  ]);
 
   async function fetchDashboardData() {
     try {
@@ -42,8 +52,6 @@ function Analytics({ stafflog, adminData }) {
         (await supabase.from("Course").select("*")).data.length || 0;
       const surveyCount =
         (await supabase.from("Info-Training").select("*")).data.length || 0;
-
-      console.log("run");
       setDashboardData((curr) => ({
         totalCourse: courseCount,
         totalSurvey: surveyCount,
@@ -54,12 +62,88 @@ function Analytics({ stafflog, adminData }) {
   }
 
   useLayoutEffect(() => {
+    console.log(courses);
     fetchDashboardData();
   }, []);
 
-  useDidUpdate(() => {
-    console.log("Selected Filter:", selectedFilter);
+  useEffect(() => {
+    const now = new Date();
+    let start;
+    let end;
+
+    switch (selectedFilter) {
+      case "Today":
+        start = new Date(now);
+        start.setHours(0, 0, 0, 0);
+
+        end = new Date(now);
+        end.setHours(23, 59, 59, 999);
+        break;
+
+      case "Last Week":
+        start = subWeeks(now, 1);
+        end = now;
+        break;
+
+      case "Last Month":
+        start = subMonths(now, 1);
+        end = now;
+        break;
+
+      case "Last Year":
+        start = subYears(now, 1);
+        end = now;
+        break;
+
+      default:
+        return; // for modals (specific month/year)
+    }
+
+    setFilterBarchart([start, end]);
+
+    const filtered = scores.filter((item) => {
+      const dateN = item.traning?.DateN;
+      if (!dateN) return false;
+
+      const trainingDate = new Date(dateN);
+      return trainingDate >= start && trainingDate <= end;
+    });
+
+    const grouped = {
+      A: 0,
+      B: 0,
+      C: 0,
+      D: 0,
+    };
+
+    filtered.forEach((item) => {
+      const criteria = item.question?.Criteria;
+      if (grouped[criteria] !== undefined) {
+        grouped[criteria] += item.score;
+      }
+    });
+
+    setBarChartData([
+      { services: "A. Services", Value: grouped.A },
+      { services: "B. Facilities", Value: grouped.B },
+      { services: "C. Course", Value: grouped.C },
+      { services: "D. Instructor", Value: grouped.D },
+    ]);
   }, [selectedFilter]);
+
+  const pieChartData = courses.map((course, index) => {
+    const count = students.filter(
+      (student) => student.course_id === course.id,
+    ).length;
+
+    return {
+      name: course.Code,
+      value: count,
+      color: colors[index % colors.length],
+    };
+  });
+
+  console.log(pieChartData);
 
   return (
     <div>
@@ -94,7 +178,6 @@ function Analytics({ stafflog, adminData }) {
           </ThemeIcon>
         </h2>
       </div>
-      <button onClick={fetchDashboardData}>hello</button>
 
       <div
         style={{
@@ -161,6 +244,9 @@ function Analytics({ stafflog, adminData }) {
                   w={190}
                 >
                   <Menu.Label>Filter</Menu.Label>
+                  <Menu.Item onClick={() => setSelectedFilter("Today")}>
+                    Today
+                  </Menu.Item>
                   <Menu.Item onClick={() => setSelectedFilter("Last Week")}>
                     Last Week
                   </Menu.Item>
@@ -199,7 +285,6 @@ function Analytics({ stafflog, adminData }) {
               dataKey='services'
               series={[{ name: "Value", color: "blue.6" }]}
               tickLine='y'
-              // withLegend
             />
           </div>
           <div>
@@ -247,32 +332,28 @@ function Analytics({ stafflog, adminData }) {
                 >
                   Training per Course
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 5,
-                  }}
+                <ScrollAreaAutosize
+                  mah={150}
+                  w={220}
                 >
-                  <PieCourseItem
-                    color='#00ff00'
-                    label='Course 1'
-                  />
-                  <PieCourseItem
-                    color='#0000ff'
-                    label='Course 2'
-                  />
-                  <PieCourseItem
-                    color='#ff0000'
-                    label='Course 3'
-                  />
-                </div>
+                  {courses.map((course, index) => {
+                    const color = colors[index % colors.length];
+
+                    return (
+                      <PieCourseItem
+                        key={course.id}
+                        color={color}
+                        label={course.Code}
+                      />
+                    );
+                  })}
+                </ScrollAreaAutosize>
               </div>
               <PieChart
                 withTooltip
                 tooltipDataSource='segment'
-                data={pieData}
-                size={250}
+                data={pieChartData}
+                size={200}
                 withLabelsLine
                 withLabels
                 labelsPosition='outside'

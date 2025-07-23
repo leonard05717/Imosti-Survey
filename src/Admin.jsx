@@ -1512,7 +1512,14 @@ function Admin() {
         </div>
       </Modal>
 
-      <div className='Devider-tabs'>
+      <div
+        className='Devider-tabs'
+        style={{
+          overflowY: "hidden",
+          height: "100vh",
+          width: "100vw",
+        }}
+      >
         <div className='Tabs-Main'>
           <div>
             <AspectRatio
@@ -1624,7 +1631,7 @@ function Admin() {
                     Settings
                   </Tabs.Tab>
                 </div>
-                <div style={{ marginLeft: "100px", marginTop: "200px" }}>
+                <div style={{ marginLeft: "100px", marginTop: 100 }}>
                   <Button onClick={() => setLogout(true)}>Log out</Button>
                 </div>
               </Tabs.List>
@@ -1635,6 +1642,9 @@ function Admin() {
                     <Analytics
                       stafflog={stafflog}
                       adminData={adminData}
+                      scores={scores}
+                      courses={Coursetable}
+                      students={students}
                     />
                   </Tabs.Panel>
 

@@ -7,12 +7,14 @@ function PieCourseItem({ color, label }) {
         display: "flex",
         alignItems: "center",
         gap: 10,
+        marginBottom: 5,
       }}
     >
       <div
         style={{
           width: 25,
           height: 25,
+          minWidth: 25,
           border: `2px solid ${color}`,
           backgroundColor: `${color}88`,
         }}

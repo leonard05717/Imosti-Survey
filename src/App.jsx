@@ -46,12 +46,9 @@ function App() {
   const [Instructor, setInstructor] = useState("");
   const [Course, setCourse] = useState("");
   const [RegNo, setRegNo] = useState("");
-  const [valuenowDate, SetvaluenowDate] = useState("");
+  const [valuenowDate, SetvaluenowDate] = useState(new Date());
   const [Trainingvalue, setTrainingValue] = useState([null, null]);
   const [courses, setCourses] = useState([]);
-
-
-  
 
   const NameTrasfer = (event) => {
     setName(event.target.value);
@@ -183,7 +180,7 @@ function App() {
     setInstructor("");
     setCourse("");
     setRegNo("");
-    SetvaluenowDate("");
+    SetvaluenowDate(new Date());
     setTrainingValue("");
   }
 
@@ -210,23 +207,27 @@ function App() {
       question_id: v.id,
       score: v.value,
       training_id: singeData.id,
+      created_at: new Date(),
     }));
 
     const data2 = Question2DB.map((v) => ({
       question_id: v.id,
       score: v.value,
       training_id: singeData.id,
+      created_at: new Date(),
     }));
 
     const data3 = Question3DB.map((v) => ({
       question_id: v.id,
       score: v.value,
       training_id: singeData.id,
+      created_at: new Date(),
     }));
     const data4 = Question4DB.map((v) => ({
       question_id: v.id,
       score: v.value,
       training_id: singeData.id,
+      created_at: new Date(),
     }));
 
     const allData = data.concat(data2, data3, data4);
@@ -245,8 +246,7 @@ function App() {
       .insert(feedback);
     if (feedbackError) return console.log(feedbackError.message);
 
-    console.log(allData);
-    reset()
+    reset();
   }
 
   useEffect(() => {
@@ -267,15 +267,15 @@ function App() {
           } else if (payload.eventType === "UPDATE") {
             setQuestion((prev) =>
               prev.map((item) =>
-                item.id === payload.new.id ? payload.new : item
-              )
+                item.id === payload.new.id ? payload.new : item,
+              ),
             );
           } else if (payload.eventType === "DELETE") {
             setQuestion((prev) =>
-              prev.filter((item) => item.id !== payload.old.id)
+              prev.filter((item) => item.id !== payload.old.id),
             );
           }
-        }
+        },
       )
       .subscribe();
 
@@ -290,15 +290,15 @@ function App() {
           } else if (payload.eventType === "UPDATE") {
             setQuestion2((prev) =>
               prev.map((item) =>
-                item.id === payload.new.id ? payload.new : item
-              )
+                item.id === payload.new.id ? payload.new : item,
+              ),
             );
           } else if (payload.eventType === "DELETE") {
             setQuestion2((prev) =>
-              prev.filter((item) => item.id !== payload.old.id)
+              prev.filter((item) => item.id !== payload.old.id),
             );
           }
-        }
+        },
       )
       .subscribe();
 
@@ -313,15 +313,15 @@ function App() {
           } else if (payload.eventType === "UPDATE") {
             setQuestion3((prev) =>
               prev.map((item) =>
-                item.id === payload.new.id ? payload.new : item
-              )
+                item.id === payload.new.id ? payload.new : item,
+              ),
             );
           } else if (payload.eventType === "DELETE") {
             setQuestion3((prev) =>
-              prev.filter((item) => item.id !== payload.old.id)
+              prev.filter((item) => item.id !== payload.old.id),
             );
           }
-        }
+        },
       )
       .subscribe();
 
@@ -336,15 +336,15 @@ function App() {
           } else if (payload.eventType === "UPDATE") {
             setQuestion4((prev) =>
               prev.map((item) =>
-                item.id === payload.new.id ? payload.new : item
-              )
+                item.id === payload.new.id ? payload.new : item,
+              ),
             );
           } else if (payload.eventType === "DELETE") {
             setQuestion4((prev) =>
-              prev.filter((item) => item.id !== payload.old.id)
+              prev.filter((item) => item.id !== payload.old.id),
             );
           }
-        }
+        },
       )
       .subscribe();
 
@@ -359,15 +359,15 @@ function App() {
           } else if (payload.eventType === "UPDATE") {
             setFeedback((prev) =>
               prev.map((item) =>
-                item.id === payload.new.id ? payload.new : item
-              )
+                item.id === payload.new.id ? payload.new : item,
+              ),
             );
           } else if (payload.eventType === "DELETE") {
             setFeedback((prev) =>
-              prev.filter((item) => item.id !== payload.old.id)
+              prev.filter((item) => item.id !== payload.old.id),
             );
           }
-        }
+        },
       )
       .subscribe();
 
@@ -385,24 +385,32 @@ function App() {
       <Modal
         marginTop={20}
         radius={20}
-        centered="true"
+        centered='true'
         opened={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
         }}
       >
         <div style={{ display: "flex" }}>
-          <AspectRatio ratio={1} flex="0 0 200px">
-            <Image h={70} w={70} src="../Picture/Logo.png" alt="Avatar" />
+          <AspectRatio
+            ratio={1}
+            flex='0 0 200px'
+          >
+            <Image
+              h={70}
+              w={70}
+              src='../Picture/Logo.png'
+              alt='Avatar'
+            />
           </AspectRatio>
-          <div className="Aspect-text">
+          <div className='Aspect-text'>
             International Maritime & Offshore{" "}
-            <div className="Aspect-text2"> Safety Training Institute</div>
+            <div className='Aspect-text2'> Safety Training Institute</div>
           </div>
         </div>
-        <div className="Response">Your response has been recorded</div>
+        <div className='Response'>Your response has been recorded</div>
         <Button
-          className="Button-done"
+          className='Button-done'
           onClick={() => {
             submitEventHandler();
             setIsModalOpen(false);
@@ -413,30 +421,33 @@ function App() {
         </Button>
       </Modal>
 
-      <div className="Main-Container">
+      <div className='Main-Container'>
         <div style={{ backgroundColor: "black" }}>
-          <div className="logo" style={{ display: "flex" }}>
+          <div
+            className='logo'
+            style={{ display: "flex" }}
+          >
             <AspectRatio
               style={{ marginTop: "10px", marginBottom: "30px" }}
               ratio={1}
-              flex="0 0 200px"
+              flex='0 0 200px'
             >
               <Image
                 h={100}
                 w={300}
-                src="../Picture/Admin-Logo.png"
-                alt="Avatar"
+                src='../Picture/Admin-Logo.png'
+                alt='Avatar'
               />
             </AspectRatio>
           </div>
         </div>
-        <div className="stepper-center">
-          <div className="Stepper-Container">
+        <div className='stepper-center'>
+          <div className='Stepper-Container'>
             <Stepper
               active={active}
               allowNextStepsSelect={false}
               onStepClick={setActive}
-              size="xs"
+              size='xs'
               iconSize={62}
               styles={{
                 content: {
@@ -448,9 +459,12 @@ function App() {
                 },
               }}
             >
-              <Stepper.Step label="First step" description="Get Information">
-                <div className="Input-Center">
-                  <div className="font-size">Fillup All Information</div>
+              <Stepper.Step
+                label='First step'
+                description='Get Information'
+              >
+                <div className='Input-Center'>
+                  <div className='font-size'>Fillup All Information</div>
                   <div
                     style={{
                       display: "flex",
@@ -461,15 +475,15 @@ function App() {
                     INSTRUCTION: Please Mark the Circle that applies and
                     corresponds to your assessment of each item.
                   </div>
-                  <div className="input-design">
-                    <div className="Input-text">
+                  <div className='input-design'>
+                    <div className='Input-text'>
                       Name:
                       <input
                         style={{ marginTop: "-20px" }}
                         onChange={NameTrasfer}
-                        className="input"
-                        type="text"
-                        placeholder="Full Name"
+                        className='input'
+                        type='text'
+                        placeholder='Full Name'
                         value={Name}
                         required
                       />
@@ -477,10 +491,10 @@ function App() {
                       <input
                         style={{ marginTop: "-20px" }}
                         onChange={InstructorTrasfer}
-                        id="Instructor"
-                        className="input"
-                        type="text"
-                        placeholder="Instructor"
+                        id='Instructor'
+                        className='input'
+                        type='text'
+                        placeholder='Instructor'
                         required
                         value={Instructor}
                       />
@@ -488,21 +502,21 @@ function App() {
                       <input
                         style={{ width: "300px", marginTop: "-20px" }}
                         onChange={RegTrasfer}
-                        id="Reg"
-                        className="input"
-                        type="text"
-                        placeholder="Insert full company Name"
+                        id='Reg'
+                        className='input'
+                        type='text'
+                        placeholder='Insert full company Name'
                         required
                         value={RegNo}
                       />
                     </div>
-                    <div className="right-container">
-                      <div className="m_38a85659-mantine-popover-dropdown">
-                        <div className="left-info">
+                    <div className='right-container'>
+                      <div className='m_38a85659-mantine-popover-dropdown'>
+                        <div className='left-info'>
                           <DatePickerInput
-                            type="range"
-                            label="Pick dates range"
-                            placeholder="Pick dates range"
+                            type='range'
+                            label='Pick dates range'
+                            placeholder='Pick dates range'
                             value={Trainingvalue}
                             onChange={setTrainingValue}
                             required
@@ -511,10 +525,14 @@ function App() {
                         <div style={{ marginTop: "6px" }}>
                           <DatePickerInput
                             leftSection={
-                              <IconCalendar size={18} stroke={1.5} />
+                              <IconCalendar
+                                size={18}
+                                stroke={1.5}
+                              />
                             }
-                            label="Date Now"
-                            placeholder="Pick Date"
+                            readOnly
+                            label='Date Now'
+                            placeholder='Pick Date'
                             value={valuenowDate}
                             onChange={SetvaluenowDate}
                             labelProps={{ style: { fontWeight: "bold" } }}
@@ -525,9 +543,9 @@ function App() {
                       <div style={{ marginTop: "-10px" }}>
                         <Select
                           searchable
-                          label="Course"
+                          label='Course'
                           required
-                          placeholder="Select Course"
+                          placeholder='Select Course'
                           data={courses.map((v) => ({
                             label: v.Code,
                             value: v.id.toString(),
@@ -538,39 +556,70 @@ function App() {
                       </div>
                     </div>
                   </div>
-                  <Group justify="center" mt="xl">
-                    <Button variant="default" onClick={prevStep}>
+                  <Group
+                    justify='center'
+                    mt='xl'
+                  >
+                    <Button
+                      variant='default'
+                      onClick={prevStep}
+                    >
                       Back
                     </Button>
-                    <Button onClick={nextStep} disabled={!(Name && Instructor && RegNo && Trainingvalue && valuenowDate && Course) }
-                >Next step</Button>
+                    <Button
+                      onClick={nextStep}
+                      disabled={
+                        !(
+                          Name &&
+                          Instructor &&
+                          RegNo &&
+                          Trainingvalue &&
+                          valuenowDate &&
+                          Course
+                        )
+                      }
+                    >
+                      Next step
+                    </Button>
                   </Group>
                 </div>
               </Stepper.Step>
-              <Stepper.Step label="Second step" description="Check Survey">
-                <div className="Maincontainer-second">
-                  <div className="Main-text">Survey Form</div>
-                  <div className="Second-text">
+              <Stepper.Step
+                label='Second step'
+                description='Check Survey'
+              >
+                <div className='Maincontainer-second'>
+                  <div className='Main-text'>Survey Form</div>
+                  <div className='Second-text'>
                     <label style={{ fontweight: "bold" }}>INSTRUCTION:</label>
                     Please Mark the Circle that applies and corresponds to your
                     assessment of each item.
                   </div>
 
-                  <div className="first-border">
-                    <Grid justify="space-evenly">
+                  <div className='first-border'>
+                    <Grid justify='space-evenly'>
                       <Grid.Col span={1.8}>CRITERIA</Grid.Col>
-                      <Grid.Col style={{ marginLeft: "185px" }} span={1.8}>
+                      <Grid.Col
+                        style={{ marginLeft: "185px" }}
+                        span={1.8}
+                      >
                         RATING
                       </Grid.Col>
                     </Grid>
                   </div>
-                  <div className="Second-border">
-                    <Grid grow gutter="xl">
+                  <div className='Second-border'>
+                    <Grid
+                      grow
+                      gutter='xl'
+                    >
                       <Grid.Col
                         style={{ marginLeft: "20px" }}
                         span={3}
                       ></Grid.Col>
-                      <Grid.Col style={{}} span={1.8}>
+                      <Grid.Col
+                        style={{}}
+                        span={1.8}
+                      >
                         <Grid style={{ justifyContent: "space-evenly" }}>
                           <Grid.Col span={2.4}>5</Grid.Col>
                           <Grid.Col span={2.4}>4</Grid.Col>
@@ -626,16 +675,23 @@ function App() {
                   </div>
                   <Grid style={{ borderBottom: "2px solid black" }}>
                     <Grid.Col
-                      className="AService"
+                      className='AService'
                       style={{ marginLeft: "20px" }}
                       span={3}
                     >
                       A.Services
                     </Grid.Col>
                   </Grid>
-                  <div className="Question-Sheet">
-                    <Grid style={{ marginTop: "20px" }} grow gutter="xl">
-                      <Grid.Col style={{ marginLeft: "20px" }} span={4}>
+                  <div className='Question-Sheet'>
+                    <Grid
+                      style={{ marginTop: "20px" }}
+                      grow
+                      gutter='xl'
+                    >
+                      <Grid.Col
+                        style={{ marginLeft: "20px" }}
+                        span={4}
+                      >
                         <div>
                           {QuestionDB.map((RequestQ1) => {
                             return (
@@ -647,7 +703,10 @@ function App() {
                           })}
                         </div>
                       </Grid.Col>
-                      <Grid.Col style={{ marginLeft: "-100px" }} span={1.8}>
+                      <Grid.Col
+                        style={{ marginLeft: "-100px" }}
+                        span={1.8}
+                      >
                         <div>
                           {QuestionDB.map((Request1) => {
                             return (
@@ -675,11 +734,26 @@ function App() {
                                   }}
                                 >
                                   {Request1.count}
-                                  <Radio name={Request1.Question} value="5" />
-                                  <Radio name={Request1.Question} value="4" />
-                                  <Radio name={Request1.Question} value="3" />
-                                  <Radio name={Request1.Question} value="2" />
-                                  <Radio name={Request1.Question} value="1" />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='5'
+                                  />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='4'
+                                  />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='3'
+                                  />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='2'
+                                  />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='1'
+                                  />
                                 </div>
                               </RadioGroup>
                             );
@@ -687,15 +761,25 @@ function App() {
                         </div>
                       </Grid.Col>
                     </Grid>
-                    <div className="Second-border">
+                    <div className='Second-border'>
                       <Grid>
-                        <Grid.Col style={{ marginLeft: "20px" }} span={3}>
+                        <Grid.Col
+                          style={{ marginLeft: "20px" }}
+                          span={3}
+                        >
                           B.Facilities
                         </Grid.Col>
                       </Grid>
                     </div>
-                    <Grid style={{ marginTop: "20px" }} grow gutter="xl">
-                      <Grid.Col style={{ marginLeft: "20px" }} span={4}>
+                    <Grid
+                      style={{ marginTop: "20px" }}
+                      grow
+                      gutter='xl'
+                    >
+                      <Grid.Col
+                        style={{ marginLeft: "20px" }}
+                        span={4}
+                      >
                         <div>
                           {Question2DB.map((RequestQ) => {
                             return (
@@ -706,7 +790,10 @@ function App() {
                           })}
                         </div>
                       </Grid.Col>
-                      <Grid.Col style={{ marginLeft: "-100px" }} span={1.8}>
+                      <Grid.Col
+                        style={{ marginLeft: "-100px" }}
+                        span={1.8}
+                      >
                         <div>
                           <div>
                             {Question2DB.map((Request3) => {
@@ -749,11 +836,26 @@ function App() {
                                     }}
                                   >
                                     {Request1.count}
-                                    <Radio name={Request1.Question} value="5" />
-                                    <Radio name={Request1.Question} value="4" />
-                                    <Radio name={Request1.Question} value="3" />
-                                    <Radio name={Request1.Question} value="2" />
-                                    <Radio name={Request1.Question} value="1" />
+                                    <Radio
+                                      name={Request1.Question}
+                                      value='5'
+                                    />
+                                    <Radio
+                                      name={Request1.Question}
+                                      value='4'
+                                    />
+                                    <Radio
+                                      name={Request1.Question}
+                                      value='3'
+                                    />
+                                    <Radio
+                                      name={Request1.Question}
+                                      value='2'
+                                    />
+                                    <Radio
+                                      name={Request1.Question}
+                                      value='1'
+                                    />
                                   </div>
                                 </RadioGroup>
                               );
@@ -762,15 +864,25 @@ function App() {
                         </div>
                       </Grid.Col>
                     </Grid>
-                    <div className="Second-border">
+                    <div className='Second-border'>
                       <Grid>
-                        <Grid.Col style={{ marginLeft: "20px" }} span={3}>
+                        <Grid.Col
+                          style={{ marginLeft: "20px" }}
+                          span={3}
+                        >
                           C.Course
                         </Grid.Col>
                       </Grid>
                     </div>
-                    <Grid style={{ marginTop: "20px" }} grow gutter="xl">
-                      <Grid.Col style={{ marginLeft: "20px" }} span={4}>
+                    <Grid
+                      style={{ marginTop: "20px" }}
+                      grow
+                      gutter='xl'
+                    >
+                      <Grid.Col
+                        style={{ marginLeft: "20px" }}
+                        span={4}
+                      >
                         <div>
                           {Question3DB.map((RequestQ3) => {
                             return (
@@ -781,7 +893,10 @@ function App() {
                           })}
                         </div>
                       </Grid.Col>
-                      <Grid.Col style={{ marginLeft: "-100px" }} span={1.8}>
+                      <Grid.Col
+                        style={{ marginLeft: "-100px" }}
+                        span={1.8}
+                      >
                         <div style={{}}>
                           {Question3DB.map((Request1) => {
                             return (
@@ -809,11 +924,26 @@ function App() {
                                   }}
                                 >
                                   {Request1.count}
-                                  <Radio name={Request1.Question} value="5" />
-                                  <Radio name={Request1.Question} value="4" />
-                                  <Radio name={Request1.Question} value="3" />
-                                  <Radio name={Request1.Question} value="2" />
-                                  <Radio name={Request1.Question} value="1" />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='5'
+                                  />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='4'
+                                  />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='3'
+                                  />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='2'
+                                  />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='1'
+                                  />
                                 </div>
                               </RadioGroup>
                             );
@@ -822,15 +952,25 @@ function App() {
                       </Grid.Col>
                     </Grid>
 
-                    <div className="Second-border">
+                    <div className='Second-border'>
                       <Grid>
-                        <Grid.Col style={{ marginLeft: "20px" }} span={3}>
+                        <Grid.Col
+                          style={{ marginLeft: "20px" }}
+                          span={3}
+                        >
                           D.Instructor
                         </Grid.Col>
                       </Grid>
                     </div>
-                    <Grid style={{ marginTop: "20px" }} grow gutter="xl">
-                      <Grid.Col style={{ marginLeft: "20px" }} span={4}>
+                    <Grid
+                      style={{ marginTop: "20px" }}
+                      grow
+                      gutter='xl'
+                    >
+                      <Grid.Col
+                        style={{ marginLeft: "20px" }}
+                        span={4}
+                      >
                         <div>
                           {Question4DB.map((RequestQ6) => {
                             return (
@@ -841,7 +981,10 @@ function App() {
                           })}
                         </div>
                       </Grid.Col>
-                      <Grid.Col style={{ marginLeft: "-100px" }} span={1.8}>
+                      <Grid.Col
+                        style={{ marginLeft: "-100px" }}
+                        span={1.8}
+                      >
                         <div style={{}}>
                           {Question4DB.map((Request1) => {
                             return (
@@ -869,11 +1012,26 @@ function App() {
                                   }}
                                 >
                                   {Request1.count}
-                                  <Radio name={Request1.Question} value="5" />
-                                  <Radio name={Request1.Question} value="4" />
-                                  <Radio name={Request1.Question} value="3" />
-                                  <Radio name={Request1.Question} value="2" />
-                                  <Radio name={Request1.Question} value="1" />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='5'
+                                  />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='4'
+                                  />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='3'
+                                  />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='2'
+                                  />
+                                  <Radio
+                                    name={Request1.Question}
+                                    value='1'
+                                  />
                                 </div>
                               </RadioGroup>
                             );
@@ -883,35 +1041,56 @@ function App() {
                     </Grid>
                   </div>
                 </div>
-                <Group justify="center" mt="xl">
-                  <Button variant="default" onClick={prevStep}>
+                <Group
+                  justify='center'
+                  mt='xl'
+                >
+                  <Button
+                    variant='default'
+                    onClick={prevStep}
+                  >
                     Back
                   </Button>
-                  <Button 
-                   onClick={() => {
-                      const isAllAnswered1 = QuestionDB.every((q) => q.value && q.value !== "");
-                      const isAllAnswered2 = Question2DB.every((q) => q.value && q.value !== "");
-                      const isAllAnswered3 = Question3DB.every((q) => q.value && q.value !== "");
-                      const isAllAnswered4 = Question4DB.every((q) => q.value && q.value !== "");
+                  <Button
+                    onClick={() => {
+                      const isAllAnswered1 = QuestionDB.every(
+                        (q) => q.value && q.value !== "",
+                      );
+                      const isAllAnswered2 = Question2DB.every(
+                        (q) => q.value && q.value !== "",
+                      );
+                      const isAllAnswered3 = Question3DB.every(
+                        (q) => q.value && q.value !== "",
+                      );
+                      const isAllAnswered4 = Question4DB.every(
+                        (q) => q.value && q.value !== "",
+                      );
 
-                     if (!isAllAnswered1 || !isAllAnswered2 || !isAllAnswered3 || !isAllAnswered4 ) {
-                     alert("Please answer all questions before proceeding.");
-                           return;
-                                }
-                                 nextStep();
-                                      }}
-                       >Next step</Button>
+                      if (
+                        !isAllAnswered1 ||
+                        !isAllAnswered2 ||
+                        !isAllAnswered3 ||
+                        !isAllAnswered4
+                      ) {
+                        alert("Please answer all questions before proceeding.");
+                        return;
+                      }
+                      nextStep();
+                    }}
+                  >
+                    Next step
+                  </Button>
                 </Group>
               </Stepper.Step>
               <Stepper.Step
-                label="Third step"
-                description="Additional Feedback"
+                label='Third step'
+                description='Additional Feedback'
               >
                 <div>
-                  <div className="Feedback-text">Additional Feedback</div>
+                  <div className='Feedback-text'>Additional Feedback</div>
 
-                  <div className="Feedback-question">
-                    <div className="Feedback-input">
+                  <div className='Feedback-question'>
+                    <div className='Feedback-input'>
                       <div>
                         {FeedbackQ.map((Feedbacklist) => {
                           return (
@@ -919,9 +1098,9 @@ function App() {
                               {Feedbacklist.id} .{" "}
                               {Feedbacklist.QuestionFeedback}
                               <Input
-                                radius="xl"
+                                radius='xl'
                                 id={"Feedback" + Feedbacklist.id}
-                                placeholder="Input Answer"
+                                placeholder='Input Answer'
                                 value={Feedbacklist.value}
                                 onChange={(e) => {
                                   setFeedback((curr) => {
@@ -944,58 +1123,73 @@ function App() {
                     </div>
                   </div>
                 </div>
-                <Group justify="center" mt="xl">
-                  <Button variant="default"  onClick={prevStep}>
+                <Group
+                  justify='center'
+                  mt='xl'
+                >
+                  <Button
+                    variant='default'
+                    onClick={prevStep}
+                  >
                     Back
                   </Button>
                   <Button onClick={nextStep}>Next step</Button>
                 </Group>
               </Stepper.Step>
-              <Stepper.Step label="Final step" description="Verify">
-                <div className="Feedback-text">Survey Information</div>
+              <Stepper.Step
+                label='Final step'
+                description='Verify'
+              >
+                <div className='Feedback-text'>Survey Information</div>
                 <div>
-                  <div className="Center-Step4">
-                    <div className="Borderline-Step4">
-                      <label className="Step4">Name :</label>
+                  <div className='Center-Step4'>
+                    <div className='Borderline-Step4'>
+                      <label className='Step4'>Name :</label>
                       <label style={{ marginLeft: "170px" }}>{Name}</label>{" "}
                       <br></br>{" "}
                     </div>
-                    <div className="Borderline-Step4">
-                      <label className="Step4">Course :</label>
+                    <div className='Borderline-Step4'>
+                      <label className='Step4'>Course :</label>
                       <label style={{ marginLeft: "163px" }}>
                         {courses.find((v) => v.id.toString() === Course)?.Code}
                       </label>
                       <br></br>
                     </div>
-                    <div className="Borderline-Step4">
-                      <label className="Step4">Date :</label>
+                    <div className='Borderline-Step4'>
+                      <label className='Step4'>Date :</label>
                       <label style={{ marginLeft: "178px" }}>
-                        {valuenowDate}
+                        {valuenowDate.toDateString()}
                       </label>
                       <br></br>
                     </div>
-                    <div className="Borderline-Step4">
-                      <label className="Step4">Instructor :</label>
+                    <div className='Borderline-Step4'>
+                      <label className='Step4'>Instructor :</label>
                       <label style={{ marginLeft: "140px" }}>
                         {Instructor}
                       </label>
                       <br></br>
                     </div>
-                    <div className="Borderline-Step4">
-                      <label className="Step4">Training Date :</label>
+                    <div className='Borderline-Step4'>
+                      <label className='Step4'>Training Date :</label>
                       <label style={{ marginLeft: "110px" }}>
                         {Trainingvalue}
                       </label>
                       <br></br>
                     </div>
-                    <div className="Borderline-Step4">
-                      <label className="Step4">Reg.# :</label>
+                    <div className='Borderline-Step4'>
+                      <label className='Step4'>Reg.# :</label>
                       <label style={{ marginLeft: "170px" }}>{RegNo}</label>
                     </div>
                   </div>
                 </div>
-                <Group justify="center" mt="xl">
-                  <Button variant="default" onClick={prevStep}>
+                <Group
+                  justify='center'
+                  mt='xl'
+                >
+                  <Button
+                    variant='default'
+                    onClick={prevStep}
+                  >
                     Back
                   </Button>
                   <Button
