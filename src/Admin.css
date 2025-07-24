@@ -129,3 +129,29 @@
   gap: 10px;
   flex-direction: column;
 }
+
+#print-area {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  visibility: hidden;
+}
+
+@media print {
+  * {
+    visibility: hidden;
+  }
+
+  #print-area,
+  #print-area * {
+    visibility: visible; /* make print area visible */
+  }
+
+  #print-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+}

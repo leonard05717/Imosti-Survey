@@ -2,9 +2,13 @@ import { BarChart, PieChart } from "@mantine/charts";
 import {
   ActionIcon,
   Button,
+  CloseButton,
+  Divider,
   Menu,
   Modal,
+  Popover,
   ScrollAreaAutosize,
+  Select,
   Text,
   ThemeIcon,
 } from "@mantine/core";
@@ -19,7 +23,7 @@ import {
   IconUser,
   IconWallpaperOff,
 } from "@tabler/icons-react";
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import DashboardItem from "./components/DashboardItem";
 import PieCourseItem from "./components/PieCourseItem";
 import supabase from "../supabase";
@@ -27,29 +31,76 @@ import { useDidUpdate, useDisclosure } from "@mantine/hooks";
 import { subWeeks, subMonths, subYears, isAfter, isBefore } from "date-fns";
 import { MonthPicker, YearPicker } from "@mantine/dates";
 import { modals } from "@mantine/modals";
+import ReactToPrint from "react-to-print";
+import PrintableSurvey from "./components/PrintableSurvey";
 
 const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"];
 
 function Analytics({ stafflog, adminData, scores, courses, students }) {
+  const [printState, { close: closePrintState, open: openPrintState }] =
+    useDisclosure(false);
   const [filterState, { open: openFilterState, close: closeFilterState }] =
     useDisclosure(false);
   const [dashboardData, setDashboardData] = useState({
     totalSurvey: 0,
     totalCourse: 0,
   });
+  const printRef = useRef(null);
 
   const [filterBarchart, setFilterBarchart] = useState([
     new Date(),
     new Date(),
   ]);
   const [selectedMonthYear, setSelectedMonthYear] = useState(new Date());
-  const [selectedFilter, setSelectedFilter] = useState("Last Week");
+  const [selectedFilter, setSelectedFilter] = useState("Today");
 
   const [barChartData, setBarChartData] = useState([
     { services: "A. Services", Value: 0 },
     { services: "B. Facilities", Value: 0 },
     { services: "C. Course", Value: 0 },
     { services: "D. Instructor", Value: 0 },
+  ]);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+  const [surveyData, setSurveyData] = useState([
+    {
+      name: "A. Services",
+      average: 4.75,
+      subItems: [
+        { name: "Personnel Assistance", average: 4.85 },
+        { name: "Food", average: 4.17 },
+        { name: "Serving and Combination", average: 4.8 },
+        { name: "Condiments", average: 4.8 },
+      ],
+    },
+    {
+      name: "B. Facilities",
+      average: 4.83,
+      subItems: [
+        { name: "Training Room and Equipments", average: 4.8 },
+        { name: "Accomodation and Canteen", average: 4.8 },
+        { name: "Surroundings", average: 4.9 },
+      ],
+    },
+    {
+      name: "C. Course",
+      average: 4.9,
+      subItems: [
+        { name: "Presentation deck", average: 4.9 },
+        { name: "Materials, Activities and Equipment", average: 4.9 },
+        { name: "Safety Provision", average: 4.9 },
+        { name: "Topical Sequence", average: 4.9 },
+      ],
+    },
+    {
+      name: "D. Instructor",
+      average: 4.9,
+      subItems: [
+        { name: "Rapport with trainees", average: 4.9 },
+        { name: "Clarity of explanation and examples", average: 4.9 },
+        { name: "Active and interesting conduct", average: 4.9 },
+        { name: "Mastery of the subject", average: 4.9 },
+      ],
+    },
   ]);
 
   async function fetchDashboardData() {
@@ -67,38 +118,12 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
     }
   }
 
-  async function printEventHandler() {
-    const conf = await new Promise((res, rej) => {
-      modals.openConfirmModal({
-        title: (
-          <Text
-            size='sm'
-            c='white'
-          >
-            Print Confirmation
-          </Text>
-        ),
-        height: 200,
-        children: (
-          <Text
-            size='sm'
-            style={{ paddingTop: 20, height: 50 }}
-          >
-            Are you sure you want to print the selected data?
-          </Text>
-        ),
-        labels: { confirm: "Confirm", cancel: "Cancel" },
-        onCancel: () => res(false),
-        onConfirm: () => res(true),
-        confirmProps: {
-          mb: 40,
-        },
-        cancelProps: {
-          mb: 40,
-        },
-      });
-    });
-    if (!conf) return;
+  async function printEventHandler(courseCode) {
+    console.log("Printing...");
+
+    window.print();
+
+    console.log("Print success...");
   }
 
   useLayoutEffect(() => {
@@ -161,10 +186,6 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
         break;
 
       default:
-        console.log(start);
-        console.log(end);
-        console.log(selectedMonthYear);
-
         return;
     }
 
@@ -185,18 +206,33 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
       D: 0,
     };
 
+    const count = {
+      A: 0,
+      B: 0,
+      C: 0,
+      D: 0,
+    };
+
     filtered.forEach((item) => {
       const criteria = item.question?.Criteria;
       if (grouped[criteria] !== undefined) {
         grouped[criteria] += item.score;
+        count[criteria] += 1;
       }
     });
 
+    const average = {
+      A: count.A ? grouped.A / count.A : 0,
+      B: count.B ? grouped.B / count.B : 0,
+      C: count.C ? grouped.C / count.C : 0,
+      D: count.D ? grouped.D / count.D : 0,
+    };
+
     setBarChartData([
-      { services: "A. Services", Value: grouped.A },
-      { services: "B. Facilities", Value: grouped.B },
-      { services: "C. Course", Value: grouped.C },
-      { services: "D. Instructor", Value: grouped.D },
+      { services: "A. Services", Value: average.A },
+      { services: "B. Facilities", Value: average.B },
+      { services: "C. Course", Value: average.C },
+      { services: "D. Instructor", Value: average.D },
     ]);
   }, [selectedFilter, selectedMonthYear]);
 
@@ -214,6 +250,13 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
 
   return (
     <div>
+      <div id='print-area'>
+        <PrintableSurvey
+          courseTitle='T-BOSIET with EBS & Travel Safety by Boat'
+          criteria={surveyData}
+        />
+      </div>
+
       <Modal
         title={
           <Text
@@ -402,15 +445,86 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                   </Menu.Item>
                 </Menu.Dropdown>
               </Menu>
-              <Button
-                size='xs'
-                leftSection={<IconPrinter size={17} />}
-                variant='subtle'
-                color='dark'
-                onClick={printEventHandler}
+              <Popover
+                opened={printState}
+                onClose={closePrintState}
+                withArrow
+                arrowSize={15}
+                styles={{
+                  dropdown: {
+                    border: "1px solid #0005",
+                    boxShadow: "1px 2px 3px #0005",
+                  },
+                  arrow: {
+                    borderTop: "1px solid #0005",
+                    borderLeft: "1px solid #0005",
+                  },
+                }}
               >
-                Print
-              </Button>
+                <Popover.Target>
+                  <Button
+                    onClick={openPrintState}
+                    size='xs'
+                    leftSection={<IconPrinter size={17} />}
+                    variant='subtle'
+                    color='dark'
+                  >
+                    Print
+                  </Button>
+                </Popover.Target>
+                <Popover.Dropdown miw={300}>
+                  <div>
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Text
+                        size='sm'
+                        fw='bold'
+                      >
+                        Print Options:
+                      </Text>
+                      <CloseButton onClick={closePrintState} />
+                    </div>
+                    <Divider my={10} />
+                    <Select
+                      checkIconPosition='right'
+                      label='Print By Course'
+                      placeholder='Select Course'
+                      searchable
+                      value={selectedCourse}
+                      clearable
+                      data={courses.map((c) => ({
+                        label: c.Code,
+                        value: c.Code,
+                      }))}
+                      onChange={setSelectedCourse}
+                    />
+                    {selectedCourse ? (
+                      <Button
+                        mt={10}
+                        variant='outline'
+                        leftSection={<IconPrinter size={16} />}
+                        onClick={() => printEventHandler(selectedCourse)}
+                      >
+                        PRINT ({selectedCourse})
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => printEventHandler(null)}
+                        mt={10}
+                        variant='outline'
+                        leftSection={<IconPrinter size={16} />}
+                      >
+                        Print Overall Record
+                      </Button>
+                    )}
+                  </div>
+                </Popover.Dropdown>
+              </Popover>
             </div>
 
             <div
@@ -447,6 +561,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                 <BarChart
                   h={450}
                   w='100%'
+                  valueFormatter={(v) => v.toFixed(2)}
                   data={barChartData}
                   dataKey='services'
                   series={[{ name: "Value", color: "blue.6" }]}
