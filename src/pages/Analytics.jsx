@@ -2,6 +2,7 @@ import { BarChart, PieChart } from "@mantine/charts";
 import {
   ActionIcon,
   Button,
+  Checkbox,
   CloseButton,
   Divider,
   Menu,
@@ -74,6 +75,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
     description: "",
     totalAverage: 0,
     list: [],
+    date: "",
   });
 
   async function fetchDashboardData() {
@@ -97,6 +99,80 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
 
       const questions = (await supabase.from("Questioner").select()).data;
 
+      let start;
+      let end;
+      let date = "";
+      const now = new Date();
+
+      switch (selectedFilter) {
+        case "Today":
+          start = new Date(now);
+          start.setHours(0, 0, 0, 0);
+
+          end = new Date(now);
+          end.setHours(23, 59, 59, 999);
+
+          date = now.toDateString();
+          break;
+
+        case "Last Week":
+          start = subWeeks(now, 1);
+          end = now;
+
+          date = `${start.toDateString()} to ${end.toDateString()}`;
+          break;
+
+        case "Last Month":
+          start = subMonths(now, 1);
+          end = now;
+
+          date = `${start.toDateString()} to ${end.toDateString()}`;
+          break;
+
+        case "Last Year":
+          start = subYears(now, 1);
+          end = now;
+
+          date = `${start.toDateString()} to ${end.toDateString()}`;
+          break;
+
+        case "By Specific Month":
+          if (!selectedMonthYear) return;
+
+          const my1 = new Date(selectedMonthYear);
+
+          start = new Date(my1.getFullYear(), my1.getMonth(), 1);
+          end = new Date(
+            my1.getFullYear(),
+            my1.getMonth() + 1,
+            0,
+            23,
+            59,
+            59,
+            999,
+          );
+
+          date = my1.toLocaleString("default", {
+            month: "long",
+            year: "numeric",
+          });
+          break;
+
+        case "By Specific Year":
+          if (!selectedMonthYear) return;
+
+          const my2 = new Date(selectedMonthYear);
+
+          start = new Date(my2.getFullYear(), 0, 1);
+          end = new Date(my2.getFullYear(), 11, 31, 23, 59, 59, 999);
+
+          date = my2.getFullYear().toString();
+          break;
+
+        default:
+          return;
+      }
+
       let filteredScores = scores;
       let selectedCourse = null;
 
@@ -107,6 +183,11 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
           (s) => s.traning.course_id === selectedCourse.id,
         );
       }
+
+      filteredScores = filteredScores.filter((s) => {
+        const created = new Date(s.DateN);
+        return created >= start && created <= end;
+      });
 
       const crs = {
         A: { sum: 0, len: 0, average: 0, questions: [], name: "A. Services" },
@@ -148,9 +229,10 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
 
       const newSurveyData = {
         title: selectedCourse?.Code || "All Courses",
-        description: selectedCourse?.Course,
+        description: selectedCourse?.Course || "Report",
         totalAverage: totalAverage,
         list: list,
+        date: date,
       };
 
       setSurveyData(newSurveyData);
@@ -159,7 +241,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
         window.setTimeout(() => {
           window.print();
           res(true);
-        }, 2000);
+        }, 1000);
       });
     } catch (error) {
       console.log("Something Error");
@@ -298,6 +380,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
           description={surveyData.description}
           criteria={surveyData.list}
           totalAverage={surveyData.totalAverage}
+          date={surveyData.date}
         />
       </div>
 
@@ -339,19 +422,6 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                 onChange={(v) => setSelectedMonthYear(v)}
               />
             )}
-          </div>
-          <div
-            style={{
-              textAlign: "right",
-            }}
-          >
-            <Button
-              disabled={!selectedMonthYear}
-              color='red'
-              onClick={() => setSelectedMonthYear(null)}
-            >
-              Reset
-            </Button>
           </div>
         </div>
       </Modal>
@@ -474,6 +544,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                   <Menu.Item
                     onClick={() => {
                       setSelectedFilter("By Specific Month");
+                      setSelectedMonthYear(new Date());
                       openFilterState();
                     }}
                   >
@@ -481,6 +552,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                   </Menu.Item>
                   <Menu.Item
                     onClick={() => {
+                      setSelectedMonthYear(new Date());
                       setSelectedFilter("By Specific Year");
                       openFilterState();
                     }}

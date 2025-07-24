@@ -145,7 +145,7 @@
 
   #print-area,
   #print-area * {
-    visibility: visible; /* make print area visible */
+    visibility: visible;
   }
 
   #print-area {
