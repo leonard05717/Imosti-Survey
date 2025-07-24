@@ -8,6 +8,7 @@ import {
   Menu,
   Modal,
   Popover,
+  Portal,
   ScrollAreaAutosize,
   Select,
   Text,
@@ -34,6 +35,7 @@ import { MonthPicker, YearPicker } from "@mantine/dates";
 import { modals } from "@mantine/modals";
 import ReactToPrint from "react-to-print";
 import PrintableSurvey from "./components/PrintableSurvey";
+import PageContainer from "../components/PageContainer";
 
 const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"];
 
@@ -44,7 +46,13 @@ function calculateAverageScore(questionId, scores) {
   return parseFloat((sum / questionScores.length).toFixed(2));
 }
 
-function Analytics({ stafflog, adminData, scores, courses, students }) {
+function Analytics() {
+  const [mainData, setMainData] = useState({
+    scores: [],
+    courses: [],
+    students: [],
+  });
+
   const [printState, { close: closePrintState, open: openPrintState }] =
     useDisclosure(false);
   const [filterState, { open: openFilterState, close: closeFilterState }] =
@@ -77,21 +85,6 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
     list: [],
     date: "",
   });
-
-  async function fetchDashboardData() {
-    try {
-      const courseCount =
-        (await supabase.from("Course").select("*")).data.length || 0;
-      const surveyCount =
-        (await supabase.from("Info-Training").select("*")).data.length || 0;
-      setDashboardData((curr) => ({
-        totalCourse: courseCount,
-        totalSurvey: surveyCount,
-      }));
-    } catch (error) {
-      console.error("Error", error);
-    }
-  }
 
   async function printEventHandler() {
     try {
@@ -173,19 +166,21 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
           return;
       }
 
-      let filteredScores = scores;
+      let filteredScores = mainData.scores;
       let selectedCourse = null;
 
       if (selectedCourseCode) {
-        selectedCourse = courses.find((c) => c.Code === selectedCourseCode);
+        selectedCourse = mainData.courses.find(
+          (c) => c.Code === selectedCourseCode,
+        );
         if (!selectedCourse) return;
-        filteredScores = scores.filter(
+        filteredScores = mainData.scores.filter(
           (s) => s.traning.course_id === selectedCourse.id,
         );
       }
 
       filteredScores = filteredScores.filter((s) => {
-        const created = new Date(s.DateN);
+        const created = new Date(s.traning.DateN);
         return created >= start && created <= end;
       });
 
@@ -250,9 +245,36 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
     }
   }
 
-  useLayoutEffect(() => {
-    fetchDashboardData();
-  }, []);
+  async function fetchAllData() {
+    const scoreData = (
+      await supabase
+        .from("scores")
+        .select("*, question:Questioner(*), traning:Info-Training(*)")
+    ).data;
+
+    const studentData = (await supabase.from("Info-Training").select()).data;
+    const courseData = (await supabase.from("Course").select()).data;
+
+    const courseCount =
+      (await supabase.from("Course").select("*")).data.length || 0;
+    const surveyCount =
+      (await supabase.from("Info-Training").select("*")).data.length || 0;
+
+    setMainData({
+      scores: scoreData,
+      courses: courseData,
+      students: studentData,
+    });
+
+    setDashboardData({
+      totalCourse: courseCount,
+      totalSurvey: surveyCount,
+    });
+  }
+
+  useEffect(() => {
+    fetchAllData();
+  }, [mainData]);
 
   useEffect(() => {
     const now = new Date();
@@ -315,7 +337,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
 
     setFilterBarchart([start, end]);
 
-    const filtered = scores.filter((item) => {
+    const filtered = mainData.scores.filter((item) => {
       const dateN = item.traning?.DateN;
       if (!dateN) return false;
 
@@ -353,15 +375,15 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
     };
 
     setBarChartData([
-      { services: "A. Services", Value: average.A },
-      { services: "B. Facilities", Value: average.B },
-      { services: "C. Course", Value: average.C },
-      { services: "D. Instructor", Value: average.D },
+      { services: "A. Services", Average: average.A },
+      { services: "B. Facilities", Average: average.B },
+      { services: "C. Course", Average: average.C },
+      { services: "D. Instructor", Average: average.D },
     ]);
   }, [selectedFilter, selectedMonthYear]);
 
-  const pieChartData = courses.map((course, index) => {
-    const count = students.filter(
+  const pieChartData = mainData.courses.map((course, index) => {
+    const count = mainData.students.filter(
       (student) => student.course_id === course.id,
     ).length;
 
@@ -373,16 +395,18 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
   });
 
   return (
-    <div>
-      <div id='print-area'>
-        <PrintableSurvey
-          courseTitle={surveyData.title}
-          description={surveyData.description}
-          criteria={surveyData.list}
-          totalAverage={surveyData.totalAverage}
-          date={surveyData.date}
-        />
-      </div>
+    <PageContainer title='Analytics'>
+      <Portal>
+        <div id='print-area'>
+          <PrintableSurvey
+            courseTitle={surveyData.title}
+            description={surveyData.description}
+            criteria={surveyData.list}
+            totalAverage={surveyData.totalAverage}
+            date={surveyData.date}
+          />
+        </div>
+      </Portal>
 
       <Modal
         title={
@@ -428,53 +452,24 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
 
       <div
         style={{
-          backgroundColor: "	rgb(255, 105, 0)",
-          border: "5px solid 	rgb(255, 105, 0)",
-          marginTop: "-3px",
-        }}
-      >
-        <h2
-          style={{
-            marginLeft: "30px",
-            display: "flex",
-            color: "white",
-          }}
-        >
-          Analytics
-          <label style={{ marginLeft: "1020px", marginTop: "5px" }}>
-            {stafflog
-              .filter((v) => v.Role === adminData.Role && v.id === adminData.id)
-              .map((c) => {
-                return c.Role;
-              })}
-          </label>
-          <ThemeIcon
-            size='xl'
-            color='tranfarent'
-            autoContrast
-          >
-            <IconUser size={30} />
-          </ThemeIcon>
-        </h2>
-      </div>
-
-      <div
-        style={{
-          paddingTop: 20,
+          padding: 20,
+          height: "100%",
         }}
       >
         <div
           style={{
-            display: "flex",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gridTemplateRows: "1fr",
             gap: 20,
-            paddingRight: 20,
             position: "relative",
+            height: "100%",
           }}
         >
+          {/* left */}
           <div
             style={{
-              height: 500,
-              width: "calc(100% - 30rem)",
+              height: "100%",
             }}
           >
             <div
@@ -483,7 +478,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                 alignItems: "center",
                 justifyContent: "space-between",
                 height: 50,
-                paddingLeft: 30,
+                paddingLeft: 15,
               }}
             >
               <Menu
@@ -614,7 +609,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                       value={selectedCourseCode}
                       clearable
                       onChange={setSelectedCourseCode}
-                      data={courses.map((c) => ({
+                      data={mainData.courses.map((c) => ({
                         label: c.Code,
                         value: c.Code,
                       }))}
@@ -647,7 +642,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
 
             <div
               style={{
-                height: 450,
+                height: "calc(100% - 50px)",
                 width: "100%",
               }}
             >
@@ -677,24 +672,26 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                 </div>
               ) : (
                 <BarChart
-                  h={450}
+                  h='100%'
                   w='100%'
                   valueFormatter={(v) => v.toFixed(2)}
                   data={barChartData}
                   dataKey='services'
-                  series={[{ name: "Value", color: "blue.6" }]}
+                  series={[{ name: "Average", color: "blue.6" }]}
                   tickLine='y'
                 />
               )}
             </div>
           </div>
+
+          {/* right */}
           <div>
             <div
               style={{
-                width: "30rem",
                 display: "grid",
                 gridTemplateColumns: "1fr 1fr",
                 gap: 10,
+                height: 200,
               }}
             >
               <DashboardItem
@@ -714,6 +711,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                 alignItems: "center",
                 paddingTop: 0,
                 overflow: "hidden",
+                height: "calc(100% - 200px)",
               }}
             >
               <div
@@ -722,7 +720,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                   flexDirection: "column",
                   justifyContent: "space-between",
                   paddingBottom: 10,
-                  height: 300,
+                  height: "100%",
                   paddingTop: 30,
                 }}
               >
@@ -736,10 +734,10 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                   Training per Course
                 </div>
                 <ScrollAreaAutosize
-                  mah={150}
+                  mah={200}
                   w={220}
                 >
-                  {courses.map((course, index) => {
+                  {mainData.courses.map((course, index) => {
                     const color = colors[index % colors.length];
 
                     return (
@@ -762,7 +760,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                   withTooltip
                   tooltipDataSource='segment'
                   data={pieChartData}
-                  size={200}
+                  size={"100%"}
                   withLabelsLine
                   withLabels
                   labelsPosition='outside'
@@ -772,7 +770,7 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
           </div>
         </div>
       </div>
-    </div>
+    </PageContainer>
   );
 }
 

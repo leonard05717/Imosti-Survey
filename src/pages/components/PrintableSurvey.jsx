@@ -18,7 +18,7 @@ const PrintableSurvey = ({
           transform: "translate(-50%, -50%)",
           opacity: 0.1,
         }}
-        src='./Picture/Logo.png'
+        src='/images/Logo.png'
       />
       <div
         style={{
@@ -30,7 +30,7 @@ const PrintableSurvey = ({
       >
         <img
           style={{ height: 150 }}
-          src='./Picture/Admin-Logo.png'
+          src='/images/Admin-Logo.png'
         />
       </div>
       <div style={{ padding: "50px" }}>

@@ -706,7 +706,7 @@ function Admin() {
             <Image
               h={70}
               w={70}
-              src='../Picture/Logo.png'
+              src='/images/Logo.png'
               alt='Avatar'
             />
           </AspectRatio>
@@ -747,7 +747,7 @@ function Admin() {
             <Image
               h={70}
               w={70}
-              src='../Picture/Logo.png'
+              src='/images/Logo.png'
               alt='Avatar'
             />
           </AspectRatio>
@@ -786,7 +786,7 @@ function Admin() {
             <Image
               h={70}
               w={70}
-              src='../Picture/Logo.png'
+              src='/images/Logo.png'
               alt='Avatar'
             />
           </AspectRatio>
@@ -955,7 +955,7 @@ function Admin() {
                   return (
                     <div>
                       <h3 className='font-semibold text-gray-800 mb-2'>
-                        B . Course
+                        D . Instructor
                       </h3>
                       {scores
                         .filter(
@@ -1482,7 +1482,7 @@ function Admin() {
             <Image
               h={70}
               w={70}
-              src='../Picture/Logo.png'
+              src='/images/Logo.png'
               alt='Avatar'
             />
           </AspectRatio>
@@ -1531,7 +1531,7 @@ function Admin() {
                 fit='contain'
                 h={250}
                 w={250}
-                src='../Picture/Admin-Logo.png'
+                src='/images/Admin-Logo.png'
                 alt='Avatar'
               />
             </AspectRatio>
@@ -1641,9 +1641,6 @@ function Admin() {
                     <Analytics
                       stafflog={stafflog}
                       adminData={adminData}
-                      scores={scores}
-                      courses={Coursetable}
-                      students={students}
                     />
                   </Tabs.Panel>
 

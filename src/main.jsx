@@ -16,6 +16,11 @@ import Course from "./AdminSide/Course.jsx";
 import Admin from "./Admin.jsx";
 import LoginPage from "./LoginPage.jsx";
 import CourseList from "./AdminSide/CourseList.jsx";
+import AdminMainPage from "./AdminSide/AdminMainPage.jsx";
+import Analytics from "./pages/Analytics.jsx";
+import Courses from "./AdminSide/Courses.jsx";
+import CourseInfo from "./AdminSide/CourseInfo.jsx";
+import Staff from "./AdminSide/Staff.jsx";
 
 const routers = createBrowserRouter([
   {
@@ -25,6 +30,28 @@ const routers = createBrowserRouter([
   {
     path: "admin",
     element: <Admin />,
+  },
+  {
+    path: "admin2",
+    element: <AdminMainPage />,
+    children: [
+      {
+        path: "analytics",
+        element: <Analytics />,
+      },
+      {
+        path: "courses",
+        element: <Courses />,
+      },
+      {
+        path: "courses/:id",
+        element: <CourseInfo />,
+      },
+      {
+        path: "staff",
+        element: <Staff />,
+      },
+    ],
   },
   {
     path: "admin/new",
