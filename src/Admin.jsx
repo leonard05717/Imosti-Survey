@@ -1515,7 +1515,6 @@ function Admin() {
       <div
         className='Devider-tabs'
         style={{
-          overflowY: "hidden",
           height: "100vh",
           width: "100vw",
         }}
