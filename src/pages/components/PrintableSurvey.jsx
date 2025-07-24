@@ -1,13 +1,16 @@
 import React from "react";
 
-const PrintableSurvey = ({ courseTitle = "Title", criteria = [] }) => {
+const PrintableSurvey = ({
+  courseTitle = "Title",
+  description,
+  criteria,
+  totalAverage,
+}) => {
   return (
     <div style={{ padding: "20px", color: "#000", fontFamily: "Arial" }}>
       <div style={{ marginBottom: "20px" }}>
-        <h4 style={{ margin: 0 }}>Survey Details</h4>
-        <p style={{ fontSize: "15px" }}>
-          <strong>Course</strong> - {courseTitle}
-        </p>
+        <h4 style={{ margin: 0 }}>{courseTitle}</h4>
+        <p style={{ fontSize: "15px" }}>- {description}</p>
       </div>
 
       <table style={{ width: "100%", marginBottom: "20px" }}>
@@ -56,7 +59,7 @@ const PrintableSurvey = ({ courseTitle = "Title", criteria = [] }) => {
                     padding: "0 20px",
                   }}
                 >
-                  350
+                  {totalAverage.toFixed(2)}
                 </div>
               </div>
             </td>

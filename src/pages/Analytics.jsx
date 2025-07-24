@@ -36,6 +36,13 @@ import PrintableSurvey from "./components/PrintableSurvey";
 
 const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"];
 
+function calculateAverageScore(questionId, scores) {
+  const questionScores = scores.filter((s) => s.question_id === questionId);
+  if (questionScores.length === 0) return 0;
+  const sum = questionScores.reduce((acc, cur) => acc + cur.score, 0);
+  return parseFloat((sum / questionScores.length).toFixed(2));
+}
+
 function Analytics({ stafflog, adminData, scores, courses, students }) {
   const [printState, { close: closePrintState, open: openPrintState }] =
     useDisclosure(false);
@@ -60,48 +67,14 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
     { services: "C. Course", Value: 0 },
     { services: "D. Instructor", Value: 0 },
   ]);
-  const [selectedCourse, setSelectedCourse] = useState(null);
-  const [surveyData, setSurveyData] = useState([
-    {
-      name: "A. Services",
-      average: 4.75,
-      subItems: [
-        { name: "Personnel Assistance", average: 4.85 },
-        { name: "Food", average: 4.17 },
-        { name: "Serving and Combination", average: 4.8 },
-        { name: "Condiments", average: 4.8 },
-      ],
-    },
-    {
-      name: "B. Facilities",
-      average: 4.83,
-      subItems: [
-        { name: "Training Room and Equipments", average: 4.8 },
-        { name: "Accomodation and Canteen", average: 4.8 },
-        { name: "Surroundings", average: 4.9 },
-      ],
-    },
-    {
-      name: "C. Course",
-      average: 4.9,
-      subItems: [
-        { name: "Presentation deck", average: 4.9 },
-        { name: "Materials, Activities and Equipment", average: 4.9 },
-        { name: "Safety Provision", average: 4.9 },
-        { name: "Topical Sequence", average: 4.9 },
-      ],
-    },
-    {
-      name: "D. Instructor",
-      average: 4.9,
-      subItems: [
-        { name: "Rapport with trainees", average: 4.9 },
-        { name: "Clarity of explanation and examples", average: 4.9 },
-        { name: "Active and interesting conduct", average: 4.9 },
-        { name: "Mastery of the subject", average: 4.9 },
-      ],
-    },
-  ]);
+  const [selectedCourseCode, setSelectedCourseCode] = useState(null);
+  const [loadingPrint, setLoadingPrint] = useState(false);
+  const [surveyData, setSurveyData] = useState({
+    title: "",
+    description: "",
+    totalAverage: 0,
+    list: [],
+  });
 
   async function fetchDashboardData() {
     try {
@@ -118,12 +91,81 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
     }
   }
 
-  async function printEventHandler(courseCode) {
-    console.log("Printing...");
+  async function printEventHandler() {
+    try {
+      setLoadingPrint(true);
 
-    window.print();
+      const questions = (await supabase.from("Questioner").select()).data;
 
-    console.log("Print success...");
+      let filteredScores = scores;
+      let selectedCourse = null;
+
+      if (selectedCourseCode) {
+        selectedCourse = courses.find((c) => c.Code === selectedCourseCode);
+        if (!selectedCourse) return;
+        filteredScores = scores.filter(
+          (s) => s.traning.course_id === selectedCourse.id,
+        );
+      }
+
+      const crs = {
+        A: { sum: 0, len: 0, average: 0, questions: [], name: "A. Services" },
+        B: { sum: 0, len: 0, average: 0, questions: [], name: "B. Facilities" },
+        C: { sum: 0, len: 0, average: 0, questions: [], name: "C. Course" },
+        D: { sum: 0, len: 0, average: 0, questions: [], name: "D. Instructor" },
+      };
+
+      filteredScores.forEach((score) => {
+        if (crs[score.question.Criteria]) {
+          crs[score.question.Criteria].len += 1;
+          crs[score.question.Criteria].sum += score.score;
+        }
+      });
+
+      ["A", "B", "C", "D"].forEach((key) => {
+        if (crs[key]) {
+          crs[key].average = crs[key].sum / crs[key].len || 0;
+        }
+      });
+
+      questions.forEach((q) => {
+        if (crs[q.Criteria]) {
+          crs[q.Criteria].questions.push(q);
+        }
+      });
+
+      const list = Object.entries(crs).map(([key, value]) => ({
+        name: crs[key].name,
+        average: parseFloat(value.average.toFixed(2)),
+        subItems: value.questions.map((q) => ({
+          name: q.Question,
+          average: calculateAverageScore(q.id, filteredScores),
+        })),
+      }));
+
+      const totalAverage =
+        list.reduce((sum, item) => sum + item.average, 0) / list.length;
+
+      const newSurveyData = {
+        title: selectedCourse?.Code || "All Courses",
+        description: selectedCourse?.Course,
+        totalAverage: totalAverage,
+        list: list,
+      };
+
+      setSurveyData(newSurveyData);
+
+      await new Promise((res, rej) => {
+        window.setTimeout(() => {
+          window.print();
+          res(true);
+        }, 2000);
+      });
+    } catch (error) {
+      console.log("Something Error");
+    } finally {
+      setLoadingPrint(false);
+    }
   }
 
   useLayoutEffect(() => {
@@ -252,8 +294,10 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
     <div>
       <div id='print-area'>
         <PrintableSurvey
-          courseTitle='T-BOSIET with EBS & Travel Safety by Boat'
-          criteria={surveyData}
+          courseTitle={surveyData.title}
+          description={surveyData.description}
+          criteria={surveyData.list}
+          totalAverage={surveyData.totalAverage}
         />
       </div>
 
@@ -495,26 +539,28 @@ function Analytics({ stafflog, adminData, scores, courses, students }) {
                       label='Print By Course'
                       placeholder='Select Course'
                       searchable
-                      value={selectedCourse}
+                      value={selectedCourseCode}
                       clearable
+                      onChange={setSelectedCourseCode}
                       data={courses.map((c) => ({
                         label: c.Code,
                         value: c.Code,
                       }))}
-                      onChange={setSelectedCourse}
                     />
-                    {selectedCourse ? (
+                    {selectedCourseCode ? (
                       <Button
                         mt={10}
                         variant='outline'
                         leftSection={<IconPrinter size={16} />}
-                        onClick={() => printEventHandler(selectedCourse)}
+                        onClick={printEventHandler}
+                        loading={loadingPrint}
                       >
-                        PRINT ({selectedCourse})
+                        PRINT ({selectedCourseCode})
                       </Button>
                     ) : (
                       <Button
-                        onClick={() => printEventHandler(null)}
+                        onClick={printEventHandler}
+                        loading={loadingPrint}
                         mt={10}
                         variant='outline'
                         leftSection={<IconPrinter size={16} />}
