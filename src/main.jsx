@@ -22,6 +22,17 @@ import Courses from "./AdminSide/Courses.jsx";
 import CourseInfo from "./AdminSide/CourseInfo.jsx";
 import Staff from "./AdminSide/Staff.jsx";
 import Maintenance from "./AdminSide/Maintenance.jsx";
+import Settings from "./AdminSide/Settings.jsx";
+
+/**
+ * Retrieves the account data from localStorage.
+ *
+ * @returns {Object|null} The account object if found, otherwise null.
+ */
+export function getAccount() {
+  const json = localStorage.getItem("data");
+  return json ? JSON.parse(json) : null;
+}
 
 const routers = createBrowserRouter([
   {
@@ -55,6 +66,10 @@ const routers = createBrowserRouter([
       {
         path: "maintenance",
         element: <Maintenance />,
+      },
+      {
+        path: "settings",
+        element: <Settings />,
       },
     ],
   },

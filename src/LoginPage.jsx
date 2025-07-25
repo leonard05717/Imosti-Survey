@@ -6,13 +6,26 @@ import {
   Image,
   ActionIcon,
   PasswordInput,
+  TextInput,
+  Button,
 } from "@mantine/core";
 import supabase from "./supabase";
 import { data, useNavigate } from "react-router-dom";
 import { IconEye, IconInfoCircle } from "@tabler/icons-react";
+import { useForm } from "@mantine/form";
 
 function LoginPage() {
   const navigate = useNavigate();
+
+  const accountForm = useForm({
+    mode: "controlled",
+    initialValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const [loadingAccount, setLoadingAccount] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -21,15 +34,44 @@ function LoginPage() {
   const icon = <IconInfoCircle />;
 
   async function submit() {
-    const data = Account.find(
-      (v) => v.Email === email && v.Role === password && v.Status === "Active",
-    );
-    if (data) {
-      window.localStorage.setItem("data", JSON.stringify(data));
-      navigate("/admin");
-      console.log("sample1");
-    } else {
-      console.log("Account not found");
+    // const data = Account.find(
+    //   (v) => v.Email === email && v.Role === password && v.Status === "Active",
+    // );
+    // if (data) {
+    //   console.log("sample1");
+    // } else {
+    //   console.log("Account not found");
+    // }
+  }
+
+  async function submitAccount(data) {
+    try {
+      setLoadingAccount(true);
+      const { email, password } = data;
+
+      const { error: loginError, data: loginData } = await supabase
+        .from("Staff-Info")
+        .select()
+        .eq("Email", email)
+        .eq("Password", password);
+
+      if (loginError) {
+        alert(`Something Error: ${loginError.message}`);
+        return;
+      }
+
+      if (loginData.length === 0) {
+        alert("Account Not Found");
+        return;
+      }
+
+      const json = JSON.stringify(loginData[0]);
+      window.localStorage.setItem("data", json);
+      navigate("/admin2/analytics");
+    } catch (error) {
+      window.alert(`Something Error: ${error.toString()}`);
+    } finally {
+      setLoadingAccount(false);
     }
   }
 
@@ -94,35 +136,33 @@ function LoginPage() {
         <div className='login-box'>
           <h2>Log In Account</h2>
           <hr />
-          <form>
-            <label>Email Address</label>
-            <input
+          <form onSubmit={accountForm.onSubmit(submitAccount)}>
+            <TextInput
               type='email'
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              size='lg'
+              label='Email Address'
+              placeholder='Enter Email Address'
+              {...accountForm.getInputProps("email")}
               required
             />
-            <div>
-              <label>Password</label>
-              <PasswordInput
-                size='lg'
-                placeholder='Input placeholder'
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+            <PasswordInput
+              required
+              label='Password'
+              size='lg'
+              placeholder='Enter Password'
+              {...accountForm.getInputProps("password")}
+            />
 
             <div className='forgot-password'>
               <a href='#'>Forgot Password?</a>
             </div>
 
-            <button
+            <Button
               type='submit'
-              onClick={() => {
-                submit();
-              }}
+              loading={loadingAccount}
             >
               Sign In
-            </button>
+            </Button>
           </form>
         </div>
       </div>
