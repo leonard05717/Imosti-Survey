@@ -10,6 +10,7 @@ import {
   FileButton,
   Divider,
   Box,
+  Loader,
 } from "@mantine/core";
 import { IconUpload } from "@tabler/icons-react";
 import supabase, { getAccount } from "../supabase";
@@ -17,7 +18,9 @@ import { Navigate } from "react-router-dom";
 
 function Settings() {
   const account = getAccount();
-  const [file, setFile] = useState(null);
+  const [img, setImg] = useState(account?.profile || "");
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
+  const [loadingImg, setLoadingImg] = useState(false);
 
   const accountForm = useForm({
     mode: "controlled",
@@ -29,7 +32,6 @@ function Settings() {
       Role: account?.Role || "",
       Status: account?.Status || "",
       Contact: account?.Contact || "",
-      profile: account?.profile || "",
     },
   });
 
@@ -39,7 +41,7 @@ function Settings() {
     const fileName = `profile-${userId}-${Date.now()}.${fileExt}`;
 
     const { data, error } = await supabase.storage
-      .from("profiles") // Make sure you have a bucket called 'profile'
+      .from("profiles")
       .upload(fileName, file, { upsert: true });
 
     if (error) {
@@ -48,7 +50,7 @@ function Settings() {
     }
 
     const { data: urlData } = supabase.storage
-      .from("profile")
+      .from("profiles")
       .getPublicUrl(fileName);
 
     return urlData?.publicUrl || "";
@@ -57,13 +59,9 @@ function Settings() {
   // Submit handler
   async function saveAccountEventHandler(values) {
     try {
-      let profileUrl = values.profile;
+      setLoadingUpdate(true);
 
-      if (file) {
-        profileUrl = await uploadProfileImage(file, values.id);
-      }
-
-      await supabase
+      const { data: updatedData } = await supabase
         .from("Staff-Info")
         .update({
           First_Name: values.First_Name,
@@ -72,13 +70,15 @@ function Settings() {
           Role: values.Role,
           Status: values.Status,
           Contact: values.Contact,
-          profile: profileUrl,
         })
-        .eq("id", values.id);
-
-      alert("Account updated successfully!");
+        .eq("id", values.id)
+        .select()
+        .single();
+      localStorage.setItem("data", JSON.stringify(updatedData));
     } catch (error) {
       console.error("Save error:", error.message);
+    } finally {
+      setLoadingUpdate(false);
     }
   }
 
@@ -90,17 +90,45 @@ function Settings() {
     <PageContainer title='Settings'>
       <Box className='max-w-xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6'>
         <div className='flex items-center justify-center flex-col space-y-2'>
-          <Avatar
-            size={100}
-            radius='xl'
-            src={accountForm.values.profile || ""}
-            alt='User avatar'
-          />
+          <div className='relative'>
+            <div className='absolute z-[1] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
+              {loadingImg && <Loader />}
+            </div>
+            <Avatar
+              size={100}
+              radius='2'
+              src={img}
+              alt='User avatar'
+              style={{ border: "1px solid #0005" }}
+            />
+          </div>
           <FileButton
-            onChange={(f) => {
-              console.log(f);
+            onChange={async (f) => {
+              if (!account) {
+                window.alert("No Account Found");
+                return;
+              }
 
-              // setFile(f);
+              try {
+                setLoadingImg(true);
+                const url = await uploadProfileImage(f, account.id);
+                let newAccount = {
+                  ...account,
+                  profile: url,
+                };
+                await supabase
+                  .from("Staff-Info")
+                  .update({
+                    profile: url,
+                  })
+                  .eq("id", account.id);
+                localStorage.setItem("data", JSON.stringify(newAccount));
+                setImg(url);
+              } catch (err) {
+                console.error(err);
+              } finally {
+                setLoadingImg(false);
+              }
             }}
             accept='image/png,image/jpeg'
           >
@@ -164,7 +192,12 @@ function Settings() {
             position='right'
             mt='md'
           >
-            <Button type='submit'>Save Changes</Button>
+            <Button
+              loading={loadingUpdate}
+              type='submit'
+            >
+              Save Changes
+            </Button>
           </Group>
         </form>
       </Box>

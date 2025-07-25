@@ -72,7 +72,7 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
             }}
           >
             <Menu.Target>
-              <div className='flex items-center gap-x-1 pl-2 rounded-sm cursor-pointer hover:opacity-90 active:opacity-60 select-none'>
+              <div className='flex items-center gap-x-2 pl-2 rounded-sm cursor-pointer hover:opacity-90 active:opacity-60 select-none'>
                 <Text size='sm'>
                   {account
                     ? `${account.First_Name} ${account.Last_Name}`
@@ -82,6 +82,7 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
                   src={account?.profile || ""}
                   variant='transparent'
                   color='white'
+                  size={32}
                 />
               </div>
             </Menu.Target>
