@@ -5,6 +5,7 @@ import {
   Checkbox,
   CloseButton,
   Divider,
+  LoadingOverlay,
   Menu,
   Modal,
   Popover,
@@ -52,7 +53,7 @@ function Analytics() {
     courses: [],
     students: [],
   });
-
+  const [loadingPage, setLoadingPage] = useState(true);
   const [printState, { close: closePrintState, open: openPrintState }] =
     useDisclosure(false);
   const [filterState, { open: openFilterState, close: closeFilterState }] =
@@ -246,35 +247,42 @@ function Analytics() {
   }
 
   async function fetchAllData() {
-    const scoreData = (
-      await supabase
-        .from("scores")
-        .select("*, question:Questioner(*), traning:Info-Training(*)")
-    ).data;
+    try {
+      setLoadingPage(true);
+      const scoreData = (
+        await supabase
+          .from("scores")
+          .select("*, question:Questioner(*), traning:Info-Training(*)")
+      ).data;
 
-    const studentData = (await supabase.from("Info-Training").select()).data;
-    const courseData = (await supabase.from("Course").select()).data;
+      const studentData = (await supabase.from("Info-Training").select()).data;
+      const courseData = (await supabase.from("Course").select()).data;
 
-    const courseCount =
-      (await supabase.from("Course").select("*")).data.length || 0;
-    const surveyCount =
-      (await supabase.from("Info-Training").select("*")).data.length || 0;
+      const courseCount =
+        (await supabase.from("Course").select("*")).data.length || 0;
+      const surveyCount =
+        (await supabase.from("Info-Training").select("*")).data.length || 0;
 
-    setMainData({
-      scores: scoreData,
-      courses: courseData,
-      students: studentData,
-    });
+      setMainData({
+        scores: scoreData,
+        courses: courseData,
+        students: studentData,
+      });
 
-    setDashboardData({
-      totalCourse: courseCount,
-      totalSurvey: surveyCount,
-    });
+      setDashboardData({
+        totalCourse: courseCount,
+        totalSurvey: surveyCount,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoadingPage(false);
+    }
   }
 
   useEffect(() => {
     fetchAllData();
-  }, [mainData]);
+  }, []);
 
   useEffect(() => {
     const now = new Date();
@@ -395,7 +403,15 @@ function Analytics() {
   });
 
   return (
-    <PageContainer title='Analytics'>
+    <PageContainer
+      title='Analytics'
+      outsideChildren={
+        <LoadingOverlay
+          loaderProps={{ type: "dots" }}
+          visible={loadingPage}
+        />
+      }
+    >
       <Portal>
         <div id='print-area'>
           <PrintableSurvey

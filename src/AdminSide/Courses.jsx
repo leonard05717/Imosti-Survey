@@ -1,5 +1,6 @@
 import {
   ActionIcon,
+  LoadingOverlay,
   Modal,
   ScrollAreaAutosize,
   Table,
@@ -21,8 +22,10 @@ function Courses() {
   const [modalState, { open: openModalState, close: closeModalState }] =
     useDisclosure(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [loadingPage, setLoadingPage] = useState(true);
 
   async function fetchData() {
+    setLoadingPage(true);
     const courseData = (await supabase.from("Course").select()).data;
     const scoreData = (
       await supabase
@@ -33,6 +36,7 @@ function Courses() {
     setScores(scoreData);
     setQuestions(questionData);
     setCourses(courseData);
+    setLoadingPage(false);
   }
 
   useEffect(() => {
@@ -41,6 +45,12 @@ function Courses() {
 
   return (
     <PageContainer
+      outsideChildren={
+        <LoadingOverlay
+          loaderProps={{ type: "dots" }}
+          visible={loadingPage}
+        />
+      }
       title='Courses'
       rightSection={
         <div>

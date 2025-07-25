@@ -1,8 +1,12 @@
 import PageContainer from "../components/PageContainer";
 import {
   ActionIcon,
+  AspectRatio,
+  Badge,
   Button,
   Group,
+  Image,
+  LoadingOverlay,
   Modal,
   NumberInput,
   PasswordInput,
@@ -10,6 +14,7 @@ import {
   Table,
   TextInput,
 } from "@mantine/core";
+import { useForm } from "@mantine/form";
 import { IconEdit, IconPlus } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import supabase from "../supabase";
@@ -17,12 +22,113 @@ import { useDisclosure } from "@mantine/hooks";
 
 function Staff() {
   const [staffs, setStaffs] = useState([]);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [loadingPage, setLoadingPage] = useState(true);
+  const [selectedUpdateId, setSelectedUpdateId] = useState(null);
   const [modalState, { open: openModalState, close: closeModalState }] =
     useDisclosure(false);
+  const [
+    updateStatusState,
+    { open: openUpdateStatusState, close: closeUpdateStatusState },
+  ] = useDisclosure(false);
+  const staffForm = useForm({
+    mode: "controlled",
+    initialValues: {
+      id: 0,
+      First_Name: "",
+      Last_Name: "",
+      Email: "",
+      Role: "",
+      Contact: "",
+      Password: "",
+      ConfirmPassword: "",
+      type: "add",
+    },
+    validate: {
+      ConfirmPassword: (value, values) => {
+        if (value !== values.Password) {
+          return "Confirm Password should match the Password";
+        }
+        return null;
+      },
+    },
+  });
+
+  async function submitStaffAccount(data) {
+    try {
+      setSubmitLoading(true);
+      if (data.type === "add") {
+        // add staff
+        const { error: insertError } = await supabase
+          .from("Staff-Info")
+          .insert({
+            First_Name: data.First_Name,
+            Last_Name: data.Last_Name,
+            Email: data.Email,
+            Role: data.Role,
+            Contact: data.Contact,
+            Password: data.Password,
+            Status: "Active",
+          });
+        if (insertError) {
+          console.log(`Something Error: ${insertError.message}`);
+          return;
+        }
+        await fetchData();
+        console.log("Add New Account Successfully!");
+        staffForm.reset();
+      } else {
+        const { error: updateError } = await supabase
+          .from("Staff-Info")
+          .update({
+            First_Name: data.First_Name,
+            Last_Name: data.Last_Name,
+            Email: data.Email,
+            Role: data.Role,
+            Contact: data.Contact,
+            Password: data.Password ? data.Password : undefined,
+          })
+          .eq("id", data.id);
+        if (updateError) {
+          console.log(`Something Error: ${updateError.message}`);
+          return;
+        }
+        await fetchData();
+        console.log("Add Update Account Successfully!");
+        closeModalState();
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSubmitLoading(false);
+    }
+  }
+
+  async function setStatusEvent(status) {
+    try {
+      await supabase
+        .from("Staff-Info")
+        .update({
+          Status: status,
+        })
+        .eq("id", selectedUpdateId);
+      await fetchData();
+      closeUpdateStatusState();
+      console.log("Update Status Success");
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   async function fetchData() {
-    const staffData = (await supabase.from("Staff-Info").select()).data;
+    const staffData = (
+      await supabase
+        .from("Staff-Info")
+        .select()
+        .order("id", { ascending: false })
+    ).data;
     setStaffs(staffData);
+    setLoadingPage(false);
   }
 
   useEffect(() => {
@@ -32,10 +138,17 @@ function Staff() {
   return (
     <PageContainer
       title='Staff'
+      outsideChildren={
+        <LoadingOverlay
+          loaderProps={{ type: "dots" }}
+          visible={loadingPage}
+        />
+      }
       rightSection={
         <Button
           size='xs'
           onClick={() => {
+            staffForm.reset();
             openModalState();
           }}
           rightSection={<IconPlus size={14} />}
@@ -47,13 +160,62 @@ function Staff() {
       }
     >
       <Modal
+        marginTop={20}
+        radius={20}
+        centered='true'
+        opened={updateStatusState}
+        onClose={() => {
+          closeUpdateStatusState();
+          // setStaffS(false);
+        }}
+      >
+        <div style={{ display: "flex" }}>
+          <AspectRatio
+            ratio={1}
+            flex='0 0 200px'
+          >
+            <Image
+              h={70}
+              w={70}
+              src='/images/Logo.png'
+              alt='Avatar'
+            />
+          </AspectRatio>
+          <div className='Aspect-text'>
+            International Maritime & Offshore{" "}
+            <div className='Aspect-text2'> Safety Training Institute</div>
+          </div>
+        </div>
+        <div className='Response'></div>
+        <div style={{ display: "flex", justifyContent: "space-evenly" }}>
+          <Button
+            color='rgb(110, 193, 228)'
+            onClick={() => {
+              setStatusEvent("Active");
+            }}
+          >
+            Active
+          </Button>
+          <Button
+            color='rgb(255, 105, 0)'
+            onClick={() => {
+              setStatusEvent("Inactive");
+            }}
+          >
+            InActive
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal
         title='Add or Edit Staff'
         opened={modalState}
         onClose={closeModalState}
       >
         <form
+          onSubmit={staffForm.onSubmit(submitStaffAccount)}
           style={{
-            height: 460,
+            height: 510,
             paddingTop: 10,
             display: "flex",
             flexDirection: "column",
@@ -66,23 +228,27 @@ function Staff() {
             mb={5}
           >
             <TextInput
+              {...staffForm.getInputProps("First_Name")}
               required
               label='First Name'
               placeholder='Enter First Name'
             />
             <TextInput
+              {...staffForm.getInputProps("Last_Name")}
               required
               label='Last Name'
               placeholder='Enter Last Name'
             />
           </Group>
           <TextInput
+            {...staffForm.getInputProps("Email")}
             required
             type='email'
             label='Email Address'
             placeholder='Enter Email Address'
           />
           <NumberInput
+            {...staffForm.getInputProps("Contact")}
             hideControls
             maxLength={11}
             allowDecimal={false}
@@ -92,23 +258,29 @@ function Staff() {
             placeholder='Enter Contact Number'
           />
           <TextInput
+            {...staffForm.getInputProps("Role")}
             required
             label='Role'
             placeholder='Enter Role'
           />
           <PasswordInput
-            required
+            {...staffForm.getInputProps("Password")}
+            required={staffForm.values.type === "add"}
             label='Password'
             placeholder='Enter Password'
           />
           <PasswordInput
-            required
+            {...staffForm.getInputProps("ConfirmPassword")}
+            required={staffForm.values.type === "add"}
             label='Confirm Password'
             placeholder='Enter Confirm Password'
           />
-          <div style={{ textAlign: "end" }}>
-            <Button>Add Staff</Button>
-          </div>
+          <Button
+            loading={submitLoading}
+            type='submit'
+          >
+            {staffForm.values.type === "add" ? "Add Staff" : "Save Changes"}
+          </Button>
         </form>
       </Modal>
 
@@ -137,9 +309,33 @@ function Staff() {
                     <Table.Td>{st.Email}</Table.Td>
                     <Table.Td>{st.Contact}</Table.Td>
                     <Table.Td>{st.Role}</Table.Td>
-                    <Table.Td>{st.Status}</Table.Td>
+                    <Table.Td>
+                      <Badge
+                        style={{
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {
+                          setSelectedUpdateId(st.id);
+                          openUpdateStatusState();
+                        }}
+                        color={st.Status === "Active" ? "green" : "red"}
+                      >
+                        {st.Status}
+                      </Badge>
+                    </Table.Td>
                     <Table.Td ta='center'>
-                      <ActionIcon variant='subtle'>
+                      <ActionIcon
+                        onClick={() => {
+                          staffForm.setValues({
+                            ...st,
+                            type: "edit",
+                            Password: "",
+                            ConfirmPassword: "",
+                          });
+                          openModalState();
+                        }}
+                        variant='subtle'
+                      >
                         <IconEdit size={18} />
                       </ActionIcon>
                     </Table.Td>

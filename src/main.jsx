@@ -21,6 +21,7 @@ import Analytics from "./pages/Analytics.jsx";
 import Courses from "./AdminSide/Courses.jsx";
 import CourseInfo from "./AdminSide/CourseInfo.jsx";
 import Staff from "./AdminSide/Staff.jsx";
+import Maintenance from "./AdminSide/Maintenance.jsx";
 
 const routers = createBrowserRouter([
   {
@@ -50,6 +51,10 @@ const routers = createBrowserRouter([
       {
         path: "staff",
         element: <Staff />,
+      },
+      {
+        path: "maintenance",
+        element: <Maintenance />,
       },
     ],
   },

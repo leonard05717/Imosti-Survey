@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from "react";
 import PageContainer from "../components/PageContainer";
-import { ActionIcon, Button, Modal, Table, TextInput } from "@mantine/core";
+import {
+  ActionIcon,
+  Button,
+  LoadingOverlay,
+  Modal,
+  Table,
+  Text,
+  TextInput,
+} from "@mantine/core";
 import supabase from "../supabase";
 import {
   IconArrowLeft,
@@ -18,6 +26,7 @@ function convertDateRangeToString(dateRange) {
 
 function CourseInfo() {
   const { id: course_id } = useParams();
+  const [loadingPage, setLoadingPage] = useState(true);
   const [students, setStudents] = useState([]);
   const [modalState, { open: openModalState, close: closeModalState }] =
     useDisclosure(false);
@@ -27,6 +36,7 @@ function CourseInfo() {
   const [search, setSearch] = useState("");
 
   async function fetchData() {
+    setLoadingPage(true);
     const studentData = (
       await supabase.from("Info-Training").select("*, course:course_id(*)")
     ).data;
@@ -37,14 +47,35 @@ function CourseInfo() {
     ).data;
     setScores(scoreData);
     setStudents(studentData);
+    setLoadingPage(false);
   }
 
   useEffect(() => {
     fetchData();
   }, []);
 
+  const filteredStudents = students
+    .filter((v) => v.course_id.toString() === course_id)
+    .filter((v) => {
+      if (!search) return true;
+      const s = search.toLowerCase().trim();
+      return (
+        v.Name.toLowerCase().includes(s) ||
+        convertDateRangeToString(v.TrainingD).includes(s) ||
+        v.Reg.toLowerCase().includes(s) ||
+        v.Instructor.toLowerCase().includes(s) ||
+        new Date(v.DateN).toDateString().includes(s)
+      );
+    });
+
   return (
     <PageContainer
+      outsideChildren={
+        <LoadingOverlay
+          loaderProps={{ type: "dots" }}
+          visible={loadingPage}
+        />
+      }
       title='Course Info'
       rightSection={
         <div>
@@ -116,6 +147,7 @@ function CourseInfo() {
       >
         Back
       </Button>
+
       <Table>
         <Table.Thead>
           <Table.Tr>
@@ -129,47 +161,42 @@ function CourseInfo() {
           </Table.Tr>
         </Table.Thead>
         <Table.Tbody>
-          {students
-            .filter((v) => v.course_id.toString() === course_id)
-            .filter((v) => {
-              if (!search) return true;
-              const s = search.toLowerCase().trim();
-              return (
-                v.Name.toLowerCase().includes(s) ||
-                convertDateRangeToString(v.TrainingD).includes(s) ||
-                v.Reg.toLowerCase().includes(s) ||
-                v.Instructor.toLowerCase().includes(s) ||
-                new Date(v.DateN).toDateString().includes(s)
-              );
-            })
-            .map((stud, i) => {
-              return (
-                <Table.Tr>
-                  <Table.Td>{i + 1}</Table.Td>
-                  <Table.Td>{stud.Name}</Table.Td>
-                  <Table.Td>
-                    {convertDateRangeToString(stud.TrainingD)}
-                  </Table.Td>
-                  <Table.Td>{stud.Reg}</Table.Td>
-                  <Table.Td>{stud.Instructor}</Table.Td>
-                  <Table.Td>{new Date(stud.DateN).toDateString()}</Table.Td>
-                  <Table.Td>
-                    <ActionIcon
-                      onClick={() => {
-                        setSelectedStudent(stud);
-                        openModalState();
-                      }}
-                      variant='subtle'
-                      color='dark'
-                    >
-                      <IconDotsVertical size={20} />
-                    </ActionIcon>
-                  </Table.Td>
-                </Table.Tr>
-              );
-            })}
+          {filteredStudents.map((stud, i) => {
+            return (
+              <Table.Tr>
+                <Table.Td>{i + 1}</Table.Td>
+                <Table.Td>{stud.Name}</Table.Td>
+                <Table.Td>{convertDateRangeToString(stud.TrainingD)}</Table.Td>
+                <Table.Td>{stud.Reg}</Table.Td>
+                <Table.Td>{stud.Instructor}</Table.Td>
+                <Table.Td>{new Date(stud.DateN).toDateString()}</Table.Td>
+                <Table.Td>
+                  <ActionIcon
+                    onClick={() => {
+                      setSelectedStudent(stud);
+                      openModalState();
+                    }}
+                    variant='subtle'
+                    color='dark'
+                  >
+                    <IconDotsVertical size={20} />
+                  </ActionIcon>
+                </Table.Td>
+              </Table.Tr>
+            );
+          })}
         </Table.Tbody>
       </Table>
+
+      {filteredStudents.length === 0 && (
+        <Text
+          ff='cursive'
+          ta='center'
+          mt={100}
+        >
+          {loadingPage ? "Loading..." : "No Data Found"}
+        </Text>
+      )}
     </PageContainer>
   );
 }
