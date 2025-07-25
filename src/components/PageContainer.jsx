@@ -6,14 +6,16 @@ import {
   ScrollAreaAutosize,
   Text,
 } from "@mantine/core";
-import { IconLogout } from "@tabler/icons-react";
+import { IconLogout, IconMenu, IconMenu2 } from "@tabler/icons-react";
 import { getAccount } from "../supabase";
 import { modals } from "@mantine/modals";
 import { useNavigate } from "react-router-dom";
+import { useDrawer } from "../context/DrawerContext";
 
 function PageContainer({ children, title, rightSection, outsideChildren }) {
   const account = getAccount();
   const navigate = useNavigate();
+  const { setIsOpen } = useDrawer();
 
   async function logoutEventHandler() {
     const conf = await new Promise((resolve, reason) => {
@@ -31,35 +33,26 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
   }
 
   return (
-    <div
-      style={{
-        height: "100%",
-        width: "100%",
-        position: "relative",
-        display: "flex",
-        flexDirection: "column",
-        gap: "0.5rem",
-      }}
-    >
+    <div className='h-full w-full relative flex flex-col gap-2'>
       {outsideChildren}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          borderBottom: "1px solid rgb(148, 163, 184)",
-          height: "3.5rem",
-          backgroundColor: "#FF6900",
-          padding: "0 20px",
-          color: "white",
-        }}
-      >
-        <Text
-          fw='bold'
-          title={title}
-        >
-          {title}
-        </Text>
+      <div className='flex items-center justify-between border-b border-slate-400 h-14 bg-[#FF6900] px-5 text-white'>
+        <div className='flex items-center gap-x-2'>
+          <div className='h-[1.8rem] block md:hidden'>
+            <ActionIcon
+              variant='subtle'
+              color='white'
+              onClick={() => setIsOpen(true)}
+            >
+              <IconMenu2 size='sm' />
+            </ActionIcon>
+          </div>
+          <Text
+            fw='bold'
+            title={title}
+          >
+            {title}
+          </Text>
+        </div>
         <div className='flex items-center gap-x-2'>
           {rightSection}
           <Menu
@@ -74,9 +67,7 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
             <Menu.Target>
               <div className='flex items-center gap-x-2 pl-2 rounded-sm cursor-pointer hover:opacity-90 active:opacity-60 select-none'>
                 <Text size='sm'>
-                  {account
-                    ? `${account.First_Name} ${account.Last_Name}`
-                    : "No Account Found"}
+                  {account ? account.Last_Name : "No Account Found"}
                 </Text>
                 <Avatar
                   src={account?.profile || ""}

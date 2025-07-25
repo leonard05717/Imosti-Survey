@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { NavLink as MantineNavLink } from "@mantine/core";
+import { CloseButton, NavLink as MantineNavLink } from "@mantine/core";
 import {
   IconCertificate,
   IconChartHistogram,
@@ -8,28 +8,30 @@ import {
   IconUserShare,
 } from "@tabler/icons-react";
 import SingleNavLink from "../components/SingleNavLink";
+import { useDrawer } from "../context/DrawerContext";
 
 function AdminMainPage() {
+  const { isOpen, setIsOpen } = useDrawer();
+
   return (
-    <div
-      style={{
-        display: "flex",
-        width: "100%",
-        height: "100vh",
-      }}
-    >
+    <div className='flex w-full h-screen'>
       <div
-        style={{
-          width: 270,
-          height: "100%",
-          backgroundColor: "gray",
-          padding: 20,
-        }}
+        style={{ backgroundColor: "gray" }}
+        data-open={isOpen}
+        className='data-[open=true]:left-[0] w-[270px] duration-150 h-full p-5 fixed md:relative z-10 left-[-270px] md:left-[0]'
       >
-        <div style={{ width: "100%", padding: "20px 0" }}>
+        <div className='absolute top-2 right-2 block md:hidden text-white'>
+          <CloseButton
+            onClick={() => setIsOpen(false)}
+            color='white'
+            variant='transparent'
+          />
+        </div>
+        <div className='w-full py-5'>
           <img
-            style={{ width: "100%" }}
+            className='w-full'
             src='/images/Admin-Logo.png'
+            alt='Admin Logo'
           />
         </div>
         <SingleNavLink
@@ -58,14 +60,7 @@ function AdminMainPage() {
           Icon={IconSettings}
         />
       </div>
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          width: "calc(100% - 270px)",
-          height: "100%",
-        }}
-      >
+      <div className='flex flex-col md:w-[calc(100%-270px)] w-full h-full'>
         <Outlet />
       </div>
     </div>

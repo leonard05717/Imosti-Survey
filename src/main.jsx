@@ -23,6 +23,7 @@ import CourseInfo from "./AdminSide/CourseInfo.jsx";
 import Staff from "./AdminSide/Staff.jsx";
 import Maintenance from "./AdminSide/Maintenance.jsx";
 import Settings from "./AdminSide/Settings.jsx";
+import { DrawerProvider } from "./context/DrawerContext.jsx";
 
 /**
  * Retrieves the account data from localStorage.
@@ -86,7 +87,9 @@ const routers = createBrowserRouter([
 createRoot(document.getElementById("root")).render(
   <MantineProvider>
     <ModalsProvider>
-      <RouterProvider router={routers} />
+      <DrawerProvider>
+        <RouterProvider router={routers} />
+      </DrawerProvider>
     </ModalsProvider>
   </MantineProvider>,
 );
