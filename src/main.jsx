@@ -29,10 +29,6 @@ import Settings from "./AdminSide/Settings.jsx";
  *
  * @returns {Object|null} The account object if found, otherwise null.
  */
-export function getAccount() {
-  const json = localStorage.getItem("data");
-  return json ? JSON.parse(json) : null;
-}
 
 const routers = createBrowserRouter([
   {

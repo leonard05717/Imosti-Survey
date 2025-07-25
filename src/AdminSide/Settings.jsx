@@ -1,28 +1,28 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import PageContainer from "../components/PageContainer";
 import { useForm } from "@mantine/form";
 import {
   TextInput,
   Button,
   Group,
-  Select,
   Title,
   Avatar,
   FileButton,
   Divider,
   Box,
 } from "@mantine/core";
-import { IconUpload, IconUser } from "@tabler/icons-react";
-import supabase from "../supabase";
+import { IconUpload } from "@tabler/icons-react";
+import supabase, { getAccount } from "../supabase";
 import { Navigate } from "react-router-dom";
-import { getAccount } from "../main";
 
 function Settings() {
   const account = getAccount();
+  const [file, setFile] = useState(null);
 
   const accountForm = useForm({
     mode: "controlled",
     initialValues: {
+      id: account?.id || 0,
       First_Name: account?.First_Name || "",
       Last_Name: account?.Last_Name || "",
       Email: account?.Email || "",
@@ -32,6 +32,55 @@ function Settings() {
       profile: account?.profile || "",
     },
   });
+
+  // Upload image to Supabase Storage
+  async function uploadProfileImage(file, userId) {
+    const fileExt = file.name.split(".").pop();
+    const fileName = `profile-${userId}-${Date.now()}.${fileExt}`;
+
+    const { data, error } = await supabase.storage
+      .from("profiles") // Make sure you have a bucket called 'profile'
+      .upload(fileName, file, { upsert: true });
+
+    if (error) {
+      console.error("Upload error:", error.message);
+      return "";
+    }
+
+    const { data: urlData } = supabase.storage
+      .from("profile")
+      .getPublicUrl(fileName);
+
+    return urlData?.publicUrl || "";
+  }
+
+  // Submit handler
+  async function saveAccountEventHandler(values) {
+    try {
+      let profileUrl = values.profile;
+
+      if (file) {
+        profileUrl = await uploadProfileImage(file, values.id);
+      }
+
+      await supabase
+        .from("Staff-Info")
+        .update({
+          First_Name: values.First_Name,
+          Last_Name: values.Last_Name,
+          Email: values.Email,
+          Role: values.Role,
+          Status: values.Status,
+          Contact: values.Contact,
+          profile: profileUrl,
+        })
+        .eq("id", values.id);
+
+      alert("Account updated successfully!");
+    } catch (error) {
+      console.error("Save error:", error.message);
+    }
+  }
 
   if (!account) {
     return <Navigate to='/LoginPage' />;
@@ -44,12 +93,14 @@ function Settings() {
           <Avatar
             size={100}
             radius='xl'
-            src={accountForm.values.profile || undefined}
+            src={accountForm.values.profile || ""}
             alt='User avatar'
           />
           <FileButton
-            onChange={(file) => {
-              /* handle upload */
+            onChange={(f) => {
+              console.log(f);
+
+              // setFile(f);
             }}
             accept='image/png,image/jpeg'
           >
@@ -70,16 +121,18 @@ function Settings() {
         <Title order={4}>Account Information</Title>
         <form
           className='space-y-4'
-          onSubmit={accountForm.onSubmit((values) => console.log(values))}
+          onSubmit={accountForm.onSubmit(saveAccountEventHandler)}
         >
           <Group grow>
             <TextInput
               label='First Name'
+              required
               placeholder='Enter your first name'
               {...accountForm.getInputProps("First_Name")}
             />
             <TextInput
               label='Last Name'
+              required
               placeholder='Enter your last name'
               {...accountForm.getInputProps("Last_Name")}
             />
@@ -87,6 +140,7 @@ function Settings() {
 
           <TextInput
             label='Email'
+            required
             placeholder='Enter your email'
             {...accountForm.getInputProps("Email")}
           />
@@ -95,22 +149,16 @@ function Settings() {
             <TextInput
               label='Contact Number'
               placeholder='e.g. 09123456789'
+              required
               {...accountForm.getInputProps("Contact")}
             />
-            <Select
-              label='Status'
-              placeholder='Select status'
-              data={["Active", "Inactive"]}
-              {...accountForm.getInputProps("Status")}
+            <TextInput
+              label='Role'
+              readOnly
+              placeholder='Select role'
+              {...accountForm.getInputProps("Role")}
             />
           </Group>
-
-          <Select
-            label='Role'
-            placeholder='Select role'
-            data={["Admin", "Instructor", "Student"]}
-            {...accountForm.getInputProps("Role")}
-          />
 
           <Group
             position='right'

@@ -1,6 +1,35 @@
-import { ScrollAreaAutosize, Text } from "@mantine/core";
+import {
+  ActionIcon,
+  Avatar,
+  Button,
+  Menu,
+  ScrollAreaAutosize,
+  Text,
+} from "@mantine/core";
+import { IconLogout } from "@tabler/icons-react";
+import { getAccount } from "../supabase";
+import { modals } from "@mantine/modals";
+import { useNavigate } from "react-router-dom";
 
 function PageContainer({ children, title, rightSection, outsideChildren }) {
+  const account = getAccount();
+  const navigate = useNavigate();
+
+  async function logoutEventHandler() {
+    const conf = await new Promise((resolve, reason) => {
+      modals.openConfirmModal({
+        title: "Confirmation",
+        children: <div className='pt-3'>Are you sure you want to logout?</div>,
+        labels: { confirm: "Confirm", cancel: "Cancel" },
+        onConfirm: () => resolve(true),
+        onCancel: () => resolve(false),
+      });
+    });
+    if (!conf) return;
+    localStorage.removeItem("data");
+    navigate("/LoginPage");
+  }
+
   return (
     <div
       style={{
@@ -31,7 +60,47 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
         >
           {title}
         </Text>
-        {rightSection}
+        <div className='flex items-center gap-x-2'>
+          {rightSection}
+          <Menu
+            withArrow
+            styles={{
+              arrow: {
+                borderTop: "1px solid #0005",
+                borderLeft: "1px solid #0005",
+              },
+            }}
+          >
+            <Menu.Target>
+              <div className='flex items-center gap-x-1 pl-2 rounded-sm cursor-pointer hover:opacity-90 active:opacity-60 select-none'>
+                <Text size='sm'>
+                  {account
+                    ? `${account.First_Name} ${account.Last_Name}`
+                    : "No Account Found"}
+                </Text>
+                <Avatar
+                  src={account?.profile || ""}
+                  variant='transparent'
+                  color='white'
+                />
+              </div>
+            </Menu.Target>
+            <Menu.Dropdown
+              style={{
+                width: 180,
+                boxShadow: "1px 2px 3px #0005",
+                border: "1px solid #0005",
+              }}
+            >
+              <Menu.Item
+                onClick={logoutEventHandler}
+                leftSection={<IconLogout size={18} />}
+              >
+                Log Out
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </div>
       </div>
       <ScrollAreaAutosize
         w='100%'
