@@ -25,12 +25,6 @@ import Maintenance from "./AdminSide/Maintenance.jsx";
 import Settings from "./AdminSide/Settings.jsx";
 import { DrawerProvider } from "./context/DrawerContext.jsx";
 
-/**
- * Retrieves the account data from localStorage.
- *
- * @returns {Object|null} The account object if found, otherwise null.
- */
-
 const routers = createBrowserRouter([
   {
     path: "/",
@@ -38,10 +32,6 @@ const routers = createBrowserRouter([
   },
   {
     path: "admin",
-    element: <Admin />,
-  },
-  {
-    path: "admin2",
     element: <AdminMainPage />,
     children: [
       {
@@ -71,16 +61,8 @@ const routers = createBrowserRouter([
     ],
   },
   {
-    path: "admin/new",
-    element: <CourseList />,
-  },
-  {
-    path: "LoginPage",
+    path: "login",
     element: <LoginPage />,
-  },
-  {
-    path: `LoginPage/admin`,
-    element: <Admin />,
   },
 ]);
 

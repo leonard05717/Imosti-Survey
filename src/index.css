@@ -23,3 +23,8 @@
 * {
   font-family: "montserrat-regular";
 }
+
+td,
+tr {
+  vertical-align: top;
+}

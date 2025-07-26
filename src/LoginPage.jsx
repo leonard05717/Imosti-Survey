@@ -2,19 +2,17 @@ import React, { useEffect, useState } from "react";
 import "./LoginPage.css";
 import {
   AspectRatio,
-  Alert,
   Image,
-  ActionIcon,
   PasswordInput,
   TextInput,
   Button,
 } from "@mantine/core";
-import supabase from "./supabase";
-import { data, useNavigate } from "react-router-dom";
-import { IconEye, IconInfoCircle } from "@tabler/icons-react";
+import supabase, { getAccount } from "./supabase";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useForm } from "@mantine/form";
 
 function LoginPage() {
+  const account = getAccount();
   const navigate = useNavigate();
 
   const accountForm = useForm({
@@ -26,23 +24,6 @@ function LoginPage() {
   });
 
   const [loadingAccount, setLoadingAccount] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [Account, setaccount] = useState([]);
-
-  const icon = <IconInfoCircle />;
-
-  async function submit() {
-    // const data = Account.find(
-    //   (v) => v.Email === email && v.Role === password && v.Status === "Active",
-    // );
-    // if (data) {
-    //   console.log("sample1");
-    // } else {
-    //   console.log("Account not found");
-    // }
-  }
 
   async function submitAccount(data) {
     try {
@@ -56,18 +37,18 @@ function LoginPage() {
         .eq("Password", password);
 
       if (loginError) {
-        alert(`Something Error: ${loginError.message}`);
+        window.alert(`Something Error: ${loginError.message}`);
         return;
       }
 
       if (loginData.length === 0) {
-        alert("Account Not Found");
+        window.alert("Account Not Found");
         return;
       }
 
       const json = JSON.stringify(loginData[0]);
       window.localStorage.setItem("data", json);
-      navigate("/admin2/analytics");
+      navigate("/admin/analytics");
     } catch (error) {
       window.alert(`Something Error: ${error.toString()}`);
     } finally {
@@ -75,66 +56,27 @@ function LoginPage() {
     }
   }
 
-  async function loadData() {
-    const { error, data } = await supabase.from("Staff-Info").select("*");
-    setaccount(data);
+  if (account) {
+    return <Navigate to='/admin/analytics' />;
   }
 
-  useEffect(() => {
-    loadData();
-
-    const sectionSubscription = supabase
-      .channel("realtime:Staff-Info")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "Staff-Info" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setaccount((prev) => [payload.new, ...prev]);
-          } else if (payload.eventType === "UPDATE") {
-            setaccount((prev) =>
-              prev.map((item) =>
-                item.id === payload.new.id ? payload.new : item,
-              ),
-            );
-          } else if (payload.eventType === "DELETE") {
-            setaccount((prev) =>
-              prev.filter((item) => item.id !== payload.old.id),
-            );
-          }
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(sectionSubscription);
-    };
-  }, []);
   return (
-    <>
-      <div style={{ backgroundColor: "black" }}>
-        <div
-          className='logo'
-          style={{ display: "flex" }}
-        >
-          <AspectRatio
-            style={{ marginTop: "10px", marginBottom: "30px" }}
-            ratio={1}
-            flex='0 0 200px'
-          >
+    <div className='w-full h-screen'>
+      <div className='bg-black flex items-center justify-center pb-4'>
+        <Link to='/'>
+          <AspectRatio>
             <Image
-              h={100}
-              w={300}
+              h='100%'
               src='../Picture/Admin-Logo.png'
               alt='Avatar'
             />
           </AspectRatio>
-        </div>
+        </Link>
       </div>
 
-      <div className='container'>
+      <div className='w-full flex items-center justify-center h-[calc(100%-10rem)]'>
         <div className='login-box'>
-          <h2>Log In Account</h2>
+          <p className='text-xl font-black'>Log In Account</p>
           <hr />
           <form onSubmit={accountForm.onSubmit(submitAccount)}>
             <TextInput
@@ -166,7 +108,7 @@ function LoginPage() {
           </form>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

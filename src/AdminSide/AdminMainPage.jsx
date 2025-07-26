@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { Navigate, NavLink, Outlet } from "react-router-dom";
 import { CloseButton, NavLink as MantineNavLink } from "@mantine/core";
 import {
   IconCertificate,
@@ -9,9 +9,15 @@ import {
 } from "@tabler/icons-react";
 import SingleNavLink from "../components/SingleNavLink";
 import { useDrawer } from "../context/DrawerContext";
+import { getAccount } from "../supabase";
 
 function AdminMainPage() {
+  const account = getAccount();
   const { isOpen, setIsOpen } = useDrawer();
+
+  if (!account) {
+    return <Navigate to='/login' />;
+  }
 
   return (
     <div className='flex w-full h-screen'>

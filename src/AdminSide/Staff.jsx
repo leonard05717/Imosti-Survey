@@ -215,7 +215,6 @@ function Staff() {
         <form
           onSubmit={staffForm.onSubmit(submitStaffAccount)}
           style={{
-            height: 510,
             paddingTop: 10,
             display: "flex",
             flexDirection: "column",
@@ -304,12 +303,18 @@ function Staff() {
                 return (
                   <Table.Tr key={i}>
                     <Table.Td>{i + 1}</Table.Td>
-                    <Table.Td>{st.First_Name}</Table.Td>
-                    <Table.Td>{st.Last_Name}</Table.Td>
-                    <Table.Td>{st.Email}</Table.Td>
-                    <Table.Td>{st.Contact}</Table.Td>
-                    <Table.Td>{st.Role}</Table.Td>
-                    <Table.Td>
+                    <Table.Td style={{ minWidth: 130 }}>
+                      {st.First_Name}
+                    </Table.Td>
+                    <Table.Td style={{ minWidth: 130 }}>
+                      {st.Last_Name}
+                    </Table.Td>
+                    <Table.Td style={{ minWidth: 200 }}>{st.Email}</Table.Td>
+                    <Table.Td style={{ minWidth: 120 }}>{st.Contact}</Table.Td>
+                    <Table.Td style={{ textWrap: "nowrap" }}>
+                      {st.Role}
+                    </Table.Td>
+                    <Table.Td style={{ minWidth: 100 }}>
                       <Badge
                         style={{
                           cursor: "pointer",

@@ -33,6 +33,7 @@ function Courses() {
         .select("*, question:Questioner(*), traning:Info-Training(*)")
     ).data;
     const questionData = (await supabase.from("Questioner").select()).data;
+    console.log(scoreData[0]);
     setScores(scoreData);
     setQuestions(questionData);
     setCourses(courseData);
@@ -70,7 +71,7 @@ function Courses() {
       >
         {selectedCourse && (
           <div>
-            <h2>Survey Details</h2>
+            <p className='text-xl font-black mt-4 mb-2'>Survey Details</p>
             <div>
               <strong>Course -</strong> {selectedCourse.Course}
             </div>
@@ -82,7 +83,10 @@ function Courses() {
                 padding: "20px 0",
               }}
             >
-              <Table w={200}>
+              <Table
+                w={200}
+                withRowBorders={false}
+              >
                 <Table.Thead>
                   <Table.Th>Criteria</Table.Th>
                   <Table.Th ta='center'>Average</Table.Th>
@@ -118,17 +122,21 @@ function Courses() {
 
             {staticData.map((data, i) => {
               return (
-                <div key={i}>
-                  <h3>
+                <div
+                  key={i}
+                  className='mb-4'
+                >
+                  <p className='font-bold text-lg mb-1'>
                     {data.key}. {data.description}
-                  </h3>
+                  </p>
                   {questions
                     .filter((q) => q.Criteria === data.key)
-                    .map((qs, i) => {
+                    .map((question, i) => {
+                      // filtered
                       const filteredScores = scores.filter(
                         (s) =>
                           s.traning.course_id === selectedCourse.id &&
-                          s.question.Criteria === data.key,
+                          question.id === s.question.id,
                       );
 
                       const sum = filteredScores.reduce((t, c) => {
@@ -139,7 +147,8 @@ function Courses() {
 
                       return (
                         <div
-                          key={qs.id}
+                          className='mb-1 pl-3'
+                          key={question.id}
                           style={{
                             display: "flex",
                             alignItems: "center",
@@ -147,7 +156,7 @@ function Courses() {
                           }}
                         >
                           <div>
-                            {i + 1}. {qs.Question}
+                            {i + 1}. {question.Question}
                           </div>
                           <div>{av ? av.toFixed(2) : 0}</div>
                         </div>
@@ -168,6 +177,7 @@ function Courses() {
         <Table highlightOnHover>
           <Table.Thead>
             <Table.Tr>
+              <Table.Th>#</Table.Th>
               <Table.Th>Code</Table.Th>
               <Table.Th>Course</Table.Th>
               <Table.Th>View</Table.Th>
@@ -184,16 +194,17 @@ function Courses() {
                   c.Course.toLowerCase().includes(text)
                 );
               })
-              .map((course) => {
+              .map((course, i) => {
                 return (
                   <Table.Tr key={course.id}>
-                    <Table.Td>{course.Code}</Table.Td>
-                    <Table.Td>
+                    <Table.Td>{i + 1}</Table.Td>
+                    <Table.Td style={{ minWidth: 200 }}>{course.Code}</Table.Td>
+                    <Table.Td style={{ minWidth: 350 }}>
                       <Link
                         style={{ color: "black", textDecoration: "none" }}
                         to={course.id.toString()}
                       >
-                        {course.Course}
+                        <span className='hover:underline'>{course.Course}</span>
                       </Link>
                     </Table.Td>
                     <Table.Td>

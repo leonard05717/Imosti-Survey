@@ -11,6 +11,7 @@ import {
   Divider,
   Box,
   Loader,
+  PasswordInput,
 } from "@mantine/core";
 import { IconUpload } from "@tabler/icons-react";
 import supabase, { getAccount } from "../supabase";
@@ -32,10 +33,10 @@ function Settings() {
       Role: account?.Role || "",
       Status: account?.Status || "",
       Contact: account?.Contact || "",
+      Password: "",
     },
   });
 
-  // Upload image to Supabase Storage
   async function uploadProfileImage(file, userId) {
     const fileExt = file.name.split(".").pop();
     const fileName = `profile-${userId}-${Date.now()}.${fileExt}`;
@@ -56,7 +57,6 @@ function Settings() {
     return urlData?.publicUrl || "";
   }
 
-  // Submit handler
   async function saveAccountEventHandler(values) {
     try {
       setLoadingUpdate(true);
@@ -70,20 +70,19 @@ function Settings() {
           Role: values.Role,
           Status: values.Status,
           Contact: values.Contact,
+          Password: values.password ? values.password : undefined,
         })
         .eq("id", values.id)
         .select()
         .single();
+
+      accountForm.setFieldValue("Password", "");
       localStorage.setItem("data", JSON.stringify(updatedData));
     } catch (error) {
       console.error("Save error:", error.message);
     } finally {
       setLoadingUpdate(false);
     }
-  }
-
-  if (!account) {
-    return <Navigate to='/LoginPage' />;
   }
 
   return (
@@ -187,6 +186,11 @@ function Settings() {
               {...accountForm.getInputProps("Role")}
             />
           </Group>
+          <PasswordInput
+            label='New Password'
+            placeholder='Enter New Password'
+            {...accountForm.getInputProps("Password")}
+          />
 
           <Group
             position='right'

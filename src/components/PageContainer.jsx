@@ -29,7 +29,7 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
     });
     if (!conf) return;
     localStorage.removeItem("data");
-    navigate("/LoginPage");
+    navigate("/login");
   }
 
   return (
@@ -43,7 +43,7 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
               color='white'
               onClick={() => setIsOpen(true)}
             >
-              <IconMenu2 size='sm' />
+              <IconMenu2 size={25} />
             </ActionIcon>
           </div>
           <Text
