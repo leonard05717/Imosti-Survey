@@ -146,7 +146,7 @@ function CourseInfo() {
 
       <Button
         onClick={() => {
-          navigate("/admin2/courses");
+          navigate("/admin/courses");
         }}
         size='xs'
         leftSection={<IconArrowLeft size={19} />}
