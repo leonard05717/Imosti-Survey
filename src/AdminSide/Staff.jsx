@@ -20,6 +20,8 @@ import { useEffect, useState } from "react";
 import supabase from "../supabase";
 import { useDisclosure } from "@mantine/hooks";
 
+const DEFAULT_PASSWORD = "123456789";
+
 function Staff() {
   const [staffs, setStaffs] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
@@ -67,15 +69,15 @@ function Staff() {
             Email: data.Email,
             Role: data.Role,
             Contact: data.Contact,
-            Password: data.Password,
+            Password: data.Password || DEFAULT_PASSWORD,
             Status: "Active",
           });
         if (insertError) {
-          console.log(`Something Error: ${insertError.message}`);
+          window.alert(`Something Error: ${insertError.message}`);
           return;
         }
         await fetchData();
-        console.log("Add New Account Successfully!");
+        window.alert("Add New Account Successfully!");
         staffForm.reset();
       } else {
         const { error: updateError } = await supabase
@@ -90,15 +92,15 @@ function Staff() {
           })
           .eq("id", data.id);
         if (updateError) {
-          console.log(`Something Error: ${updateError.message}`);
+          window.alert(`Something Error: ${updateError.message}`);
           return;
         }
         await fetchData();
-        console.log("Add Update Account Successfully!");
+        window.alert("Add Update Account Successfully!");
         closeModalState();
       }
     } catch (error) {
-      console.error(error);
+      window.alert(error.toString());
     } finally {
       setSubmitLoading(false);
     }
@@ -114,9 +116,8 @@ function Staff() {
         .eq("id", selectedUpdateId);
       await fetchData();
       closeUpdateStatusState();
-      console.log("Update Status Success");
     } catch (error) {
-      console.error(error);
+      window.alert(error.toString());
     }
   }
 
@@ -264,17 +265,17 @@ function Staff() {
           />
           <PasswordInput
             {...staffForm.getInputProps("Password")}
-            required={staffForm.values.type === "add"}
+            description={`Default Password: ${DEFAULT_PASSWORD}`}
             label='Password'
             placeholder='Enter Password'
           />
           <PasswordInput
             {...staffForm.getInputProps("ConfirmPassword")}
-            required={staffForm.values.type === "add"}
             label='Confirm Password'
             placeholder='Enter Confirm Password'
           />
           <Button
+            mt={10}
             loading={submitLoading}
             type='submit'
           >

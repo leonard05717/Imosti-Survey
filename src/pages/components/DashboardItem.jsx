@@ -26,6 +26,7 @@ function DashboardItem({ Icon, label = "", value, items = [] }) {
         <ActionIcon
           variant='subtle'
           color='dark'
+          hidden
         >
           <IconDotsVertical />
         </ActionIcon>

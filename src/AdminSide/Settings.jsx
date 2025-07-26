@@ -61,6 +61,8 @@ function Settings() {
     try {
       setLoadingUpdate(true);
 
+      console.log(values);
+
       const { data: updatedData } = await supabase
         .from("Staff-Info")
         .update({
@@ -70,7 +72,7 @@ function Settings() {
           Role: values.Role,
           Status: values.Status,
           Contact: values.Contact,
-          Password: values.password ? values.password : undefined,
+          Password: values.Password ? values.Password : undefined,
         })
         .eq("id", values.id)
         .select()
@@ -78,8 +80,9 @@ function Settings() {
 
       accountForm.setFieldValue("Password", "");
       localStorage.setItem("data", JSON.stringify(updatedData));
+      window.alert("Update Account Successfully!");
     } catch (error) {
-      console.error("Save error:", error.message);
+      window.alert("Save error:", error.message);
     } finally {
       setLoadingUpdate(false);
     }

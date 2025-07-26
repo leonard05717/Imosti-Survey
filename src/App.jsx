@@ -22,6 +22,7 @@ import {
   Table,
   Text,
   ScrollAreaAutosize,
+  LoadingOverlay,
 } from "@mantine/core";
 import {
   IconBrandAndroid,
@@ -31,8 +32,9 @@ import {
 
 import { DatePicker, DatePickerInput } from "@mantine/dates";
 import { Label } from "recharts";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { staticData } from "./AdminSide/data";
+import { modals } from "@mantine/modals";
 
 const ratings = [
   {
@@ -58,18 +60,15 @@ const ratings = [
 ];
 
 function App() {
-  const navigate = useNavigate();
   const [questions, setQuestions] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
-  const [count, setCount] = useState(0);
+  const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [active, setActive] = useState(0);
   const nextStep = () =>
     setActive((current) => (current < 3 ? current + 1 : current));
   const prevStep = () =>
     setActive((current) => (current > 0 ? current - 1 : current));
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  const [loading, setLoading] = useState(false);
 
   const [Name, setName] = useState("");
   const [Instructor, setInstructor] = useState("");
@@ -78,6 +77,7 @@ function App() {
   const [valuenowDate, SetvaluenowDate] = useState(new Date());
   const [Trainingvalue, setTrainingValue] = useState([null, null]);
   const [courses, setCourses] = useState([]);
+  const [loadingPage, setLoadingPage] = useState(true);
 
   const NameTrasfer = (event) => {
     setName(event.target.value);
@@ -85,128 +85,19 @@ function App() {
   const InstructorTrasfer = (event) => {
     setInstructor(event.target.value);
   };
-  const CourseTrasfer = (event) => {
-    setCourse(event.target.value);
-  };
   const RegTrasfer = (event) => {
     setRegNo(event.target.value);
   };
 
-  const [QuestionDB, setQuestion] = useState([
-    {
-      Question: "",
-      value: "",
-      id: 0,
-    },
-  ]);
-
-  const [Question2DB, setQuestion2] = useState([
-    {
-      Question: "",
-      value: "",
-      id: 0,
-    },
-  ]);
-
-  const [Question3DB, setQuestion3] = useState([
-    {
-      Question: "",
-      value: "",
-      id: 0,
-    },
-  ]);
-
-  const [Question4DB, setQuestion4] = useState([
-    {
-      Question: "",
-      value: "",
-      id: 0,
-    },
-  ]);
-
-  const [FeedbackQ, setFeedback] = useState([
-    {
-      QuestionFeedback: "",
-      value: "",
-      id: 0,
-    },
-  ]);
-
-  async function nextStep1() {
-    setLoading(true);
-    const { error } = await supabase.from("Info-Training").insert({
-      Name: firstname,
-      Instructor: CInstructor,
-      Course: CCourse,
-      TrainingD: TrainingValue,
-      DateN: valuenowDate,
-      Reg: CReg,
-    });
-    setLoading(false);
-  }
-
   async function loadData() {
-    const { error, data } = await supabase
-      .from("Questioner")
-      .select("id,Question")
-      .eq("Criteria", "A");
-    const { data: data2 } = await supabase
-      .from("Questioner")
-      .select("id,Question")
-      .eq("Criteria", "B");
-    const { data: data3 } = await supabase
-      .from("Questioner")
-      .select("id,Question")
-      .eq("Criteria", "C");
-    const { data: data4 } = await supabase
-      .from("Questioner")
-      .select("id,Question")
-      .eq("Criteria", "D");
-
     const questionData = (await supabase.from("Questioner").select()).data;
     const feedbackData = (await supabase.from("Feedback-Question").select())
       .data;
-
-    const { error: courseError, data: dataCourse } = await supabase
-      .from("Course")
-      .select();
-    if (courseError) return console.log(courseError.message);
-
-    setQuestions(questionData.map((q) => ({ ...q, value: "5" })));
-    setFeedbacks(feedbackData.map((f) => ({ ...f, value: "A" })));
-
-    setCourses(dataCourse);
-    setQuestion(data.map((v) => ({ ...v, value: "" })));
-    setQuestion2(data2.map((v) => ({ ...v, value: "" })));
-    setQuestion3(data3.map((v) => ({ ...v, value: "" })));
-    setQuestion4(data4.map((v) => ({ ...v, value: "" })));
-  }
-  async function loadData2() {
-    const { error, data } = await supabase
-      .from("Questioner")
-      .select("id,Question")
-      .eq("Criteria", "B");
-    setQuestion2(data);
-  }
-  async function loadData3() {
-    const { error, data } = await supabase
-      .from("Questioner")
-      .select("id,Question")
-      .eq("Criteria", "C");
-    setQuestion3(data);
-  }
-
-  async function loadData4() {
-    const { error, data } = await supabase
-      .from("Questioner")
-      .select("id,Question")
-      .eq("Criteria", "D");
-    setQuestion4(data);
-  }
-
-  async function Feedback1() {
-    const { error, data } = await supabase.from("Feedback-Question").select();
-    setFeedback(data.map((v) => ({ ...v, value: "" })));
+    const courseData = (await supabase.from("Course").select()).data;
+    setQuestions(questionData.map((q) => ({ ...q, value: "" })));
+    setFeedbacks(feedbackData.map((f) => ({ ...f, value: "" })));
+    setCourses(courseData);
+    setLoadingPage(false);
   }
 
   function reset() {
@@ -216,211 +107,97 @@ function App() {
     setCourse("");
     setRegNo("");
     SetvaluenowDate(new Date());
-    setTrainingValue("");
+    setTrainingValue([null, null]);
+    setQuestions((curr) => curr.map((v) => ({ ...v, value: "" })));
+    setFeedbacks((curr) => curr.map((v) => ({ ...v, value: "" })));
   }
 
   async function submitEventHandler() {
-    window.confirm("Are you sure you want to submit this");
+    const confirmation = await new Promise((resolve) => {
+      modals.openConfirmModal({
+        title: <div className='text-white text-sm'>Confirmation</div>,
+        children: (
+          <Text
+            size='sm'
+            mt={20}
+          >
+            Are you sure you want to submit your survey?
+          </Text>
+        ),
+        labels: { confirm: "Confirm", cancel: "Cancel" },
+        onCancel: () => resolve(false),
+        onConfirm: () => resolve(true),
+      });
+    });
 
-    return;
+    try {
+      if (!confirmation) return;
 
-    const { data: singeData, error: trainingError } = await supabase
-      .from("Info-Training")
-      .insert({
-        Name: Name,
-        Instructor: Instructor,
-        Reg: RegNo,
-        TrainingD: Trainingvalue,
-        DateN: valuenowDate,
-        course_id: Course,
-      })
-      .select("*")
-      .single();
+      setLoadingSubmit(true);
 
-    if (trainingError) {
-      console.log(trainingError.message);
-      return;
+      const { data: singeData, error: trainingError } = await supabase
+        .from("Info-Training")
+        .insert({
+          Name: Name,
+          Instructor: Instructor,
+          Reg: RegNo,
+          TrainingD: Trainingvalue,
+          DateN: valuenowDate,
+          course_id: Course,
+        })
+        .select("*")
+        .single();
+
+      if (trainingError) {
+        window.alert(`User Error: ${trainingError.message}`);
+        return;
+      }
+
+      const questionData = questions.map((qs) => ({
+        question_id: qs.id,
+        score: qs.value,
+        training_id: singeData.id,
+        created_at: new Date(),
+      }));
+
+      const { error: scoreError } = await supabase
+        .from("scores")
+        .insert(questionData);
+      if (scoreError) {
+        return window.alert(`Insert Score Error: ${scoreError.message}`);
+      }
+
+      const feedbackData = feedbacks.map((feed) => ({
+        training_id: singeData.id,
+        feedback_id: feed.id,
+        answer: feed.value,
+      }));
+
+      const { error: feedbackError } = await supabase
+        .from("feedback_answer")
+        .insert(feedbackData);
+
+      if (feedbackError) {
+        return window.alert(`Insert Feedback Error: ${feedbackError.message}`);
+      }
+
+      setIsModalOpen(true);
+      reset();
+    } catch (error) {
+      window.alert(`Something Error: ${error.toString()}`);
+    } finally {
+      setLoadingSubmit(false);
     }
-
-    const data = QuestionDB.map((v) => ({
-      question_id: v.id,
-      score: v.value,
-      training_id: singeData.id,
-      created_at: new Date(),
-    }));
-
-    const data2 = Question2DB.map((v) => ({
-      question_id: v.id,
-      score: v.value,
-      training_id: singeData.id,
-      created_at: new Date(),
-    }));
-
-    const data3 = Question3DB.map((v) => ({
-      question_id: v.id,
-      score: v.value,
-      training_id: singeData.id,
-      created_at: new Date(),
-    }));
-    const data4 = Question4DB.map((v) => ({
-      question_id: v.id,
-      score: v.value,
-      training_id: singeData.id,
-      created_at: new Date(),
-    }));
-
-    const allData = data.concat(data2, data3, data4);
-
-    const { error: scoreError } = await supabase.from("scores").insert(allData);
-    if (scoreError) return console.log(scoreError.message);
-
-    const feedback = FeedbackQ.map((v) => ({
-      training_id: singeData.id,
-      feedback_id: v.id,
-      answer: v.value,
-    }));
-
-    const { error: feedbackError } = await supabase
-      .from("feedback_answer")
-      .insert(feedback);
-    if (feedbackError) return console.log(feedbackError.message);
-
-    reset();
   }
 
   useEffect(() => {
-    loadData2();
-    loadData3();
-    loadData4();
-    Feedback1();
     loadData();
-
-    const sectionSubscription = supabase
-      .channel("realtime:users")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "A.Services" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setQuestion((prev) => [payload.new, ...prev]);
-          } else if (payload.eventType === "UPDATE") {
-            setQuestion((prev) =>
-              prev.map((item) =>
-                item.id === payload.new.id ? payload.new : item,
-              ),
-            );
-          } else if (payload.eventType === "DELETE") {
-            setQuestion((prev) =>
-              prev.filter((item) => item.id !== payload.old.id),
-            );
-          }
-        },
-      )
-      .subscribe();
-
-    const section2Subscription = supabase
-      .channel("realtime:B.Facilities")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "B.Facilities" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setQuestion2((prev) => [payload.new, ...prev]);
-          } else if (payload.eventType === "UPDATE") {
-            setQuestion2((prev) =>
-              prev.map((item) =>
-                item.id === payload.new.id ? payload.new : item,
-              ),
-            );
-          } else if (payload.eventType === "DELETE") {
-            setQuestion2((prev) =>
-              prev.filter((item) => item.id !== payload.old.id),
-            );
-          }
-        },
-      )
-      .subscribe();
-
-    const section3Subscription = supabase
-      .channel("realtime:C.Course")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "C.Course" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setQuestion3((prev) => [payload.new, ...prev]);
-          } else if (payload.eventType === "UPDATE") {
-            setQuestion3((prev) =>
-              prev.map((item) =>
-                item.id === payload.new.id ? payload.new : item,
-              ),
-            );
-          } else if (payload.eventType === "DELETE") {
-            setQuestion3((prev) =>
-              prev.filter((item) => item.id !== payload.old.id),
-            );
-          }
-        },
-      )
-      .subscribe();
-
-    const section4Subscription = supabase
-      .channel("realtime:D.Instructor")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "D.Instructor" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setQuestion4((prev) => [payload.new, ...prev]);
-          } else if (payload.eventType === "UPDATE") {
-            setQuestion4((prev) =>
-              prev.map((item) =>
-                item.id === payload.new.id ? payload.new : item,
-              ),
-            );
-          } else if (payload.eventType === "DELETE") {
-            setQuestion4((prev) =>
-              prev.filter((item) => item.id !== payload.old.id),
-            );
-          }
-        },
-      )
-      .subscribe();
-
-    const sectionFeedBack = supabase
-      .channel("realtime:Feedback")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "Feedback-Question" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            setFeedback((prev) => [payload.new, ...prev]);
-          } else if (payload.eventType === "UPDATE") {
-            setFeedback((prev) =>
-              prev.map((item) =>
-                item.id === payload.new.id ? payload.new : item,
-              ),
-            );
-          } else if (payload.eventType === "DELETE") {
-            setFeedback((prev) =>
-              prev.filter((item) => item.id !== payload.old.id),
-            );
-          }
-        },
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(sectionSubscription);
-      supabase.removeChannel(section2Subscription);
-      supabase.removeChannel(section3Subscription);
-      supabase.removeChannel(section4Subscription);
-      supabase.removeChannel(sectionFeedBack);
-    };
   }, []);
 
   return (
     <div>
+      <LoadingOverlay visible={loadingPage} />
+
       <Modal
         marginTop={20}
         radius={20}
@@ -451,9 +228,7 @@ function App() {
         <Button
           className='Button-done'
           onClick={() => {
-            submitEventHandler();
             setIsModalOpen(false);
-            setActive(0);
           }}
         >
           Done
@@ -462,13 +237,15 @@ function App() {
 
       <div className='Main-Container'>
         <div className='bg-black flex items-center justify-center pb-4'>
-          <AspectRatio>
-            <Image
-              h='100%'
-              src='../Picture/Admin-Logo.png'
-              alt='Avatar'
-            />
-          </AspectRatio>
+          <Link to='/admin/analytics'>
+            <AspectRatio>
+              <Image
+                h='100%'
+                src='../Picture/Admin-Logo.png'
+                alt='Avatar'
+              />
+            </AspectRatio>
+          </Link>
         </div>
         <div className='stepper-center flex items-center justify-center'>
           <div className='Stepper-Containers px-8 md:w-[60%] w-full'>
@@ -939,6 +716,7 @@ function App() {
                     Back
                   </Button>
                   <Button
+                    loading={loadingSubmit}
                     onClick={() => {
                       submitEventHandler();
                     }}
