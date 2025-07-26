@@ -407,8 +407,6 @@ function Analytics() {
     });
   }, [mainData.courses, mainData.students]);
 
-  console.log(pieChartData);
-
   return (
     <PageContainer
       title='Analytics'
@@ -481,20 +479,8 @@ function Analytics() {
       >
         <div className='grid md:grid-cols-2 grid-cols-1 relative h-full gap-10'>
           {/* left */}
-          <div
-            style={{
-              height: "100%",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                height: 50,
-                paddingLeft: 15,
-              }}
-            >
+          <div className='md:h-full h-[calc(100vh-20rem)]'>
+            <div className='flex items-center justify-between h-[50px] md:pl-[15px] pl-0'>
               <Menu
                 arrowSize={15}
                 withArrow
@@ -674,7 +660,13 @@ function Analytics() {
                       textAlign: "center",
                     }}
                   >
-                    <IconMoodSad size={100} />
+                    <IconMoodSad
+                      size={100}
+                      style={{
+                        maxHeight: 100,
+                        maxWidth: 100,
+                      }}
+                    />
                     <Text
                       fw='bold'
                       size='xl'

@@ -404,7 +404,6 @@ function App() {
                   <Table
                     withColumnBorders
                     withTableBorder
-                    highlightOnHover
                   >
                     <Table.Thead>
                       <Table.Tr>
@@ -581,39 +580,44 @@ function App() {
                 >
                   Information:
                 </Text>
-                <Table
-                  withTableBorder
-                  withColumnBorders
-                >
-                  <Table.Tbody>
-                    <Table.Tr>
-                      <Table.Th>Full Name:</Table.Th>
-                      <Table.Td>{Name}</Table.Td>
-                    </Table.Tr>
-                    <Table.Tr>
-                      <Table.Th>Course:</Table.Th>
-                      <Table.Td>
-                        {courses.find((v) => v.id.toString() === Course)?.Code}
-                      </Table.Td>
-                    </Table.Tr>
-                    <Table.Tr>
-                      <Table.Th>Date:</Table.Th>
-                      <Table.Td>{valuenowDate.toDateString()}</Table.Td>
-                    </Table.Tr>
-                    <Table.Tr>
-                      <Table.Th>Instructor:</Table.Th>
-                      <Table.Td>{Instructor}</Table.Td>
-                    </Table.Tr>
-                    <Table.Tr>
-                      <Table.Th>Training Date:</Table.Th>
-                      <Table.Td>
-                        {Trainingvalue.map((t) =>
-                          new Date(t).toDateString(),
-                        ).join(" to ")}
-                      </Table.Td>
-                    </Table.Tr>
-                  </Table.Tbody>
-                </Table>
+                <ScrollAreaAutosize>
+                  <Table
+                    withTableBorder
+                    withColumnBorders
+                  >
+                    <Table.Tbody>
+                      <Table.Tr>
+                        <Table.Th>Full Name:</Table.Th>
+                        <Table.Td>{Name}</Table.Td>
+                      </Table.Tr>
+                      <Table.Tr>
+                        <Table.Th>Course:</Table.Th>
+                        <Table.Td>
+                          {
+                            courses.find((v) => v.id.toString() === Course)
+                              ?.Code
+                          }
+                        </Table.Td>
+                      </Table.Tr>
+                      <Table.Tr>
+                        <Table.Th>Date:</Table.Th>
+                        <Table.Td>{valuenowDate.toDateString()}</Table.Td>
+                      </Table.Tr>
+                      <Table.Tr>
+                        <Table.Th>Instructor:</Table.Th>
+                        <Table.Td>{Instructor}</Table.Td>
+                      </Table.Tr>
+                      <Table.Tr>
+                        <Table.Th>Training Date:</Table.Th>
+                        <Table.Td>
+                          {Trainingvalue.map((t) =>
+                            new Date(t).toDateString(),
+                          ).join(" to ")}
+                        </Table.Td>
+                      </Table.Tr>
+                    </Table.Tbody>
+                  </Table>
+                </ScrollAreaAutosize>
 
                 <Text
                   size='md'
@@ -623,53 +627,55 @@ function App() {
                   Survey Form:
                 </Text>
 
-                <Table
-                  withTableBorder
-                  withColumnBorders
-                >
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>Criteria</Table.Th>
-                      <Table.Th>Rate</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {staticData.map((data, dataxi) => {
-                      const filteredQuestions = questions.filter(
-                        (qs) => qs.Criteria === data.key,
-                      );
+                <ScrollAreaAutosize>
+                  <Table
+                    withTableBorder
+                    withColumnBorders
+                  >
+                    <Table.Thead>
+                      <Table.Tr>
+                        <Table.Th>Criteria</Table.Th>
+                        <Table.Th>Rate</Table.Th>
+                      </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                      {staticData.map((data, dataxi) => {
+                        const filteredQuestions = questions.filter(
+                          (qs) => qs.Criteria === data.key,
+                        );
 
-                      return (
-                        <React.Fragment key={dataxi}>
-                          <Table.Tr>
-                            <Table.Th>
-                              {data.key}. {data.description}
-                            </Table.Th>
-                            <Table.Td></Table.Td>
-                          </Table.Tr>
-                          {filteredQuestions.map((qs, qsix) => {
-                            const rslist = ratings.find(
-                              (r) => r.rate === qs.value,
-                            );
-                            let rate = "None";
-                            if (rslist) {
-                              rate = rslist.labels.join(" ");
-                            }
+                        return (
+                          <React.Fragment key={dataxi}>
+                            <Table.Tr>
+                              <Table.Th>
+                                {data.key}. {data.description}
+                              </Table.Th>
+                              <Table.Td></Table.Td>
+                            </Table.Tr>
+                            {filteredQuestions.map((qs, qsix) => {
+                              const rslist = ratings.find(
+                                (r) => r.rate === qs.value,
+                              );
+                              let rate = "None";
+                              if (rslist) {
+                                rate = rslist.labels.join(" ");
+                              }
 
-                            return (
-                              <Table.Tr key={qsix}>
-                                <Table.Th miw={200}>{qs.Question}</Table.Th>
-                                <Table.Td>
-                                  {qs.value} ({rate})
-                                </Table.Td>
-                              </Table.Tr>
-                            );
-                          })}
-                        </React.Fragment>
-                      );
-                    })}
-                  </Table.Tbody>
-                </Table>
+                              return (
+                                <Table.Tr key={qsix}>
+                                  <Table.Th miw={200}>{qs.Question}</Table.Th>
+                                  <Table.Td>
+                                    {qs.value} ({rate})
+                                  </Table.Td>
+                                </Table.Tr>
+                              );
+                            })}
+                          </React.Fragment>
+                        );
+                      })}
+                    </Table.Tbody>
+                  </Table>
+                </ScrollAreaAutosize>
 
                 <Text
                   size='md'

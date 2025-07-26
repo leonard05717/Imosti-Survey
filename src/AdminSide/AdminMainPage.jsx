@@ -41,26 +41,31 @@ function AdminMainPage() {
           />
         </div>
         <SingleNavLink
+          onClick={() => setIsOpen(false)}
           to='analytics'
           label='Analytics'
           Icon={IconChartHistogram}
         />
         <SingleNavLink
+          onClick={() => setIsOpen(false)}
           to='courses'
           label='Courses'
           Icon={IconCertificate}
         />
         <SingleNavLink
+          onClick={() => setIsOpen(false)}
           to='staff'
           label='Staff'
           Icon={IconUserShare}
         />
         <SingleNavLink
+          onClick={() => setIsOpen(false)}
           to='maintenance'
           label='Maintenance'
           Icon={IconMessage2Cog}
         />
         <SingleNavLink
+          onClick={() => setIsOpen(false)}
           to='settings'
           label='Settings'
           Icon={IconSettings}

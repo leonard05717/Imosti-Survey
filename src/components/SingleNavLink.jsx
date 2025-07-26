@@ -1,9 +1,10 @@
 import { NavLink } from "react-router-dom";
 import { NavLink as MantineNavLink } from "@mantine/core";
 
-function SingleNavLink({ to, Icon, label }) {
+function SingleNavLink({ to, Icon, label, onClick }) {
   return (
     <NavLink
+      onClick={onClick}
       to={to}
       style={{
         color: "black",
