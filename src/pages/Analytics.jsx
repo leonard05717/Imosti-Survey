@@ -26,7 +26,7 @@ import {
   IconUser,
   IconWallpaperOff,
 } from "@tabler/icons-react";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import DashboardItem from "./components/DashboardItem";
 import PieCourseItem from "./components/PieCourseItem";
 import supabase from "../supabase";
@@ -62,7 +62,6 @@ function Analytics() {
     totalSurvey: 0,
     totalCourse: 0,
   });
-  const printRef = useRef(null);
 
   const [filterBarchart, setFilterBarchart] = useState([
     new Date(),
@@ -274,7 +273,7 @@ function Analytics() {
         totalSurvey: surveyCount,
       });
     } catch (error) {
-      console.error(error);
+      window.alert(error.toString());
     } finally {
       setLoadingPage(false);
     }
@@ -285,6 +284,8 @@ function Analytics() {
   }, []);
 
   useEffect(() => {
+    if (!mainData.scores.length) return;
+
     const now = new Date();
     let start;
     let end;
@@ -382,25 +383,31 @@ function Analytics() {
       D: count.D ? grouped.D / count.D : 0,
     };
 
+    console.log(average);
+
     setBarChartData([
       { services: "A. Services", Average: average.A },
       { services: "B. Facilities", Average: average.B },
       { services: "C. Course", Average: average.C },
       { services: "D. Instructor", Average: average.D },
     ]);
-  }, [selectedFilter, selectedMonthYear]);
+  }, [selectedFilter, selectedMonthYear, mainData]);
 
-  const pieChartData = mainData.courses.map((course, index) => {
-    const count = mainData.students.filter(
-      (student) => student.course_id === course.id,
-    ).length;
+  const pieChartData = useMemo(() => {
+    return mainData.courses.map((course, index) => {
+      const count = mainData.students.filter(
+        (student) => student.course_id === course.id,
+      ).length;
 
-    return {
-      name: course.Code,
-      value: count,
-      color: colors[index % colors.length],
-    };
-  });
+      return {
+        name: course.Code,
+        value: count,
+        color: colors[index % colors.length],
+      };
+    });
+  }, [mainData.courses, mainData.students]);
+
+  console.log(pieChartData);
 
   return (
     <PageContainer
@@ -472,16 +479,7 @@ function Analytics() {
           height: "100%",
         }}
       >
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gridTemplateRows: "1fr",
-            gap: 20,
-            position: "relative",
-            height: "100%",
-          }}
-        >
+        <div className='grid md:grid-cols-2 grid-cols-1 relative h-full gap-10'>
           {/* left */}
           <div
             style={{
@@ -721,25 +719,8 @@ function Analytics() {
                 value={dashboardData.totalCourse}
               />
             </div>
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                paddingTop: 0,
-                overflow: "hidden",
-                height: "calc(100% - 200px)",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  justifyContent: "space-between",
-                  paddingBottom: 10,
-                  height: "100%",
-                  paddingTop: 30,
-                }}
-              >
+            <div className='flex items-center md:flex-row flex-col-reverse overflow-hidden h-[calc(100%-200px)]'>
+              <div className='flex flex-col justify-between pb-[10px] h-full md:pt-[20px] pt-0'>
                 <div
                   style={{
                     textWrap: "nowrap",
@@ -749,34 +730,31 @@ function Analytics() {
                 >
                   Training per Course
                 </div>
-                <ScrollAreaAutosize
-                  mah={200}
-                  w={220}
-                >
-                  {mainData.courses.map((course, index) => {
-                    const color = colors[index % colors.length];
+                <div className='md:w-[220px] w-full h-[200px]'>
+                  <ScrollAreaAutosize
+                    mah={200}
+                    // w={220}
+                  >
+                    {mainData.courses.map((course, index) => {
+                      const color = colors[index % colors.length];
 
-                    return (
-                      <PieCourseItem
-                        key={course.id}
-                        color={color}
-                        label={course.Code}
-                      />
-                    );
-                  })}
-                </ScrollAreaAutosize>
+                      return (
+                        <PieCourseItem
+                          key={course.id}
+                          color={color}
+                          label={course.Code}
+                        />
+                      );
+                    })}
+                  </ScrollAreaAutosize>
+                </div>
               </div>
-              <div
-                style={{
-                  width: 283,
-                  height: 283,
-                }}
-              >
+              <div className='w-[283px] h-[283px]'>
                 <PieChart
                   withTooltip
                   tooltipDataSource='segment'
                   data={pieChartData}
-                  size={"100%"}
+                  size={200}
                   withLabelsLine
                   withLabels
                   labelsPosition='outside'
