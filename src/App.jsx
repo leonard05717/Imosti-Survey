@@ -20,6 +20,8 @@ import {
   RadioGroup,
   Select,
   Table,
+  Text,
+  ScrollAreaAutosize,
 } from "@mantine/core";
 import {
   IconBrandAndroid,
@@ -31,6 +33,29 @@ import { DatePicker, DatePickerInput } from "@mantine/dates";
 import { Label } from "recharts";
 import { useNavigate } from "react-router-dom";
 import { staticData } from "./AdminSide/data";
+
+const ratings = [
+  {
+    labels: ["Superior"],
+    rate: "5",
+  },
+  {
+    labels: ["Exceeds", "Expectation"],
+    rate: "4",
+  },
+  {
+    labels: ["Meets", "Expectation"],
+    rate: "3",
+  },
+  {
+    labels: ["Needs", "Development"],
+    rate: "2",
+  },
+  {
+    labels: ["Below", "Expectation"],
+    rate: "1",
+  },
+];
 
 function App() {
   const navigate = useNavigate();
@@ -195,6 +220,10 @@ function App() {
   }
 
   async function submitEventHandler() {
+    window.confirm("Are you sure you want to submit this");
+
+    return;
+
     const { data: singeData, error: trainingError } = await supabase
       .from("Info-Training")
       .insert({
@@ -594,188 +623,104 @@ function App() {
                   assessment of each item.
                 </div>
 
-                <Table
-                  withColumnBorders
-                  withTableBorder
-                  highlightOnHover
-                >
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>CRITERIA</Table.Th>
-                      <Table.Th
-                        colSpan={5}
-                        ta='center'
-                      >
-                        RATINGS
-                      </Table.Th>
-                    </Table.Tr>
-                    <Table.Tr>
-                      <Table.Td></Table.Td>
-                      <Table.Td
-                        w={10}
-                        className='text-center'
-                      >
-                        <div className='font-black text-lg'>5</div>
-                        <div className='text-[0.7rem]'>Superior</div>
-                      </Table.Td>
-                      <Table.Td
-                        w={10}
-                        className='text-center'
-                      >
-                        <div className='font-black text-lg'>4</div>
-                        <div className='text-[0.7rem]'>Exceeds</div>
-                        <div className='text-[0.7rem]'>Expectation</div>
-                      </Table.Td>
-                      <Table.Td
-                        w={10}
-                        className='text-center'
-                      >
-                        <div className='font-black text-lg'>3</div>
-                        <div className='text-[0.7rem]'>Meets</div>
-                        <div className='text-[0.7rem]'>Expectation</div>
-                      </Table.Td>
-                      <Table.Td
-                        w={10}
-                        className='text-center'
-                      >
-                        <div className='font-black text-lg'>2</div>
-                        <div className='text-[0.7rem]'>Needs</div>
-                        <div className='text-[0.7rem]'>Development</div>
-                      </Table.Td>
-                      <Table.Td
-                        w={10}
-                        className='text-center'
-                      >
-                        <div className='font-black text-lg'>1</div>
-                        <div className='text-[0.7rem]'>Below</div>
-                        <div className='text-[0.7rem]'>Expectation</div>
-                      </Table.Td>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {staticData.map((data, i) => {
-                      const filteredQuestions = questions.filter(
-                        (qs) => qs.Criteria === data.key,
-                      );
+                <ScrollAreaAutosize>
+                  <Table
+                    withColumnBorders
+                    withTableBorder
+                    highlightOnHover
+                  >
+                    <Table.Thead>
+                      <Table.Tr>
+                        <Table.Th>CRITERIA</Table.Th>
+                        <Table.Th
+                          colSpan={5}
+                          ta='center'
+                        >
+                          RATINGS
+                        </Table.Th>
+                      </Table.Tr>
+                      <Table.Tr>
+                        <Table.Td></Table.Td>
+                        {ratings.map((rating, ri) => {
+                          return (
+                            <Table.Td
+                              key={ri}
+                              w={10}
+                              className='text-center'
+                            >
+                              <div className='font-black text-lg'>
+                                {rating.rate}
+                              </div>
+                              {rating.labels.map((label, lis) => (
+                                <div
+                                  className='text-[0.7rem]'
+                                  key={lis}
+                                >
+                                  {label}
+                                </div>
+                              ))}
+                            </Table.Td>
+                          );
+                        })}
+                      </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                      {staticData.map((data, i) => {
+                        const filteredQuestions = questions.filter(
+                          (qs) => qs.Criteria === data.key,
+                        );
 
-                      return (
-                        <React.Fragment key={i}>
-                          <Table.Tr>
-                            <Table.Th colSpan={6}>
-                              {data.key}. {data.description}
-                            </Table.Th>
-                          </Table.Tr>
-                          {filteredQuestions.map((question, ix) => {
-                            const checkedValue = question.value;
+                        return (
+                          <React.Fragment key={i}>
+                            <Table.Tr>
+                              <Table.Th colSpan={6}>
+                                {data.key}. {data.description}
+                              </Table.Th>
+                            </Table.Tr>
+                            {filteredQuestions.map((question, ix) => {
+                              const checkedValue = question.value;
 
-                            return (
-                              <Table.Tr key={ix}>
-                                <Table.Td>
-                                  {ix + 1}. {question.Question}
-                                </Table.Td>
-                                <Table.Td className='place-items-center'>
-                                  <Radio
-                                    checked={checkedValue === "5"}
-                                    value='5'
-                                    name={question.Question}
-                                    onChange={(e) =>
-                                      setQuestions((curr) =>
-                                        curr.map((qs) => {
-                                          if (qs.id === question.id)
-                                            return {
-                                              ...qs,
-                                              value: e.target.value,
-                                            };
-                                          return qs;
-                                        }),
-                                      )
-                                    }
-                                  />
-                                </Table.Td>
-                                <Table.Td className='place-items-center'>
-                                  <Radio
-                                    checked={checkedValue === "4"}
-                                    value='4'
-                                    name={question.Question}
-                                    onChange={(e) =>
-                                      setQuestions((curr) =>
-                                        curr.map((qs) => {
-                                          if (qs.id === question.id)
-                                            return {
-                                              ...qs,
-                                              value: e.target.value,
-                                            };
-                                          return qs;
-                                        }),
-                                      )
-                                    }
-                                  />
-                                </Table.Td>
-                                <Table.Td className='place-items-center'>
-                                  <Radio
-                                    value='3'
-                                    checked={checkedValue === "3"}
-                                    name={question.Question}
-                                    onChange={(e) =>
-                                      setQuestions((curr) =>
-                                        curr.map((qs) => {
-                                          if (qs.id === question.id)
-                                            return {
-                                              ...qs,
-                                              value: e.target.value,
-                                            };
-                                          return qs;
-                                        }),
-                                      )
-                                    }
-                                  />
-                                </Table.Td>
-                                <Table.Td className='place-items-center'>
-                                  <Radio
-                                    value='2'
-                                    checked={checkedValue === "2"}
-                                    name={question.Question}
-                                    onChange={(e) =>
-                                      setQuestions((curr) =>
-                                        curr.map((qs) => {
-                                          if (qs.id === question.id)
-                                            return {
-                                              ...qs,
-                                              value: e.target.value,
-                                            };
-                                          return qs;
-                                        }),
-                                      )
-                                    }
-                                  />
-                                </Table.Td>
-                                <Table.Td className='place-items-center'>
-                                  <Radio
-                                    value='1'
-                                    name={question.Question}
-                                    checked={checkedValue === "1"}
-                                    onChange={(e) =>
-                                      setQuestions((curr) =>
-                                        curr.map((qs) => {
-                                          if (qs.id === question.id)
-                                            return {
-                                              ...qs,
-                                              value: e.target.value,
-                                            };
-                                          return qs;
-                                        }),
-                                      )
-                                    }
-                                  />
-                                </Table.Td>
-                              </Table.Tr>
-                            );
-                          })}
-                        </React.Fragment>
-                      );
-                    })}
-                  </Table.Tbody>
-                </Table>
+                              return (
+                                <Table.Tr key={ix}>
+                                  <Table.Td miw={250}>
+                                    {ix + 1}. {question.Question}
+                                  </Table.Td>
+
+                                  {ratings.map((rating, rix) => {
+                                    return (
+                                      <Table.Td
+                                        key={rix}
+                                        className='place-items-center'
+                                      >
+                                        <Radio
+                                          checked={checkedValue === rating.rate}
+                                          value={rating.rate}
+                                          name={question.id.toString()}
+                                          onChange={(e) =>
+                                            setQuestions((curr) =>
+                                              curr.map((qs) => {
+                                                if (qs.id === question.id)
+                                                  return {
+                                                    ...qs,
+                                                    value: e.target.value,
+                                                  };
+                                                return qs;
+                                              }),
+                                            )
+                                          }
+                                        />
+                                      </Table.Td>
+                                    );
+                                  })}
+                                </Table.Tr>
+                              );
+                            })}
+                          </React.Fragment>
+                        );
+                      })}
+                    </Table.Tbody>
+                  </Table>
+                </ScrollAreaAutosize>
                 <Group
                   justify='center'
                   mt='xl'
@@ -841,52 +786,148 @@ function App() {
                   <Button onClick={nextStep}>Next step</Button>
                 </Group>
               </Stepper.Step>
+
+              {/* Confirmation */}
               <Stepper.Step
                 label='Final step'
                 description='Verify'
               >
-                <div className='Feedback-text'>Survey Information</div>
-                <div>
-                  <div className='Center-Step4'>
-                    <div className='Borderline-Step4'>
-                      <label className='Step4'>Name :</label>
-                      <label style={{ marginLeft: "170px" }}>{Name}</label>{" "}
-                      <br></br>{" "}
-                    </div>
-                    <div className='Borderline-Step4'>
-                      <label className='Step4'>Course :</label>
-                      <label style={{ marginLeft: "163px" }}>
-                        {courses.find((v) => v.id.toString() === Course)?.Code}
-                      </label>
-                      <br></br>
-                    </div>
-                    <div className='Borderline-Step4'>
-                      <label className='Step4'>Date :</label>
-                      <label style={{ marginLeft: "178px" }}>
-                        {valuenowDate.toDateString()}
-                      </label>
-                      <br></br>
-                    </div>
-                    <div className='Borderline-Step4'>
-                      <label className='Step4'>Instructor :</label>
-                      <label style={{ marginLeft: "140px" }}>
-                        {Instructor}
-                      </label>
-                      <br></br>
-                    </div>
-                    <div className='Borderline-Step4'>
-                      <label className='Step4'>Training Date :</label>
-                      <label style={{ marginLeft: "110px" }}>
-                        {Trainingvalue}
-                      </label>
-                      <br></br>
-                    </div>
-                    <div className='Borderline-Step4'>
-                      <label className='Step4'>Reg.# :</label>
-                      <label style={{ marginLeft: "170px" }}>{RegNo}</label>
-                    </div>
-                  </div>
+                <div className='text-center font-black text-xl pb-5'>
+                  Survey Confirmation
                 </div>
+
+                <Text
+                  size='md'
+                  mt={10}
+                  mb={5}
+                  style={{ tableLayout: "fixed" }}
+                >
+                  Information:
+                </Text>
+                <Table
+                  withTableBorder
+                  withColumnBorders
+                >
+                  <Table.Tbody>
+                    <Table.Tr>
+                      <Table.Th>Full Name:</Table.Th>
+                      <Table.Td>{Name}</Table.Td>
+                    </Table.Tr>
+                    <Table.Tr>
+                      <Table.Th>Course:</Table.Th>
+                      <Table.Td>
+                        {courses.find((v) => v.id.toString() === Course)?.Code}
+                      </Table.Td>
+                    </Table.Tr>
+                    <Table.Tr>
+                      <Table.Th>Date:</Table.Th>
+                      <Table.Td>{valuenowDate.toDateString()}</Table.Td>
+                    </Table.Tr>
+                    <Table.Tr>
+                      <Table.Th>Instructor:</Table.Th>
+                      <Table.Td>{Instructor}</Table.Td>
+                    </Table.Tr>
+                    <Table.Tr>
+                      <Table.Th>Training Date:</Table.Th>
+                      <Table.Td>
+                        {Trainingvalue.map((t) =>
+                          new Date(t).toDateString(),
+                        ).join(" to ")}
+                      </Table.Td>
+                    </Table.Tr>
+                  </Table.Tbody>
+                </Table>
+
+                <Text
+                  size='md'
+                  mt={20}
+                  mb={5}
+                >
+                  Survey Form:
+                </Text>
+
+                <Table
+                  withTableBorder
+                  withColumnBorders
+                >
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>Criteria</Table.Th>
+                      <Table.Th>Rate</Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {staticData.map((data, dataxi) => {
+                      const filteredQuestions = questions.filter(
+                        (qs) => qs.Criteria === data.key,
+                      );
+
+                      return (
+                        <React.Fragment key={dataxi}>
+                          <Table.Tr>
+                            <Table.Th>
+                              {data.key}. {data.description}
+                            </Table.Th>
+                            <Table.Td></Table.Td>
+                          </Table.Tr>
+                          {filteredQuestions.map((qs, qsix) => {
+                            const rslist = ratings.find(
+                              (r) => r.rate === qs.value,
+                            );
+                            let rate = "None";
+                            if (rslist) {
+                              rate = rslist.labels.join(" ");
+                            }
+
+                            return (
+                              <Table.Tr key={qsix}>
+                                <Table.Th miw={200}>{qs.Question}</Table.Th>
+                                <Table.Td>
+                                  {qs.value} ({rate})
+                                </Table.Td>
+                              </Table.Tr>
+                            );
+                          })}
+                        </React.Fragment>
+                      );
+                    })}
+                  </Table.Tbody>
+                </Table>
+
+                <Text
+                  size='md'
+                  mt={20}
+                  mb={5}
+                >
+                  Additional Feedback:
+                </Text>
+
+                <ScrollAreaAutosize>
+                  <Table
+                    withTableBorder
+                    withColumnBorders
+                  >
+                    <Table.Thead>
+                      <Table.Tr>
+                        <Table.Th>Question</Table.Th>
+                        <Table.Th>Feedback</Table.Th>
+                      </Table.Tr>
+                    </Table.Thead>
+                    <Table.Tbody>
+                      {feedbacks.map((feed) => {
+                        return (
+                          <Table.Tr>
+                            <Table.Th miw={200}>
+                              {feed.QuestionFeedback}
+                            </Table.Th>
+                            <Table.Td>{feed.value || "-"}</Table.Td>
+                          </Table.Tr>
+                        );
+                      })}
+                    </Table.Tbody>
+                  </Table>
+                </ScrollAreaAutosize>
+
                 <Group
                   justify='center'
                   mt='xl'
@@ -899,10 +940,9 @@ function App() {
                   </Button>
                   <Button
                     onClick={() => {
-                      setIsModalOpen(true);
+                      submitEventHandler();
                     }}
                   >
-                    {" "}
                     Submit
                   </Button>
                 </Group>
