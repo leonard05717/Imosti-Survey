@@ -19,6 +19,7 @@ import { IconEdit, IconPlus } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import supabase from "../supabase";
 import { useDisclosure } from "@mantine/hooks";
+import { toProper } from "../helpers/helper";
 
 const DEFAULT_PASSWORD = "123456789";
 
@@ -305,10 +306,10 @@ function Staff() {
                   <Table.Tr key={i}>
                     <Table.Td>{i + 1}</Table.Td>
                     <Table.Td style={{ minWidth: 130 }}>
-                      {st.First_Name}
+                      {toProper(st.First_Name)}
                     </Table.Td>
                     <Table.Td style={{ minWidth: 130 }}>
-                      {st.Last_Name}
+                      {toProper(st.Last_Name)}
                     </Table.Td>
                     <Table.Td style={{ minWidth: 200 }}>{st.Email}</Table.Td>
                     <Table.Td style={{ minWidth: 120 }}>{st.Contact}</Table.Td>

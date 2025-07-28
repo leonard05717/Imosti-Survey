@@ -31,8 +31,13 @@ import DashboardItem from "./components/DashboardItem";
 import PieCourseItem from "./components/PieCourseItem";
 import supabase from "../supabase";
 import { useDidUpdate, useDisclosure } from "@mantine/hooks";
-import { subWeeks, subMonths, subYears, isAfter, isBefore } from "date-fns";
-import { MonthPicker, YearPicker } from "@mantine/dates";
+import { startOfDay, endOfDay, isAfter, isBefore } from "date-fns";
+import {
+  MonthPicker,
+  YearPicker,
+  DatePicker,
+  DatePickerInput,
+} from "@mantine/dates";
 import { modals } from "@mantine/modals";
 import ReactToPrint from "react-to-print";
 import PrintableSurvey from "./components/PrintableSurvey";
@@ -68,6 +73,8 @@ function Analytics() {
     new Date(),
   ]);
   const [selectedMonthYear, setSelectedMonthYear] = useState(new Date());
+  const [selectedDay, setSelectedDay] = useState(new Date());
+  const [selectedDateRange, setSelectedDateRange] = useState([null, null]);
   const [selectedFilter, setSelectedFilter] = useState("Today");
 
   const [barChartData, setBarChartData] = useState([
@@ -108,25 +115,29 @@ function Analytics() {
           date = now.toDateString();
           break;
 
-        case "Last Week":
-          start = subWeeks(now, 1);
-          end = now;
+        case "By Specific Day":
+          if (!selectedDay) return;
 
-          date = `${start.toDateString()} to ${end.toDateString()}`;
+          start = startOfDay(new Date(selectedDay));
+          end = endOfDay(new Date(selectedDay));
+
+          date = new Date(selectedDay).toDateString();
           break;
 
-        case "Last Month":
-          start = subMonths(now, 1);
-          end = now;
+        case "By Date Range":
+          if (
+            !selectedDateRange ||
+            !selectedDateRange[0] ||
+            !selectedDateRange[1]
+          ) {
+            window.alert("No Selected Specific Date");
+            return;
+          }
 
-          date = `${start.toDateString()} to ${end.toDateString()}`;
-          break;
+          start = startOfDay(new Date(selectedDateRange[0]));
+          end = endOfDay(new Date(selectedDateRange[1]));
 
-        case "Last Year":
-          start = subYears(now, 1);
-          end = now;
-
-          date = `${start.toDateString()} to ${end.toDateString()}`;
+          date = `${new Date(selectedDateRange[0]).toDateString()} to ${new Date(selectedDateRange[1]).toDateString()}`;
           break;
 
         case "By Specific Month":
@@ -299,19 +310,24 @@ function Analytics() {
         end.setHours(23, 59, 59, 999);
         break;
 
-      case "Last Week":
-        start = subWeeks(now, 1);
-        end = now;
+      case "By Specific Day":
+        if (!selectedDay) return;
+
+        start = new Date(selectedDay);
+        start.setHours(0, 0, 0, 0);
+
+        end = new Date(selectedDay);
+        end.setHours(23, 59, 59, 999);
         break;
 
-      case "Last Month":
-        start = subMonths(now, 1);
-        end = now;
-        break;
+      case "By Date Range":
+        if (!selectedDateRange[0] || !selectedDateRange[1]) return;
 
-      case "Last Year":
-        start = subYears(now, 1);
-        end = now;
+        start = new Date(selectedDateRange[0]);
+        start.setHours(0, 0, 0, 0);
+
+        end = new Date(selectedDateRange[1]);
+        end.setHours(23, 59, 59, 999);
         break;
 
       case "By Specific Month":
@@ -391,7 +407,13 @@ function Analytics() {
       { services: "C. Course", Average: average.C },
       { services: "D. Instructor", Average: average.D },
     ]);
-  }, [selectedFilter, selectedMonthYear, mainData]);
+  }, [
+    selectedFilter,
+    selectedMonthYear,
+    selectedDay,
+    selectedDateRange,
+    mainData,
+  ]);
 
   const pieChartData = useMemo(() => {
     return mainData.courses.map((course, index) => {
@@ -429,46 +451,72 @@ function Analytics() {
         </div>
       </Portal>
 
+      {/* Filter Modal */}
       <Modal
-        title={
-          <Text
-            c='white'
-            size='sm'
-          >
-            {selectedFilter}
-          </Text>
-        }
         opened={filterState}
         onClose={closeFilterState}
+        title={selectedFilter || "Date Picker"}
+        // size='md'
+        size='sm'
       >
-        <div
+        <div className='flex items-center justify-center py-5'>
+          {selectedFilter === "By Specific Month" && (
+            <MonthPicker
+              value={selectedMonthYear}
+              onChange={setSelectedMonthYear}
+              label='Select Month and Year'
+              maxDate={new Date()}
+            />
+          )}
+
+          {selectedFilter === "By Specific Year" && (
+            <YearPicker
+              value={selectedMonthYear}
+              onChange={setSelectedMonthYear}
+              label='Select Year'
+              maxDate={new Date()}
+            />
+          )}
+
+          {selectedFilter === "By Specific Day" && (
+            <DatePicker
+              value={selectedDay}
+              onChange={setSelectedDay}
+              label='Select Specific Day'
+              maxDate={new Date()}
+            />
+          )}
+
+          {selectedFilter === "By Date Range" && (
+            <div>
+              <DatePicker
+                type='range'
+                label='Select Date Range'
+                placeholder='Pick dates range'
+                value={selectedDateRange}
+                maxDate={new Date()}
+                onChange={setSelectedDateRange}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* <div
           style={{
-            paddingTop: 18,
+            marginTop: 20,
+            display: "flex",
+            gap: 10,
+            justifyContent: "flex-end",
           }}
         >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-            }}
+          <Button
+            variant='outline'
+            onClick={closeFilterState}
           >
-            {selectedFilter === "By Specific Month" ? (
-              <MonthPicker
-                size='lg'
-                maxDate={new Date()}
-                value={selectedMonthYear}
-                onChange={(v) => setSelectedMonthYear(v)}
-              />
-            ) : (
-              <YearPicker
-                size='lg'
-                maxDate={new Date()}
-                value={selectedMonthYear}
-                onChange={(v) => setSelectedMonthYear(v)}
-              />
-            )}
-          </div>
-        </div>
+            Cancel
+          </Button>
+          <Button onClick={closeFilterState}>Apply Filter</Button>
+        </div> */}
       </Modal>
 
       <div
@@ -476,6 +524,7 @@ function Analytics() {
           padding: 20,
           height: "100%",
         }}
+        className='analytic-page'
       >
         <div className='grid md:grid-cols-2 grid-cols-1 relative h-full gap-10'>
           {/* left */}
@@ -511,7 +560,13 @@ function Analytics() {
                         : selectedFilter === "By Specific Year" &&
                             selectedMonthYear
                           ? `By Specific Year (${new Date(selectedMonthYear).getFullYear()})`
-                          : selectedFilter}
+                          : selectedFilter === "By Specific Day" && selectedDay
+                            ? `By Specific Day (${new Date(selectedDay).toLocaleDateString()})`
+                            : selectedFilter === "By Date Range" &&
+                                selectedDateRange[0] &&
+                                selectedDateRange[1]
+                              ? `By Date Range (${new Date(selectedDateRange[0]).toLocaleDateString()} - ${new Date(selectedDateRange[1]).toLocaleDateString()})`
+                              : selectedFilter}
                     </span>
                     <IconChevronDown size={18} />
                   </div>
@@ -527,14 +582,23 @@ function Analytics() {
                   <Menu.Item onClick={() => setSelectedFilter("Today")}>
                     Today
                   </Menu.Item>
-                  <Menu.Item onClick={() => setSelectedFilter("Last Week")}>
-                    Last Week
+                  <Menu.Item
+                    onClick={() => {
+                      setSelectedFilter("By Specific Day");
+                      setSelectedDay(new Date());
+                      openFilterState();
+                    }}
+                  >
+                    By Specific Day
                   </Menu.Item>
-                  <Menu.Item onClick={() => setSelectedFilter("Last Month")}>
-                    Last Month
-                  </Menu.Item>
-                  <Menu.Item onClick={() => setSelectedFilter("Last Year")}>
-                    Last Year
+                  <Menu.Item
+                    onClick={() => {
+                      setSelectedFilter("By Date Range");
+                      setSelectedDateRange([null, null]);
+                      openFilterState();
+                    }}
+                  >
+                    By Date Range
                   </Menu.Item>
                   <Menu.Item
                     onClick={() => {

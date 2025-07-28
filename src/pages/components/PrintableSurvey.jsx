@@ -1,3 +1,4 @@
+import { Divider } from "@mantine/core";
 import React from "react";
 
 const PrintableSurvey = ({
@@ -24,17 +25,16 @@ const PrintableSurvey = ({
         style={{
           display: "grid",
           placeItems: "center",
-          borderBottom: "1px solid #0005",
-          paddingBottom: 50,
         }}
       >
         <img
-          style={{ height: 150 }}
+          style={{ height: 100 }}
           src='/images/Admin-Logo.png'
         />
       </div>
-      <div style={{ padding: "50px" }}>
-        <div style={{ marginBottom: "20px" }}>
+      <Divider my={30} />
+      <div style={{ padding: "0 30px 30px 30px" }}>
+        <div style={{ marginBottom: "10px" }}>
           <div
             style={{
               display: "flex",
@@ -42,13 +42,15 @@ const PrintableSurvey = ({
               justifyContent: "space-between",
             }}
           >
-            <h3 style={{ margin: 0 }}>{courseTitle}</h3>
+            <p style={{ margin: 0, fontWeight: "bold", fontSize: "20px" }}>
+              {courseTitle}
+            </p>
             <p>{date}</p>
           </div>
           <p style={{ fontSize: "15px" }}>- {description}</p>
         </div>
 
-        <table style={{ width: "100%", marginBottom: "20px" }}>
+        <table style={{ width: "100%", marginBottom: "10px" }}>
           <thead>
             <tr>
               <th style={{ textAlign: "left", paddingBottom: "8px" }}>
@@ -91,7 +93,7 @@ const PrintableSurvey = ({
                     style={{
                       borderTop: "1px solid #0009",
                       width: "fit-content",
-                      padding: "10px 20px",
+                      padding: "6px 20px 0 20px",
                     }}
                   >
                     {totalAverage.toFixed(2)}
@@ -114,11 +116,18 @@ const PrintableSurvey = ({
                         paddingLeft: "20px",
                         paddingTop: "2px",
                         paddingBottom: "2px",
+                        fontSize: 15,
                       }}
                     >
                       {j + 1}. {sub.name}
                     </td>
-                    <td style={{ textAlign: "right", paddingRight: 20 }}>
+                    <td
+                      style={{
+                        textAlign: "right",
+                        paddingRight: 20,
+                        fontSize: 15,
+                      }}
+                    >
                       {sub.average.toFixed(2)}
                     </td>
                   </tr>

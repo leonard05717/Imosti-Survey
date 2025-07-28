@@ -562,8 +562,7 @@ function App() {
                   <Button onClick={nextStep}>Next step</Button>
                 </Group>
               </Stepper.Step>
-
-              {/* Confirmation */}
+              {/* 4th and confirmation */}
               <Stepper.Step
                 label='Final step'
                 description='Verify'
