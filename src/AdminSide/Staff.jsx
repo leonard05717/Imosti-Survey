@@ -23,6 +23,7 @@ import { toProper } from "../helpers/helper";
 
 const DEFAULT_PASSWORD = "123456789";
 
+// sample
 function Staff() {
   const [staffs, setStaffs] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
