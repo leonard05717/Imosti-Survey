@@ -26,11 +26,16 @@ import Settings from "./AdminSide/Settings.jsx";
 import { DrawerProvider } from "./context/DrawerContext.jsx";
 import Security from "./components/Security.jsx";
 import Trainee from "./AdminSide/Trainee.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 
 const routers = createBrowserRouter([
   {
     path: "/",
     element: <App />,
+  },
+  {
+    path: "/reset-password/:token",
+    element: <ResetPassword />,
   },
   {
     path: "admin",

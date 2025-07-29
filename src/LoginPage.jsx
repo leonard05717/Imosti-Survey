@@ -6,6 +6,7 @@ import {
   PasswordInput,
   TextInput,
   Button,
+  Modal,
 } from "@mantine/core";
 import supabase, { getAccount } from "./supabase";
 import { Link, Navigate, useNavigate } from "react-router-dom";
@@ -14,6 +15,8 @@ import { useForm } from "@mantine/form";
 function LoginPage() {
   const account = getAccount();
   const navigate = useNavigate();
+  const [forgotState, setForgotState] = useState(false);
+  const [forgotLoading, setForgotLoading] = useState(false);
 
   const accountForm = useForm({
     mode: "controlled",
@@ -23,7 +26,50 @@ function LoginPage() {
     },
   });
 
+  const forgotForm = useForm({
+    mode: "controlled",
+    initialValues: {
+      email: "",
+    },
+  });
+
   const [loadingAccount, setLoadingAccount] = useState(false);
+
+  async function submitForgotPassword(data) {
+    try {
+      const { email } = data;
+
+      setForgotLoading(true);
+
+      const { error: errorEmail, data: emailData } = await supabase
+        .from("Staff-Info")
+        .select()
+        .eq("Email", email);
+
+      if (errorEmail) {
+        window.alert(`Something Error: ${errorEmail.message}`);
+        return;
+      }
+
+      if (emailData.length === 0) {
+        window.alert("Account Not Found");
+        return;
+      }
+
+      const url = window.location.href;
+      await supabase.functions.invoke("forgot-password", {
+        body: { email, url },
+      });
+
+      window.alert("Password Reset Email Sent Successfully!");
+      forgotForm.reset();
+    } catch (error) {
+      console.log(error);
+      window.alert(`Something Error: ${error.toString()}`);
+    } finally {
+      setForgotLoading(false);
+    }
+  }
 
   async function submitAccount(data) {
     try {
@@ -61,7 +107,34 @@ function LoginPage() {
   }
 
   return (
-    <div className='w-full h-screen'>
+    <div className='w-full h-screen relative'>
+      <Modal
+        title='Forgot Password'
+        opened={forgotState}
+        onClose={() => setForgotState(false)}
+      >
+        <form
+          onSubmit={forgotForm.onSubmit(submitForgotPassword)}
+          className='pt-2'
+        >
+          <TextInput
+            type='email'
+            {...forgotForm.getInputProps("email")}
+            label='Email Address'
+            placeholder='Enter Email Address'
+            required
+          />
+          <Button
+            mt={7}
+            type='submit'
+            size='xs'
+            loading={forgotLoading}
+          >
+            Submit
+          </Button>
+        </form>
+      </Modal>
+
       <div className='bg-black flex items-center justify-center pb-4'>
         <Link to='/'>
           <AspectRatio>
@@ -96,7 +169,14 @@ function LoginPage() {
             />
 
             <div className='forgot-password'>
-              <a href='#'>Forgot Password?</a>
+              <Button
+                size='xs'
+                variant='transparent'
+                px={0}
+                onClick={() => setForgotState(true)}
+              >
+                Forgot Password?
+              </Button>
             </div>
 
             <Button
