@@ -80,7 +80,6 @@ function Trainee() {
           v.Name.toLowerCase().includes(s) ||
           convertDateRangeToString(v.TrainingD).includes(s) ||
           v.Reg.toLowerCase().includes(s) ||
-          v.Instructor.toLowerCase().includes(s) ||
           new Date(v.DateN).toDateString().includes(s)
         );
       });

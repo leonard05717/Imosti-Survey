@@ -35,6 +35,10 @@ const accessData = [
     label: "Courses",
   },
   {
+    value: "trainee",
+    label: "Trainee",
+  },
+  {
     value: "staff",
     label: "Staff",
   },
