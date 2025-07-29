@@ -29,7 +29,7 @@ const PrintableSurvey = ({
         }}
       >
         <img
-          style={{ height: 100 }}
+          style={{ height: 70 }}
           src='/images/Admin-Logo.png'
         />
       </div>

@@ -306,7 +306,7 @@ function App() {
                         className='input'
                         label='Company Name'
                         type='text'
-                        placeholder='Enter Company Name'
+                        placeholder='Enter Full Company Name'
                         required
                         value={RegNo}
                       />
