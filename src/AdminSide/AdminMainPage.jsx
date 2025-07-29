@@ -75,7 +75,7 @@ function AdminMainPage() {
         {links
           .filter((link) => {
             if (account.Role === "superadmin") return true;
-            const access = account.access;
+            const access = account.access || [];
             return access.includes(link.to);
           })
           .map((link, i) => (
