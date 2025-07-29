@@ -25,6 +25,7 @@ import Maintenance from "./AdminSide/Maintenance.jsx";
 import Settings from "./AdminSide/Settings.jsx";
 import { DrawerProvider } from "./context/DrawerContext.jsx";
 import Security from "./components/Security.jsx";
+import Trainee from "./AdminSide/Trainee.jsx";
 
 const routers = createBrowserRouter([
   {
@@ -59,6 +60,15 @@ const routers = createBrowserRouter([
           <Security
             page='courses'
             children={<CourseInfo />}
+          />
+        ),
+      },
+      {
+        path: "trainee",
+        element: (
+          <Security
+            page='trainee'
+            children={<Trainee />}
           />
         ),
       },

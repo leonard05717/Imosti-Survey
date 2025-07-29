@@ -4,6 +4,7 @@ import {
   IconCertificate,
   IconChartHistogram,
   IconMessage2Cog,
+  IconSchool,
   IconSettings,
   IconUserShare,
 } from "@tabler/icons-react";
@@ -21,6 +22,11 @@ const links = [
     label: "Courses",
     to: "courses",
     icon: IconCertificate,
+  },
+  {
+    label: "Trainee",
+    to: "trainee",
+    icon: IconSchool,
   },
   {
     label: "Staff",
