@@ -1,213 +1,171 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PageContainer from "../components/PageContainer";
-import { useForm } from "@mantine/form";
 import {
-  TextInput,
   Button,
+  Card,
   Group,
-  Title,
-  Avatar,
-  FileButton,
-  Divider,
-  Box,
   Loader,
-  PasswordInput,
+  Table,
+  Text,
+  TextInput,
 } from "@mantine/core";
-import { IconUpload } from "@tabler/icons-react";
-import supabase, { getAccount } from "../supabase";
-import { Navigate } from "react-router-dom";
+import { useForm } from "@mantine/form";
+import { usePrevious } from "@mantine/hooks";
+import supabase from "../supabase";
 
 function Settings() {
-  const account = getAccount();
-  const [img, setImg] = useState(account?.profile || "");
-  const [loadingUpdate, setLoadingUpdate] = useState(false);
-  const [loadingImg, setLoadingImg] = useState(false);
-
-  const accountForm = useForm({
+  const [loadingPage, setLoadingPage] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const analyticForm = useForm({
     mode: "controlled",
     initialValues: {
-      id: account?.id || 0,
-      First_Name: account?.First_Name || "",
-      Last_Name: account?.Last_Name || "",
-      Email: account?.Email || "",
-      Role: account?.Role || "",
-      Status: account?.Status || "",
-      Contact: account?.Contact || "",
-      Password: "",
+      form_number: "",
+      revision_number: "",
     },
   });
 
-  async function uploadProfileImage(file, userId) {
-    const fileExt = file.name.split(".").pop();
-    const fileName = `profile-${userId}-${Date.now()}.${fileExt}`;
+  const [previousValues, setPreviousValues] = useState({
+    form_number: "",
+    revision_number: "",
+  });
 
-    const { data, error } = await supabase.storage
-      .from("profiles")
-      .upload(fileName, file, { upsert: true });
-
-    if (error) {
-      console.error("Upload error:", error.message);
-      return "";
-    }
-
-    const { data: urlData } = supabase.storage
-      .from("profiles")
-      .getPublicUrl(fileName);
-
-    return urlData?.publicUrl || "";
-  }
-
-  async function saveAccountEventHandler(values) {
+  async function submitAnalyticEventHandler(values) {
     try {
-      setLoadingUpdate(true);
-
-      console.log(values);
-
-      const { data: updatedData } = await supabase
-        .from("Staff-Info")
-        .update({
-          First_Name: values.First_Name,
-          Last_Name: values.Last_Name,
-          Email: values.Email,
-          Role: values.Role,
-          Status: values.Status,
-          Contact: values.Contact,
-          Password: values.Password ? values.Password : undefined,
-        })
-        .eq("id", values.id)
-        .select()
-        .single();
-
-      accountForm.setFieldValue("Password", "");
-      localStorage.setItem("data", JSON.stringify(updatedData));
-      window.alert("Update Account Successfully!");
+      setLoading(true);
+      const { error } = await supabase
+        .from("storage")
+        .update({ value: values.form_number })
+        .eq("key", "form_number");
+      const { error: revisionError } = await supabase
+        .from("storage")
+        .update({ value: values.revision_number })
+        .eq("key", "revision_number");
+      if (error || revisionError) {
+        return window.alert("Failed to update storage");
+      }
+      setPreviousValues(values);
     } catch (error) {
-      window.alert("Save error:", error.message);
+      console.error(error);
+      window.alert(error.toString());
     } finally {
-      setLoadingUpdate(false);
+      setLoading(false);
     }
   }
+
+  async function fetchData() {
+    try {
+      setLoadingPage(true);
+      const { value: form_number } = (
+        await supabase
+          .from("storage")
+          .select("value")
+          .eq("key", "form_number")
+          .single()
+      ).data;
+      const { value: revision_number } = (
+        await supabase
+          .from("storage")
+          .select("value")
+          .eq("key", "revision_number")
+          .single()
+      ).data;
+      setPreviousValues({
+        form_number,
+        revision_number,
+      });
+      analyticForm.setFieldValue("form_number", form_number);
+      analyticForm.setFieldValue("revision_number", revision_number);
+    } catch (error) {
+      window.alert(error.toString());
+    } finally {
+      setLoadingPage(false);
+    }
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   return (
     <PageContainer title='Settings'>
-      <Box className='max-w-xl mx-auto bg-white rounded-2xl shadow-md p-6 space-y-6'>
-        <div className='flex items-center justify-center flex-col space-y-2'>
-          <div className='relative'>
-            <div className='absolute z-[1] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'>
-              {loadingImg && <Loader />}
-            </div>
-            <Avatar
-              size={100}
-              radius='2'
-              src={img}
-              alt='User avatar'
-              style={{ border: "1px solid #0005" }}
-            />
-          </div>
-          <FileButton
-            onChange={async (f) => {
-              if (!account) {
-                window.alert("No Account Found");
-                return;
-              }
-
-              try {
-                setLoadingImg(true);
-                const url = await uploadProfileImage(f, account.id);
-                let newAccount = {
-                  ...account,
-                  profile: url,
-                };
-                await supabase
-                  .from("Staff-Info")
-                  .update({
-                    profile: url,
-                  })
-                  .eq("id", account.id);
-                localStorage.setItem("data", JSON.stringify(newAccount));
-                setImg(url);
-              } catch (err) {
-                console.error(err);
-              } finally {
-                setLoadingImg(false);
-              }
+      <Card
+        withBorder
+        shadow='md'
+      >
+        <form onSubmit={analyticForm.onSubmit(submitAnalyticEventHandler)}>
+          <Text
+            ff='montserrat-black'
+            size='lg'
+          >
+            Analytic Report Data
+          </Text>
+          <Table
+            layout='fixed'
+            withColumnBorders
+            style={{
+              verticalAlign: "auto",
             }}
-            accept='image/png,image/jpeg'
           >
-            {(props) => (
-              <Button
-                leftSection={<IconUpload size={18} />}
-                variant='light'
-                {...props}
-              >
-                Upload new photo
-              </Button>
-            )}
-          </FileButton>
-        </div>
-
-        <Divider my='sm' />
-
-        <Title order={4}>Account Information</Title>
-        <form
-          className='space-y-4'
-          onSubmit={accountForm.onSubmit(saveAccountEventHandler)}
-        >
-          <Group grow>
-            <TextInput
-              label='First Name'
-              required
-              placeholder='Enter your first name'
-              {...accountForm.getInputProps("First_Name")}
-            />
-            <TextInput
-              label='Last Name'
-              required
-              placeholder='Enter your last name'
-              {...accountForm.getInputProps("Last_Name")}
-            />
-          </Group>
-
-          <TextInput
-            label='Email'
-            required
-            placeholder='Enter your email'
-            {...accountForm.getInputProps("Email")}
-          />
-
-          <Group grow>
-            <TextInput
-              label='Contact Number'
-              placeholder='e.g. 09123456789'
-              required
-              {...accountForm.getInputProps("Contact")}
-            />
-            <TextInput
-              label='Role'
-              readOnly
-              placeholder='Select role'
-              {...accountForm.getInputProps("Role")}
-            />
-          </Group>
-          <PasswordInput
-            label='New Password'
-            placeholder='Enter New Password'
-            {...accountForm.getInputProps("Password")}
-          />
-
-          <Group
-            position='right'
-            mt='md'
-          >
+            <Table.Tbody>
+              <Table.Tr>
+                <Table.Th>Form No:</Table.Th>
+                <Table.Td>
+                  <TextInput
+                    leftSection={
+                      loadingPage && (
+                        <Loader
+                          color='dark'
+                          size='xs'
+                        />
+                      )
+                    }
+                    variant='unstyled'
+                    {...analyticForm.getInputProps("form_number")}
+                    style={{
+                      borderBottom: "1px solid #0004",
+                    }}
+                  />
+                </Table.Td>
+              </Table.Tr>
+              <Table.Tr>
+                <Table.Th>Revision No:</Table.Th>
+                <Table.Td>
+                  <TextInput
+                    leftSection={
+                      loadingPage && (
+                        <Loader
+                          color='dark'
+                          size='xs'
+                        />
+                      )
+                    }
+                    variant='unstyled'
+                    {...analyticForm.getInputProps("revision_number")}
+                    style={{
+                      borderBottom: "1px solid #0004",
+                    }}
+                  />
+                </Table.Td>
+              </Table.Tr>
+            </Table.Tbody>
+          </Table>
+          <div className='pt-2 text-right'>
             <Button
-              loading={loadingUpdate}
               type='submit'
+              loading={loading}
+              disabled={
+                loading ||
+                (analyticForm.values.form_number ===
+                  previousValues.form_number &&
+                  analyticForm.values.revision_number ===
+                    previousValues.revision_number)
+              }
             >
               Save Changes
             </Button>
-          </Group>
+          </div>
         </form>
-      </Box>
+      </Card>
     </PageContainer>
   );
 }

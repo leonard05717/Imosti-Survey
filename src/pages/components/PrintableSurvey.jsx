@@ -1,4 +1,4 @@
-import { Divider } from "@mantine/core";
+import { Divider, Table } from "@mantine/core";
 import React from "react";
 
 const PrintableSurvey = ({
@@ -7,6 +7,7 @@ const PrintableSurvey = ({
   criteria,
   totalAverage,
   date,
+  storageData,
 }) => {
   return (
     <div style={{ color: "#000", fontFamily: "Arial", position: "relative" }}>
@@ -137,6 +138,37 @@ const PrintableSurvey = ({
           </tbody>
         </table>
       </div>
+      <Table
+        borderColor='#0007'
+        withTableBorder
+        withColumnBorders
+      >
+        <Table.Tbody>
+          <Table.Tr>
+            <Table.Th
+              rowSpan={2}
+              ta='center'
+            >
+              INTERNAL
+            </Table.Th>
+            <Table.Th bg='#0002'>Form Number:</Table.Th>
+            <Table.Td>{storageData.form_number}</Table.Td>
+            <Table.Th
+              rowSpan={2}
+              bg='#0002'
+            >
+              Date Issued:
+            </Table.Th>
+            <Table.Td rowSpan={2}>{new Date().toDateString()}</Table.Td>
+          </Table.Tr>
+          <Table.Tr>
+            <Table.Th bg='#0002'>Revision Number:</Table.Th>
+            <Table.Td style={{ borderRight: "1px solid #0007" }}>
+              {storageData.revision_number}
+            </Table.Td>
+          </Table.Tr>
+        </Table.Tbody>
+      </Table>
     </div>
   );
 };

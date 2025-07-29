@@ -42,6 +42,7 @@ import { modals } from "@mantine/modals";
 import ReactToPrint from "react-to-print";
 import PrintableSurvey from "./components/PrintableSurvey";
 import PageContainer from "../components/PageContainer";
+import { useClickOutside } from "@mantine/hooks";
 
 const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"];
 
@@ -58,6 +59,10 @@ function Analytics() {
     courses: [],
     students: [],
   });
+  const [storageData, setStorageData] = useState({
+    revision_number: "",
+    form_number: "",
+  });
   const [loadingPage, setLoadingPage] = useState(true);
   const [printState, { close: closePrintState, open: openPrintState }] =
     useDisclosure(false);
@@ -72,6 +77,7 @@ function Analytics() {
     new Date(),
     new Date(),
   ]);
+  const popupRef = useClickOutside(() => closePrintState());
   const [selectedMonthYear, setSelectedMonthYear] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [selectedDateRange, setSelectedDateRange] = useState([null, null]);
@@ -267,6 +273,12 @@ function Analytics() {
 
       const studentData = (await supabase.from("Info-Training").select()).data;
       const courseData = (await supabase.from("Course").select()).data;
+      const revisionData = (
+        await supabase
+          .from("storage")
+          .select()
+          .in("key", ["revision_number", "form_number"])
+      ).data;
 
       const courseCount =
         (await supabase.from("Course").select("*")).data.length || 0;
@@ -277,6 +289,13 @@ function Analytics() {
         scores: scoreData,
         courses: courseData,
         students: studentData,
+      });
+
+      setStorageData({
+        revision_number:
+          revisionData.find((r) => r.key === "revision_number")?.value || "",
+        form_number:
+          revisionData.find((r) => r.key === "form_number")?.value || "",
       });
 
       setDashboardData({
@@ -399,8 +418,6 @@ function Analytics() {
       D: count.D ? grouped.D / count.D : 0,
     };
 
-    console.log(average);
-
     setBarChartData([
       { services: "A. Services", Average: average.A },
       { services: "B. Facilities", Average: average.B },
@@ -447,6 +464,7 @@ function Analytics() {
             criteria={surveyData.list}
             totalAverage={surveyData.totalAverage}
             date={surveyData.date}
+            storageData={storageData}
           />
         </div>
       </Portal>
@@ -500,23 +518,6 @@ function Analytics() {
             </div>
           )}
         </div>
-
-        {/* <div
-          style={{
-            marginTop: 20,
-            display: "flex",
-            gap: 10,
-            justifyContent: "flex-end",
-          }}
-        >
-          <Button
-            variant='outline'
-            onClick={closeFilterState}
-          >
-            Cancel
-          </Button>
-          <Button onClick={closeFilterState}>Apply Filter</Button>
-        </div> */}
       </Modal>
 
       <div
@@ -648,7 +649,7 @@ function Analytics() {
                   </Button>
                 </Popover.Target>
                 <Popover.Dropdown miw={300}>
-                  <div>
+                  <div ref={popupRef}>
                     <div
                       style={{
                         display: "flex",

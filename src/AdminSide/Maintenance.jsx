@@ -169,7 +169,6 @@ function Maintenance() {
       }
     >
       <Modal
-        marginTop={20}
         radius={20}
         centered='true'
         opened={deleteEvaluationState}
@@ -391,6 +390,7 @@ function Maintenance() {
               {items.map((item, ii) => {
                 return (
                   <div
+                    key={ii}
                     style={{
                       display: "flex",
                       alignItems: "center",

@@ -199,9 +199,8 @@ function App() {
       <LoadingOverlay visible={loadingPage} />
 
       <Modal
-        marginTop={20}
         radius={20}
-        centered='true'
+        centered
         opened={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
@@ -362,12 +361,6 @@ function App() {
                     justify='center'
                     mt='xl'
                   >
-                    <Button
-                      variant='default'
-                      onClick={prevStep}
-                    >
-                      Back
-                    </Button>
                     <Button
                       onClick={nextStep}
                       disabled={

@@ -20,7 +20,10 @@ function AdminMainPage() {
   }
 
   return (
-    <div className='flex w-full h-screen'>
+    <div
+      id='drawer'
+      className='flex w-full h-screen'
+    >
       <div
         style={{ backgroundColor: "gray" }}
         data-open={isOpen}
