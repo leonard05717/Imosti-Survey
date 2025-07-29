@@ -356,17 +356,6 @@ function Trainee() {
           )}
         </Modal>
   
-        <Button
-          onClick={() => {
-            navigate("/admin/courses");
-          }}
-          size='xs'
-          leftSection={<IconArrowLeft size={19} />}
-          mb={10}
-        >
-          Back
-        </Button>
-  
         <Table>
           <Table.Thead>
             <Table.Tr>
