@@ -11,6 +11,7 @@ import {
 import supabase, { getAccount } from "./supabase";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useForm } from "@mantine/form";
+import { getFirstLink } from "./AdminSide/AdminMainPage";
 
 function LoginPage() {
   const account = getAccount();
@@ -103,7 +104,14 @@ function LoginPage() {
   }
 
   if (account) {
-    return <Navigate to='/admin/analytics' />;
+    if (account.Role === "superadmin") {
+      return <Navigate to='/admin/analytics' />;
+    }
+
+    const access = account.access || [];
+    const firstLink = getFirstLink(access);
+
+    return <Navigate to={`/admin/${firstLink}`} />;
   }
 
   return (

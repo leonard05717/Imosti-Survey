@@ -45,6 +45,20 @@ const links = [
   },
 ];
 
+/**
+ * Gets the first accessible link based on the order in the links array
+ * @param {string[]} access - Array of accessible route names ("to" values)
+ * @returns {string|null} - The first accessible route or null if none found
+ */
+export function getFirstLink(access) {
+  for (const link of links) {
+    if (access.includes(link.to)) {
+      return link.to;
+    }
+  }
+  return null;
+}
+
 function AdminMainPage() {
   const account = getAccount();
   const { isOpen, setIsOpen } = useDrawer();
