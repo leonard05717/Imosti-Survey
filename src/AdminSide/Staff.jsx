@@ -107,8 +107,8 @@ function Staff() {
             Contact: data.Contact,
             Password: data.Password || DEFAULT_PASSWORD,
             Status: "Active",
-            role_label: data.role === "admin" ? data.role_label : null,
-            access: data.role === "admin" ? data.access : null,
+            role_label: data.Role === "admin" ? data.role_label : null,
+            access: data.Role === "admin" ? data.access : null,
           });
         if (insertError) {
           window.alert(`Something Error: ${insertError.message}`);
