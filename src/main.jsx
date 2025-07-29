@@ -24,6 +24,7 @@ import Staff from "./AdminSide/Staff.jsx";
 import Maintenance from "./AdminSide/Maintenance.jsx";
 import Settings from "./AdminSide/Settings.jsx";
 import { DrawerProvider } from "./context/DrawerContext.jsx";
+import Security from "./components/Security.jsx";
 
 const routers = createBrowserRouter([
   {
@@ -36,27 +37,57 @@ const routers = createBrowserRouter([
     children: [
       {
         path: "analytics",
-        element: <Analytics />,
+        element: (
+          <Security
+            page='analytics'
+            children={<Analytics />}
+          />
+        ),
       },
       {
         path: "courses",
-        element: <Courses />,
+        element: (
+          <Security
+            page='courses'
+            children={<Courses />}
+          />
+        ),
       },
       {
         path: "courses/:id",
-        element: <CourseInfo />,
+        element: (
+          <Security
+            page='courses'
+            children={<CourseInfo />}
+          />
+        ),
       },
       {
         path: "staff",
-        element: <Staff />,
+        element: (
+          <Security
+            page='staff'
+            children={<Staff />}
+          />
+        ),
       },
       {
         path: "maintenance",
-        element: <Maintenance />,
+        element: (
+          <Security
+            page='maintenance'
+            children={<Maintenance />}
+          />
+        ),
       },
       {
         path: "settings",
-        element: <Settings />,
+        element: (
+          <Security
+            page='settings'
+            children={<Settings />}
+          />
+        ),
       },
     ],
   },

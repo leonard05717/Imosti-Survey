@@ -8,9 +8,11 @@ import {
   Image,
   LoadingOverlay,
   Modal,
+  MultiSelect,
   NumberInput,
   PasswordInput,
   ScrollAreaAutosize,
+  Select,
   Table,
   TextInput,
 } from "@mantine/core";
@@ -22,6 +24,29 @@ import { useDisclosure } from "@mantine/hooks";
 import { toProper } from "../helpers/helper";
 
 const DEFAULT_PASSWORD = "123456789";
+
+const accessData = [
+  {
+    value: "analytics",
+    label: "Analytics",
+  },
+  {
+    value: "courses",
+    label: "Courses",
+  },
+  {
+    value: "staff",
+    label: "Staff",
+  },
+  {
+    value: "maintenance",
+    label: "Maintenance",
+  },
+  {
+    value: "settings",
+    label: "Settings",
+  },
+];
 
 // sample
 function Staff() {
@@ -45,6 +70,8 @@ function Staff() {
       Role: "",
       Contact: "",
       Password: "",
+      access: [],
+      role_label: "Staff",
       ConfirmPassword: "",
       type: "add",
     },
@@ -55,12 +82,19 @@ function Staff() {
         }
         return null;
       },
+      access: (value, values) => {
+        if (values.Role === "admin" && value.length === 0) {
+          return "Please select at least one access";
+        }
+        return null;
+      },
     },
   });
 
   async function submitStaffAccount(data) {
     try {
       setSubmitLoading(true);
+      console.log(data);
       if (data.type === "add") {
         // add staff
         const { error: insertError } = await supabase
@@ -73,6 +107,8 @@ function Staff() {
             Contact: data.Contact,
             Password: data.Password || DEFAULT_PASSWORD,
             Status: "Active",
+            role_label: data.role === "admin" ? data.role_label : null,
+            access: data.role === "admin" ? data.access : null,
           });
         if (insertError) {
           window.alert(`Something Error: ${insertError.message}`);
@@ -91,6 +127,8 @@ function Staff() {
             Role: data.Role,
             Contact: data.Contact,
             Password: data.Password ? data.Password : undefined,
+            role_label: data.role_label || undefined,
+            access: data.access || undefined,
           })
           .eq("id", data.id);
         if (updateError) {
@@ -163,13 +201,11 @@ function Staff() {
       }
     >
       <Modal
-        marginTop={20}
         radius={20}
         centered='true'
         opened={updateStatusState}
         onClose={() => {
           closeUpdateStatusState();
-          // setStaffS(false);
         }}
       >
         <div style={{ display: "flex" }}>
@@ -259,12 +295,41 @@ function Staff() {
             label='Contact Number'
             placeholder='Enter Contact Number'
           />
-          <TextInput
+          <Select
             {...staffForm.getInputProps("Role")}
             required
             label='Role'
             placeholder='Enter Role'
+            checkIconPosition='right'
+            data={[
+              { value: "superadmin", label: "Super Admin" },
+              { value: "admin", label: "Admin" },
+            ]}
           />
+          {staffForm.values.Role === "admin" && (
+            <>
+              <TextInput
+                required
+                {...staffForm.getInputProps("role_label")}
+                label='Role Label'
+                placeholder='Enter Role Label'
+              />
+              <MultiSelect
+                {...staffForm.getInputProps("access")}
+                label='Allowed Page'
+                placeholder='Enter Allowed Page'
+                data={accessData}
+                required
+                checkIconPosition='right'
+                styles={{
+                  dropdown: {
+                    border: "1px solid #0005",
+                    boxShadow: "1px 2px 3px #0005",
+                  },
+                }}
+              />
+            </>
+          )}
           <PasswordInput
             {...staffForm.getInputProps("Password")}
             description={`Default Password: ${DEFAULT_PASSWORD}`}
@@ -287,72 +352,73 @@ function Staff() {
       </Modal>
 
       <ScrollAreaAutosize>
-        <div>
-          <Table highlightOnHover>
-            <Table.Thead>
-              <Table.Tr>
-                <Table.Th>#</Table.Th>
-                <Table.Th>First Name</Table.Th>
-                <Table.Th>Last Name</Table.Th>
-                <Table.Th>Email</Table.Th>
-                <Table.Th>Contact No.</Table.Th>
-                <Table.Th>Role</Table.Th>
-                <Table.Th>Status</Table.Th>
-                <Table.Th>Action</Table.Th>
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {staffs.map((st, i) => {
-                return (
-                  <Table.Tr key={i}>
-                    <Table.Td>{i + 1}</Table.Td>
-                    <Table.Td style={{ minWidth: 130 }}>
-                      {toProper(st.First_Name)}
-                    </Table.Td>
-                    <Table.Td style={{ minWidth: 130 }}>
-                      {toProper(st.Last_Name)}
-                    </Table.Td>
-                    <Table.Td style={{ minWidth: 200 }}>{st.Email}</Table.Td>
-                    <Table.Td style={{ minWidth: 120 }}>{st.Contact}</Table.Td>
-                    <Table.Td style={{ textWrap: "nowrap" }}>
-                      {st.Role}
-                    </Table.Td>
-                    <Table.Td style={{ minWidth: 100 }}>
-                      <Badge
-                        style={{
-                          cursor: "pointer",
-                        }}
-                        onClick={() => {
-                          setSelectedUpdateId(st.id);
-                          openUpdateStatusState();
-                        }}
-                        color={st.Status === "Active" ? "green" : "red"}
-                      >
-                        {st.Status}
-                      </Badge>
-                    </Table.Td>
-                    <Table.Td ta='center'>
-                      <ActionIcon
-                        onClick={() => {
-                          staffForm.setValues({
-                            ...st,
-                            type: "edit",
-                            Password: "",
-                            ConfirmPassword: "",
-                          });
-                          openModalState();
-                        }}
-                        variant='subtle'
-                      >
-                        <IconEdit size={18} />
-                      </ActionIcon>
-                    </Table.Td>
-                  </Table.Tr>
-                );
-              })}
-            </Table.Tbody>
-          </Table>
-        </div>
+        <Table highlightOnHover>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>#</Table.Th>
+              <Table.Th>First Name</Table.Th>
+              <Table.Th>Last Name</Table.Th>
+              <Table.Th>Email</Table.Th>
+              <Table.Th>Contact No.</Table.Th>
+              <Table.Th>Role</Table.Th>
+              <Table.Th>Status</Table.Th>
+              <Table.Th>Action</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>
+            {staffs.map((st, i) => {
+              return (
+                <Table.Tr key={i}>
+                  <Table.Td>{i + 1}</Table.Td>
+                  <Table.Td style={{ minWidth: 130 }}>
+                    {toProper(st.First_Name)}
+                  </Table.Td>
+                  <Table.Td style={{ minWidth: 130 }}>
+                    {toProper(st.Last_Name)}
+                  </Table.Td>
+                  <Table.Td style={{ minWidth: 200 }}>{st.Email}</Table.Td>
+                  <Table.Td style={{ minWidth: 120 }}>{st.Contact}</Table.Td>
+                  <Table.Td style={{ textWrap: "nowrap" }}>
+                    {st.Role === "admin" && st.role_label
+                      ? st.role_label
+                      : "Super Admin"}
+                  </Table.Td>
+                  <Table.Td style={{ minWidth: 100 }}>
+                    <Badge
+                      style={{
+                        cursor: "pointer",
+                      }}
+                      onClick={() => {
+                        setSelectedUpdateId(st.id);
+                        openUpdateStatusState();
+                      }}
+                      color={st.Status === "Active" ? "green" : "red"}
+                    >
+                      {st.Status}
+                    </Badge>
+                  </Table.Td>
+                  <Table.Td ta='center'>
+                    <ActionIcon
+                      onClick={() => {
+                        staffForm.setValues({
+                          ...st,
+                          type: "edit",
+                          Password: "",
+                          access: st.access || [],
+                          ConfirmPassword: "",
+                        });
+                        openModalState();
+                      }}
+                      variant='subtle'
+                    >
+                      <IconEdit size={18} />
+                    </ActionIcon>
+                  </Table.Td>
+                </Table.Tr>
+              );
+            })}
+          </Table.Tbody>
+        </Table>
       </ScrollAreaAutosize>
     </PageContainer>
   );

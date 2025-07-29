@@ -11,6 +11,34 @@ import SingleNavLink from "../components/SingleNavLink";
 import { useDrawer } from "../context/DrawerContext";
 import { getAccount } from "../supabase";
 
+const links = [
+  {
+    label: "Analytics",
+    to: "analytics",
+    icon: IconChartHistogram,
+  },
+  {
+    label: "Courses",
+    to: "courses",
+    icon: IconCertificate,
+  },
+  {
+    label: "Staff",
+    to: "staff",
+    icon: IconUserShare,
+  },
+  {
+    label: "Maintenance",
+    to: "maintenance",
+    icon: IconMessage2Cog,
+  },
+  {
+    label: "Settings",
+    to: "settings",
+    icon: IconSettings,
+  },
+];
+
 function AdminMainPage() {
   const account = getAccount();
   const { isOpen, setIsOpen } = useDrawer();
@@ -43,36 +71,22 @@ function AdminMainPage() {
             alt='Admin Logo'
           />
         </div>
-        <SingleNavLink
-          onClick={() => setIsOpen(false)}
-          to='analytics'
-          label='Analytics'
-          Icon={IconChartHistogram}
-        />
-        <SingleNavLink
-          onClick={() => setIsOpen(false)}
-          to='courses'
-          label='Courses'
-          Icon={IconCertificate}
-        />
-        <SingleNavLink
-          onClick={() => setIsOpen(false)}
-          to='staff'
-          label='Staff'
-          Icon={IconUserShare}
-        />
-        <SingleNavLink
-          onClick={() => setIsOpen(false)}
-          to='maintenance'
-          label='Maintenance'
-          Icon={IconMessage2Cog}
-        />
-        <SingleNavLink
-          onClick={() => setIsOpen(false)}
-          to='settings'
-          label='Settings'
-          Icon={IconSettings}
-        />
+
+        {links
+          .filter((link) => {
+            if (account.Role === "superadmin") return true;
+            const access = account.access;
+            return access.includes(link.to);
+          })
+          .map((link, i) => (
+            <SingleNavLink
+              key={i}
+              onClick={() => setIsOpen(false)}
+              to={link.to}
+              label={link.label}
+              Icon={link.icon}
+            />
+          ))}
       </div>
       <div className='flex flex-col md:w-[calc(100%-270px)] w-full h-full'>
         <Outlet />

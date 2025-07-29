@@ -42,7 +42,10 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
       First_Name: account?.First_Name || "",
       Last_Name: account?.Last_Name || "",
       Email: account?.Email || "",
-      Role: account?.Role || "",
+      Role:
+        account?.Role === "superadmin"
+          ? "Super Admin"
+          : account?.role_label || "-",
       Status: account?.Status || "",
       Contact: account?.Contact || "",
       Password: "",
@@ -84,7 +87,6 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
           First_Name: values.First_Name,
           Last_Name: values.Last_Name,
           Email: values.Email,
-          Role: values.Role,
           Status: values.Status,
           Contact: values.Contact,
           Password: values.Password ? values.Password : undefined,
@@ -184,7 +186,6 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
 
           <Divider my='sm' />
 
-          <Title order={4}>Account Information</Title>
           <form
             className='space-y-4'
             onSubmit={accountForm.onSubmit(saveAccountEventHandler)}
