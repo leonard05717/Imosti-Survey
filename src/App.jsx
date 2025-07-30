@@ -521,6 +521,7 @@ function App() {
                   return (
                     <div key={Feedbacklist.id}>
                       <TextInput
+                        required
                         mb={20}
                         label={`${ifx + 1}. ${Feedbacklist.QuestionFeedback}`}
                         placeholder='Enter your feedback'
@@ -552,7 +553,12 @@ function App() {
                   >
                     Back
                   </Button>
-                  <Button onClick={nextStep}>Next step</Button>
+                  <Button
+                    disabled={feedbacks.some((v) => !v.value)}
+                    onClick={nextStep}
+                  >
+                    Next step
+                  </Button>
                 </Group>
               </Stepper.Step>
               {/* 4th and confirmation */}
