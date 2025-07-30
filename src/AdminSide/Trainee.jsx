@@ -123,24 +123,126 @@ function Trainee() {
       <head>
         <title>${toProper(selectedStudent.Name)} - Survey Report</title>
         <style>
-          body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-          .student-report { padding: 10px; }
-          .header { text-align: center; margin-bottom: 30px; }
-          .student-info { margin-bottom: 30px; border-top: 2px solid #333; border-bottom: 2px solid #333; padding: 20px 0; }
-          .student-name { font-size: 20px; font-weight: bold; margin-bottom: 15px; }
-          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 0 auto; }
-          .survey-section { margin-bottom: 30px; }
-          .criteria-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #333; }
-          .question-item { display: flex; justify-content: space-between; padding: 8px 15px; border-bottom: 1px solid #ddd; }
-          .feedback-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-          .feedback-table th, .feedback-table td { border: 1px solid #333; padding: 12px; text-align: left; }
-          .feedback-table th { background-color: #f5f5f5; font-weight: bold; }
-          .print-footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #000; }
-          .footer-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-          .footer-table th, .footer-table td { border: 1px solid #000; padding: 4px 8px; text-align: center; }
-          .footer-table th { background-color: rgba(0,0,0,0.1); }
-          @page { margin-bottom: 60px; }
-          .content-with-footer { padding-bottom: 60px; }
+          @page {
+            size: A4;
+            margin: 0.75in 0.5in 0.75in 0.5in;
+          }
+          @media print {
+            @page {
+              size: A4;
+              margin: 0.75in 0.5in 0.75in 0.5in;
+            }
+          }
+          body { 
+            font-family: Arial, sans-serif; 
+            margin: 0; 
+            padding: 0; 
+            font-size: 13px;
+            line-height: 1.3;
+          }
+          .student-report { 
+            padding: 15px 20px; 
+            max-width: 100%;
+            box-sizing: border-box;
+          }
+          .header { 
+            text-align: center; 
+            margin-bottom: 20px; 
+          }
+          .student-info { 
+            margin-bottom: 20px; 
+            border-top: 2px solid #333; 
+            border-bottom: 2px solid #333; 
+            padding: 15px 0; 
+          }
+          .student-name { 
+            font-size: 18px; 
+            font-weight: bold; 
+            margin-bottom: 12px; 
+            text-align: center;
+          }
+          .info-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 10px; 
+            margin: 0 auto; 
+          }
+          .info-grid p {
+            margin: 4px 0;
+            font-size: 11px;
+          }
+          .survey-section { 
+            margin-bottom: 20px; 
+          }
+          .criteria-title { 
+            font-size: 14px; 
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            color: #333; 
+            page-break-after: avoid;
+          }
+          .question-item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 4px 8px; 
+            border-bottom: 1px solid #ddd; 
+            font-size: 10px;
+            page-break-inside: avoid;
+          }
+          .feedback-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 15px; 
+            font-size: 10px;
+          }
+          .feedback-table th, .feedback-table td { 
+            border: 1px solid #333; 
+            padding: 6px 8px; 
+            text-align: left; 
+            vertical-align: top;
+          }
+          .feedback-table th { 
+            background-color: #f5f5f5; 
+            font-weight: bold; 
+            font-size: 11px;
+          }
+          .print-footer { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            background: white; 
+            border-top: 1px solid #000; 
+            z-index: 1000;
+          }
+          .footer-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 9px; 
+          }
+          .footer-table th, .footer-table td { 
+            border: 1px solid #000; 
+            padding: 3px 6px; 
+            text-align: center; 
+          }
+          .footer-table th { 
+            background-color: rgba(0,0,0,0.1); 
+          }
+          .content-with-footer { 
+            padding-bottom: 50px; 
+          }
+          h3 {
+            font-size: 16px;
+            margin: 15px 0 10px 0;
+            page-break-after: avoid;
+          }
+          /* Legal paper support */
+          @media print and (max-height: 14in) {
+            @page {
+              size: legal;
+              margin: 0.75in 0.5in 0.75in 0.5in;
+            }
+          }
         </style>
       </head>
       <body>
