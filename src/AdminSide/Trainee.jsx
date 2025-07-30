@@ -578,16 +578,12 @@ function Trainee() {
         <div class="divider"></div>
         <div class="content">
           <div class="course-header">
-            <p class="course-title">${courseInfo.Title || "Course Survey"}</p>
-            <p>${currentDate}</p>
+            <p class="course-title">${checkedStudents.length} Trainees Survey</p>
+            <p>${new Date().toDateString()}</p>
           </div>
           <p class="course-description">
             - A survey summary based on student feedback and evaluations.
           </p>
-          
-          <div class="stats-info">
-            <p><strong>Total Students Surveyed:</strong> ${checkedStudents.length}</p>
-          </div>
 
           <table>
             <thead>
@@ -624,7 +620,7 @@ function Trainee() {
                   if (criteriaQuestions.length === 0) return "";
 
                   return `
-                  <tr><td class="criteria-title">${criteria.description}</td><td></td></tr>
+                  <tr><td class="criteria-title">${criteria.key}. ${criteria.description}</td><td></td></tr>
                   ${criteriaQuestions
                     .map(
                       (q, index) => `
@@ -946,6 +942,8 @@ function Trainee() {
     };
   };
 
+  const checkedStudents = students.filter((v) => v.checked);
+
   return (
     <PageContainer
       outsideChildren={
@@ -992,7 +990,7 @@ function Trainee() {
                 leftSection={<IconPrinter size={20} />}
                 onClick={handlePrint}
               >
-                Print
+                Print Trainees ({checkedStudents.length})
               </Menu.Item>
               <Menu.Item
                 leftSection={<IconPrinter size={20} />}
