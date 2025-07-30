@@ -137,7 +137,7 @@ function Trainee() {
             font-family: Arial, sans-serif; 
             margin: 0; 
             padding: 0; 
-            font-size: 14px;
+            font-size: 15px;
             line-height: 1.3;
           }
           .student-report { 
