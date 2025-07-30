@@ -186,14 +186,14 @@ function Trainee() {
             justify-content: space-between; 
             padding: 4px 8px; 
             border-bottom: 1px solid #ddd; 
-            font-size: 10px;
+            font-size: 14px;
             page-break-inside: avoid;
           }
           .feedback-table { 
             width: 100%; 
             border-collapse: collapse; 
             margin-bottom: 15px; 
-            font-size: 10px;
+            font-size: 14px;
           }
           .feedback-table th, .feedback-table td { 
             border: 1px solid #333; 
@@ -204,7 +204,7 @@ function Trainee() {
           .feedback-table th { 
             background-color: #f5f5f5; 
             font-weight: bold; 
-            font-size: 11px;
+            font-size: 14px;
           }
           .print-footer { 
             position: fixed; 
@@ -218,7 +218,7 @@ function Trainee() {
           .footer-table { 
             width: 100%; 
             border-collapse: collapse; 
-            font-size: 9px; 
+            font-size: 14px; 
           }
           .footer-table th, .footer-table td { 
             border: 1px solid #000; 
