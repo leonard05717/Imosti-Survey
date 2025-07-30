@@ -33,7 +33,6 @@ function Courses() {
         .select("*, question:Questioner(*), traning:Info-Training(*)")
     ).data;
     const questionData = (await supabase.from("Questioner").select()).data;
-    console.log(scoreData[0]);
     setScores(scoreData);
     setQuestions(questionData);
     setCourses(courseData);
