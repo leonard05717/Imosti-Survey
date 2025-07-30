@@ -60,10 +60,6 @@ function Analytics() {
     courses: [],
     students: [],
   });
-  const [storageData, setStorageData] = useState({
-    revision_number: "",
-    form_number: "",
-  });
   const [loadingPage, setLoadingPage] = useState(true);
   const [printState, { close: closePrintState, open: openPrintState }] =
     useDisclosure(false);
@@ -273,12 +269,6 @@ function Analytics() {
 
       const studentData = (await supabase.from("Info-Training").select()).data;
       const courseData = (await supabase.from("Course").select()).data;
-      const revisionData = (
-        await supabase
-          .from("storage")
-          .select()
-          .in("key", ["revision_number", "form_number"])
-      ).data;
 
       const courseCount =
         (await supabase.from("Course").select("*")).data.length || 0;
@@ -289,13 +279,6 @@ function Analytics() {
         scores: scoreData,
         courses: courseData,
         students: studentData,
-      });
-
-      setStorageData({
-        revision_number:
-          revisionData.find((r) => r.key === "revision_number")?.value || "",
-        form_number:
-          revisionData.find((r) => r.key === "form_number")?.value || "",
       });
 
       setDashboardData({
@@ -460,7 +443,6 @@ function Analytics() {
             criteria={surveyData.list}
             totalAverage={surveyData.totalAverage}
             date={surveyData.date}
-            storageData={storageData}
           />
         </div>
       </Portal>
