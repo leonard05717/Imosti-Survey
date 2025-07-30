@@ -33,7 +33,7 @@ import {
 import { DatePicker, DatePickerInput } from "@mantine/dates";
 import { Label } from "recharts";
 import { Link, useNavigate } from "react-router-dom";
-import { staticData } from "./AdminSide/data";
+import { staticData } from "./data";
 import { modals } from "@mantine/modals";
 
 const ratings = [

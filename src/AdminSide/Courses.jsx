@@ -12,7 +12,7 @@ import { IconDotsVertical, IconSearch } from "@tabler/icons-react";
 import supabase from "../supabase";
 import { useDisclosure } from "@mantine/hooks";
 import { Link } from "react-router-dom";
-import { staticData } from "./data";
+import { staticData } from "../data";
 
 function Courses() {
   const [search, setSearch] = useState("");

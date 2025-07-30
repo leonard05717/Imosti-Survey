@@ -44,6 +44,19 @@ function ResetPassword() {
           Password: values.password,
         })
         .eq("id", userId);
+
+      const { error: updateError } = await supabase
+        .from("password_resets")
+        .update({
+          is_done: true,
+        })
+        .eq("token", token);
+
+      if (updateError) {
+        setUserId(null);
+        return;
+      }
+
       window.alert("Password Reset Successfully!");
       navigate("/login");
     } catch (error) {
@@ -79,18 +92,6 @@ function ResetPassword() {
           .single();
 
         if (emailError) {
-          setUserId(null);
-          return;
-        }
-
-        const { error: updateError } = await supabase
-          .from("password_resets")
-          .update({
-            is_done: true,
-          })
-          .eq("id", resetData.id);
-
-        if (updateError) {
           setUserId(null);
           return;
         }

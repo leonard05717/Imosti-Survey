@@ -21,7 +21,7 @@ import {
 } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
-import { staticData } from "./data";
+import { staticData } from "../data";
 import "./styles/courseinfo.style.css";
 import { toProper } from "../helpers/helper";
 
@@ -282,7 +282,7 @@ function CourseInfo() {
               </p>
             </div>
             <div className='pt-3'>
-              {staticData.map((v) => {
+              {staticData.map((v, ixx) => {
                 const filteredData = scores
                   .filter(
                     (v) =>
@@ -292,7 +292,10 @@ function CourseInfo() {
                   .filter((c) => c.question.Criteria === v.key);
 
                 return (
-                  <div className='mb-5'>
+                  <div
+                    className='mb-5'
+                    key={ixx}
+                  >
                     <h3 className='font-semibold text-gray-800 mb-2'>
                       {v.key}. {v.description}{" "}
                       {filteredData.length === 0 && (
@@ -302,7 +305,7 @@ function CourseInfo() {
 
                     {filteredData.map((sc, i) => {
                       return (
-                        <div>
+                        <div key={i}>
                           <div className='mb-2'>
                             <ul className='space-y-1 pl-4'>
                               <li className='Questiong-answer'>
@@ -384,7 +387,7 @@ function CourseInfo() {
         <Table.Tbody>
           {filteredStudents.map((stud, i) => {
             return (
-              <Table.Tr>
+              <Table.Tr key={i}>
                 <Table.Td>{i + 1}</Table.Td>
                 <Table.Td style={{ minWidth: 150 }}>
                   {toProper(stud.Name)}

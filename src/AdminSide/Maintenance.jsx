@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import PageContainer from "../components/PageContainer";
 import supabase from "../supabase";
-import { staticData } from "./data";
+import { staticData } from "../data";
 import {
   ActionIcon,
   AspectRatio,
@@ -206,7 +206,6 @@ function Maintenance() {
       </Modal>
 
       <Modal
-        marginTop={20}
         radius={20}
         centered='true'
         opened={evaluationState}
@@ -255,7 +254,6 @@ function Maintenance() {
 
       {/* add Feedback */}
       <Modal
-        marginTop={20}
         radius={20}
         centered='true'
         opened={feedbackState}
@@ -303,7 +301,6 @@ function Maintenance() {
 
       {/* delete feedback */}
       <Modal
-        marginTop={20}
         radius={20}
         centered='true'
         opened={deleteFeedbackState}

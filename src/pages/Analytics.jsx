@@ -43,6 +43,7 @@ import ReactToPrint from "react-to-print";
 import PrintableSurvey from "./components/PrintableSurvey";
 import PageContainer from "../components/PageContainer";
 import { useClickOutside } from "@mantine/hooks";
+import { staticData } from "../data";
 
 const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"];
 
@@ -83,12 +84,7 @@ function Analytics() {
   const [selectedDateRange, setSelectedDateRange] = useState([null, null]);
   const [selectedFilter, setSelectedFilter] = useState("Today");
 
-  const [barChartData, setBarChartData] = useState([
-    { services: "A. Services", Value: 0 },
-    { services: "B. Facilities", Value: 0 },
-    { services: "C. Course", Value: 0 },
-    { services: "D. Instructor", Value: 0 },
-  ]);
+  const [barChartData, setBarChartData] = useState([]);
   const [selectedCourseCode, setSelectedCourseCode] = useState(null);
   const [loadingPrint, setLoadingPrint] = useState(false);
   const [surveyData, setSurveyData] = useState({
@@ -201,12 +197,16 @@ function Analytics() {
         return created >= start && created <= end;
       });
 
-      const crs = {
-        A: { sum: 0, len: 0, average: 0, questions: [], name: "A. Services" },
-        B: { sum: 0, len: 0, average: 0, questions: [], name: "B. Facilities" },
-        C: { sum: 0, len: 0, average: 0, questions: [], name: "C. Course" },
-        D: { sum: 0, len: 0, average: 0, questions: [], name: "D. Instructor" },
-      };
+      const crs = staticData.reduce((acc, item) => {
+        acc[item.key] = {
+          sum: 0,
+          len: 0,
+          average: 0,
+          questions: [],
+          name: `${item.key}. ${item.description}`,
+        };
+        return acc;
+      }, {});
 
       filteredScores.forEach((score) => {
         if (crs[score.question.Criteria]) {
@@ -215,9 +215,9 @@ function Analytics() {
         }
       });
 
-      ["A", "B", "C", "D"].forEach((key) => {
-        if (crs[key]) {
-          crs[key].average = crs[key].sum / crs[key].len || 0;
+      staticData.forEach((key) => {
+        if (crs[key.key]) {
+          crs[key.key].average = crs[key.key].sum / crs[key.key].len || 0;
         }
       });
 
@@ -389,19 +389,15 @@ function Analytics() {
       return trainingDate >= start && trainingDate <= end;
     });
 
-    const grouped = {
-      A: 0,
-      B: 0,
-      C: 0,
-      D: 0,
-    };
+    const grouped = staticData.reduce((acc, item) => {
+      acc[item.key] = 0;
+      return acc;
+    }, {});
 
-    const count = {
-      A: 0,
-      B: 0,
-      C: 0,
-      D: 0,
-    };
+    const count = staticData.reduce((acc, item) => {
+      acc[item.key] = 0;
+      return acc;
+    }, {});
 
     filtered.forEach((item) => {
       const criteria = item.question?.Criteria;
@@ -411,19 +407,19 @@ function Analytics() {
       }
     });
 
-    const average = {
-      A: count.A ? grouped.A / count.A : 0,
-      B: count.B ? grouped.B / count.B : 0,
-      C: count.C ? grouped.C / count.C : 0,
-      D: count.D ? grouped.D / count.D : 0,
-    };
+    const average = staticData.reduce((acc, item) => {
+      acc[item.key] = count[item.key] ? grouped[item.key] / count[item.key] : 0;
+      return acc;
+    }, {});
 
-    setBarChartData([
-      { services: "A. Services", Average: average.A },
-      { services: "B. Facilities", Average: average.B },
-      { services: "C. Course", Average: average.C },
-      { services: "D. Instructor", Average: average.D },
-    ]);
+    const barChartData = staticData.map((item) => {
+      return {
+        name: `${item.key}. ${item.description}`,
+        Average: average[item.key],
+      };
+    });
+
+    setBarChartData(barChartData);
   }, [
     selectedFilter,
     selectedMonthYear,

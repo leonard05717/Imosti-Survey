@@ -21,7 +21,7 @@ import {
 } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
-import { staticData } from "./data";
+import { staticData } from "../data";
 import "./styles/courseinfo.style.css";
 import { toProper } from "../helpers/helper";
 
@@ -278,7 +278,7 @@ function Trainee() {
               </p>
             </div>
             <div className='pt-3'>
-              {staticData.map((v) => {
+              {staticData.map((v, i) => {
                 const filteredData = scores
                   .filter(
                     (v) =>
@@ -288,7 +288,10 @@ function Trainee() {
                   .filter((c) => c.question.Criteria === v.key);
 
                 return (
-                  <div className='mb-5'>
+                  <div
+                    key={i}
+                    className='mb-5'
+                  >
                     <h3 className='font-semibold text-gray-800 mb-2'>
                       {v.key}. {v.description}{" "}
                       {filteredData.length === 0 && (
@@ -296,14 +299,14 @@ function Trainee() {
                       )}
                     </h3>
 
-                    {filteredData.map((sc, i) => {
+                    {filteredData.map((sc, ixx) => {
                       return (
-                        <div>
+                        <div key={ixx}>
                           <div className='mb-2'>
                             <ul className='space-y-1 pl-4'>
                               <li className='Questiong-answer'>
                                 <span>
-                                  {i + 1}. {sc.question.Question}
+                                  {ixx + 1}. {sc.question.Question}
                                 </span>
                                 <span>{sc.score}</span>
                               </li>
@@ -369,7 +372,12 @@ function Trainee() {
         <Table.Tbody>
           {filteredStudents.map((stud, i) => {
             return (
-              <Table.Tr>
+              <Table.Tr
+                style={{
+                  verticalAlign: "top",
+                }}
+                key={i}
+              >
                 <Table.Td>{i + 1}</Table.Td>
                 <Table.Td style={{ minWidth: 150 }}>
                   {toProper(stud.Name)}
