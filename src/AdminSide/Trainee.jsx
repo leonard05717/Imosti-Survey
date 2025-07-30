@@ -137,7 +137,7 @@ function Trainee() {
             font-family: Arial, sans-serif; 
             margin: 0; 
             padding: 0; 
-            font-size: 13px;
+            font-size: 14px;
             line-height: 1.3;
           }
           .student-report { 
@@ -158,7 +158,7 @@ function Trainee() {
           .student-name { 
             font-size: 18px; 
             font-weight: bold; 
-            margin-bottom: 12px; 
+            margin-bottom: 7px; 
             text-align: center;
           }
           .info-grid { 
@@ -169,13 +169,12 @@ function Trainee() {
           }
           .info-grid p {
             margin: 4px 0;
-            font-size: 11px;
           }
           .survey-section { 
             margin-bottom: 20px; 
           }
           .criteria-title { 
-            font-size: 14px; 
+            font-size: 16px; 
             font-weight: bold; 
             margin-bottom: 8px; 
             color: #333; 
@@ -186,14 +185,12 @@ function Trainee() {
             justify-content: space-between; 
             padding: 4px 8px; 
             border-bottom: 1px solid #ddd; 
-            font-size: 14px;
             page-break-inside: avoid;
           }
           .feedback-table { 
             width: 100%; 
             border-collapse: collapse; 
             margin-bottom: 15px; 
-            font-size: 14px;
           }
           .feedback-table th, .feedback-table td { 
             border: 1px solid #333; 
@@ -204,7 +201,6 @@ function Trainee() {
           .feedback-table th { 
             background-color: #f5f5f5; 
             font-weight: bold; 
-            font-size: 14px;
           }
           .print-footer { 
             position: fixed; 
@@ -217,8 +213,7 @@ function Trainee() {
           }
           .footer-table { 
             width: 100%; 
-            border-collapse: collapse; 
-            font-size: 14px; 
+            border-collapse: collapse;  
           }
           .footer-table th, .footer-table td { 
             border: 1px solid #000; 
