@@ -124,13 +124,13 @@ function Trainee() {
         <title>${toProper(selectedStudent.Name)} - Survey Report</title>
         <style>
           body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-          .student-report { padding: 20px; }
+          .student-report { padding: 10px; }
           .header { text-align: center; margin-bottom: 30px; }
           .student-info { margin-bottom: 30px; border-top: 2px solid #333; border-bottom: 2px solid #333; padding: 20px 0; }
-          .student-name { font-size: 24px; font-weight: bold; margin-bottom: 15px; }
+          .student-name { font-size: 20px; font-weight: bold; margin-bottom: 15px; }
           .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 0 auto; }
           .survey-section { margin-bottom: 30px; }
-          .criteria-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
+          .criteria-title { font-size: 16px; font-weight: bold; margin-bottom: 15px; color: #333; }
           .question-item { display: flex; justify-content: space-between; padding: 8px 15px; border-bottom: 1px solid #ddd; }
           .feedback-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
           .feedback-table th, .feedback-table td { border: 1px solid #333; padding: 12px; text-align: left; }
@@ -147,7 +147,7 @@ function Trainee() {
         <div class="student-report">
           <div class="content-with-footer">
             <div class="header">
-              <img src="/images/Admin-Logo.png" style="height: 100px;" />
+              <img src="/images/Admin-Logo.png" style="height: 70px;" />
             </div>
             
             <div class="student-info">
@@ -194,8 +194,40 @@ function Trainee() {
                 .join("")}
             </div>
 
+          </div>
+          
+          <div class="print-footer">
+            <table class="footer-table">
+              <tbody>
+                <tr>
+                  <th rowspan="2">INTERNAL</th>
+                  <th style="background-color: rgba(0,0,0,0.1);">Form Number:</th>
+                  <td>${storageData.form_number}</td>
+                  <th rowspan="2" style="background-color: rgba(0,0,0,0.1);">Date Issued:</th>
+                  <td rowspan="2">${new Date().toDateString()}</td>
+                </tr>
+                <tr>
+                  <th style="background-color: rgba(0,0,0,0.1);">Revision Number:</th>
+                  <td>${storageData.revision_number}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <!-- Second Page - Feedback -->
+        <div class="student-report" style="page-break-before: always;">
+          <div class="content-with-footer">
+            <div class="header">
+              <img src="/images/Admin-Logo.png" style="height: 70px;" />
+            </div>
+            
+            <div class="student-info">
+              <div class="student-name">${toProper(selectedStudent.Name)} - Additional Feedback</div>
+            </div>
+
             <div class="survey-section">
-              <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 0;">Additional Feedback</h3>
+              <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Additional Feedback</h3>
               ${
                 studentFeedbacks.length > 0
                   ? `
