@@ -12,6 +12,7 @@ import {
 import { useForm } from "@mantine/form";
 import { usePrevious } from "@mantine/hooks";
 import supabase from "../supabase";
+import { DatePickerInput } from "@mantine/dates";
 
 function Settings() {
   const [loadingPage, setLoadingPage] = useState(true);
@@ -21,12 +22,14 @@ function Settings() {
     initialValues: {
       form_number: "",
       revision_number: "",
+      issued_date: null,
     },
   });
 
   const [previousValues, setPreviousValues] = useState({
     form_number: "",
     revision_number: "",
+    issued_date: null,
   });
 
   async function submitAnalyticEventHandler(values) {
@@ -40,7 +43,11 @@ function Settings() {
         .from("storage")
         .update({ value: values.revision_number })
         .eq("key", "revision_number");
-      if (error || revisionError) {
+      const { error: issuedDateError } = await supabase
+        .from("storage")
+        .update({ value: values.issued_date })
+        .eq("key", "issued_date");
+      if (error || revisionError || issuedDateError) {
         return window.alert("Failed to update storage");
       }
       setPreviousValues(values);
@@ -69,12 +76,21 @@ function Settings() {
           .eq("key", "revision_number")
           .single()
       ).data;
+      const { value: issued_date } = (
+        await supabase
+          .from("storage")
+          .select("value")
+          .eq("key", "issued_date")
+          .single()
+      ).data;
       setPreviousValues({
         form_number,
         revision_number,
+        issued_date,
       });
       analyticForm.setFieldValue("form_number", form_number);
       analyticForm.setFieldValue("revision_number", revision_number);
+      analyticForm.setFieldValue("issued_date", issued_date);
     } catch (error) {
       window.alert(error.toString());
     } finally {
@@ -147,6 +163,26 @@ function Settings() {
                   />
                 </Table.Td>
               </Table.Tr>
+              <Table.Tr>
+                <Table.Th>Issued Date:</Table.Th>
+                <Table.Td>
+                  <DatePickerInput
+                    leftSection={
+                      loadingPage && (
+                        <Loader
+                          color='dark'
+                          size='xs'
+                        />
+                      )
+                    }
+                    variant='unstyled'
+                    {...analyticForm.getInputProps("issued_date")}
+                    style={{
+                      borderBottom: "1px solid #0004",
+                    }}
+                  />
+                </Table.Td>
+              </Table.Tr>
             </Table.Tbody>
           </Table>
           <div className='pt-2 text-right'>
@@ -158,7 +194,9 @@ function Settings() {
                 (analyticForm.values.form_number ===
                   previousValues.form_number &&
                   analyticForm.values.revision_number ===
-                    previousValues.revision_number)
+                    previousValues.revision_number &&
+                  analyticForm.values.issued_date ===
+                    previousValues.issued_date)
               }
             >
               Save Changes
