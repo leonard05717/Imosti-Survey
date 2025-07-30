@@ -3,6 +3,7 @@ import PageContainer from "../components/PageContainer";
 import {
   ActionIcon,
   Button,
+  Checkbox,
   Divider,
   LoadingOverlay,
   Modal,
@@ -11,6 +12,7 @@ import {
   Table,
   Text,
   TextInput,
+  Tooltip,
 } from "@mantine/core";
 import supabase from "../supabase";
 import {
@@ -41,6 +43,10 @@ function Trainee() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
   const [courses, setCourses] = useState([]);
+  const [storageData, setStorageData] = useState({
+    revision_number: "",
+    form_number: "",
+  });
 
   async function fetchData() {
     setLoadingPage(true);
@@ -60,11 +66,23 @@ function Trainee() {
         .from("feedback_answer")
         .select("*, feedback:feedback_id(*)")
     ).data;
+    const revisionData = (
+      await supabase
+        .from("storage")
+        .select()
+        .in("key", ["revision_number", "form_number"])
+    ).data;
+    setStorageData({
+      revision_number:
+        revisionData.find((r) => r.key === "revision_number")?.value || "",
+      form_number:
+        revisionData.find((r) => r.key === "form_number")?.value || "",
+    });
     const courseData = (await supabase.from("Course").select("*")).data;
     setCourses(courseData);
     setScores(scoreData);
     setFeedbacks(feedbackData);
-    setStudents(studentData);
+    setStudents(studentData.map((v) => ({ ...v, checked: false })));
     setLoadingPage(false);
   }
 
@@ -87,13 +105,320 @@ function Trainee() {
     (v) => v.training_id === selectedStudent?.id,
   );
 
-  const handlePrint = () => {
-    window.setTimeout(() => {
-      window.print();
-    }, 100);
+  const handleSinglePrint = () => {
+    if (!selectedStudent) return;
+
+    const printWindow = window.open("", "_blank");
+
+    const studentScores = scores.filter(
+      (v) => v.training_id.toString() === selectedStudent.id.toString(),
+    );
+    const studentFeedbacks = feedbacks.filter(
+      (v) => v.training_id === selectedStudent.id,
+    );
+
+    let printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>${toProper(selectedStudent.Name)} - Survey Report</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+          .student-report { padding: 20px; }
+          .header { text-align: center; margin-bottom: 30px; }
+          .student-info { margin-bottom: 30px; border-top: 2px solid #333; border-bottom: 2px solid #333; padding: 20px 0; }
+          .student-name { font-size: 24px; font-weight: bold; margin-bottom: 15px; }
+          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 0 auto; }
+          .survey-section { margin-bottom: 30px; }
+          .criteria-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
+          .question-item { display: flex; justify-content: space-between; padding: 8px 15px; border-bottom: 1px solid #ddd; }
+          .feedback-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+          .feedback-table th, .feedback-table td { border: 1px solid #333; padding: 12px; text-align: left; }
+          .feedback-table th { background-color: #f5f5f5; font-weight: bold; }
+          .print-footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #000; }
+          .footer-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+          .footer-table th, .footer-table td { border: 1px solid #000; padding: 4px 8px; text-align: center; }
+          .footer-table th { background-color: rgba(0,0,0,0.1); }
+          @page { margin-bottom: 60px; }
+          .content-with-footer { padding-bottom: 60px; }
+        </style>
+      </head>
+      <body>
+        <div class="student-report">
+          <div class="content-with-footer">
+            <div class="header">
+              <img src="/images/Admin-Logo.png" style="height: 100px;" />
+            </div>
+            
+            <div class="student-info">
+              <div class="student-name">${toProper(selectedStudent.Name)}</div>
+              <div class="info-grid">
+                <div>
+                  <p><strong>Code:</strong> ${selectedStudent.course?.Code || ""}</p>
+                  <p><strong>Company:</strong> ${selectedStudent.Reg}</p>
+                  <p><strong>Instructor:</strong> ${selectedStudent.Instructor}</p>
+                </div>
+                <div>
+                  <p><strong>Training Date:</strong> ${convertDateRangeToString(selectedStudent.TrainingD)}</p>
+                  <p><strong>Survey Date:</strong> ${new Date(selectedStudent.DateN).toDateString()}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="survey-section">
+              <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Survey Responses</h3>
+              ${staticData
+                .map((criteria) => {
+                  const filteredData = studentScores.filter(
+                    (c) => c.question.Criteria === criteria.key,
+                  );
+                  return `
+                    <div style="margin-bottom: 25px;">
+                      <div class="criteria-title">
+                        ${criteria.key}. ${criteria.description}
+                        ${filteredData.length === 0 ? '<span style="font-size: 14px; font-weight: normal; color: #666;"> - No Data Found</span>' : ""}
+                      </div>
+                      ${filteredData
+                        .map(
+                          (sc, i) => `
+                        <div class="question-item">
+                          <span>${i + 1}. ${sc.question.Question}</span>
+                          <span style="font-weight: bold;">Score: ${sc.score}/5</span>
+                        </div>
+                      `,
+                        )
+                        .join("")}
+                    </div>
+                  `;
+                })
+                .join("")}
+            </div>
+
+            <div class="survey-section">
+              <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 0;">Additional Feedback</h3>
+              ${
+                studentFeedbacks.length > 0
+                  ? `
+                <table class="feedback-table">
+                  <thead>
+                    <tr>
+                      <th>Question</th>
+                      <th>Answer</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${studentFeedbacks
+                      .map(
+                        (feedback) => `
+                      <tr>
+                        <td style="vertical-align: top;">${feedback.feedback.QuestionFeedback}</td>
+                        <td>${feedback.answer || "-"}</td>
+                      </tr>
+                    `,
+                      )
+                      .join("")}
+                  </tbody>
+                </table>
+              `
+                  : '<p style="color: #666; font-style: italic;">No feedback responses found.</p>'
+              }
+            </div>
+          </div>
+          
+          <div class="print-footer">
+            <table class="footer-table">
+              <tbody>
+                <tr>
+                  <th rowspan="2">INTERNAL</th>
+                  <th style="background-color: rgba(0,0,0,0.1);">Form Number:</th>
+                  <td>${storageData.form_number}</td>
+                  <th rowspan="2" style="background-color: rgba(0,0,0,0.1);">Date Issued:</th>
+                  <td rowspan="2">${new Date().toDateString()}</td>
+                </tr>
+                <tr>
+                  <th style="background-color: rgba(0,0,0,0.1);">Revision Number:</th>
+                  <td>${storageData.revision_number}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 500);
+    };
   };
 
-  const crs = courses.find((v) => v.id.toString() === course_id);
+  const handlePrint = () => {
+    const printStudents = students.filter((v) => v.checked);
+
+    const printWindow = window.open("", "_blank");
+
+    let printContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Student Reports</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+          .page-break { page-break-after: always; }
+          .student-report { padding: 20px; }
+          .header { text-align: center; margin-bottom: 30px; }
+          .student-info { margin-bottom: 30px; border-top: 2px solid #333; border-bottom: 2px solid #333; padding: 20px 0; }
+          .student-name { font-size: 24px; font-weight: bold; margin-bottom: 15px; }
+          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 0 auto; }
+          .survey-section { margin-bottom: 30px; }
+          .criteria-title { font-size: 18px; font-weight: bold; margin-bottom: 15px; color: #333; }
+          .question-item { display: flex; justify-content: space-between; padding: 8px 15px; border-bottom: 1px solid #ddd; }
+          .feedback-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+          .feedback-table th, .feedback-table td { border: 1px solid #333; padding: 12px; text-align: left; }
+          .feedback-table th { background-color: #f5f5f5; font-weight: bold; }
+          .print-footer { position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 1px solid #000; }
+          .footer-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+          .footer-table th, .footer-table td { border: 1px solid #000; padding: 4px 8px; text-align: center; }
+          .footer-table th { background-color: rgba(0,0,0,0.1); }
+          @page { margin-bottom: 60px; }
+          .content-with-footer { padding-bottom: 60px; }
+        </style>
+      </head>
+      <body>
+    `;
+
+    printStudents.forEach((student, index) => {
+      const studentScores = scores.filter(
+        (v) => v.training_id.toString() === student.id.toString(),
+      );
+      const studentFeedbacks = feedbacks.filter(
+        (v) => v.training_id === student.id,
+      );
+
+      printContent += `
+        <div class="student-report ${index < printStudents.length - 1 ? "page-break" : ""}">
+          <div class="content-with-footer">
+            <div class="header">
+              <img src="/images/Admin-Logo.png" style="height: 100px;" />
+            </div>
+            
+            <div class="student-info">
+              <div class="student-name">${toProper(student.Name)}</div>
+              <div class="info-grid">
+                <div>
+                  <p><strong>Code:</strong> ${student.course?.Code || ""}</p>
+                  <p><strong>Company:</strong> ${student.Reg}</p>
+                  <p><strong>Instructor:</strong> ${student.Instructor}</p>
+                </div>
+                <div>
+                  <p><strong>Training Date:</strong> ${convertDateRangeToString(student.TrainingD)}</p>
+                  <p><strong>Survey Date:</strong> ${new Date(student.DateN).toDateString()}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="survey-section">
+              <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Survey Responses</h3>
+              ${staticData
+                .map((criteria) => {
+                  const filteredData = studentScores.filter(
+                    (c) => c.question.Criteria === criteria.key,
+                  );
+                  return `
+                  <div style="margin-bottom: 25px;">
+                    <div class="criteria-title">
+                      ${criteria.key}. ${criteria.description}
+                      ${filteredData.length === 0 ? '<span style="font-size: 14px; font-weight: normal; color: #666;"> - No Data Found</span>' : ""}
+                    </div>
+                    ${filteredData
+                      .map(
+                        (sc, i) => `
+                      <div class="question-item">
+                        <span>${i + 1}. ${sc.question.Question}</span>
+                        <span style="font-weight: bold;">Score: ${sc.score}/5</span>
+                      </div>
+                    `,
+                      )
+                      .join("")}
+                  </div>
+                `;
+                })
+                .join("")}
+            </div>
+
+            <div class="survey-section">
+              <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Additional Feedback</h3>
+              ${
+                studentFeedbacks.length > 0
+                  ? `
+                <table class="feedback-table">
+                  <thead>
+                    <tr>
+                      <th>Question</th>
+                      <th>Answer</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${studentFeedbacks
+                      .map(
+                        (feedback) => `
+                      <tr>
+                        <td style="vertical-align: top;">${feedback.feedback.QuestionFeedback}</td>
+                        <td>${feedback.answer || "-"}</td>
+                      </tr>
+                    `,
+                      )
+                      .join("")}
+                  </tbody>
+                </table>
+              `
+                  : '<p style="color: #666; font-style: italic;">No feedback responses found.</p>'
+              }
+            </div>
+          </div>
+          
+          <div class="print-footer">
+            <table class="footer-table">
+              <tbody>
+                <tr>
+                  <th rowspan="2">INTERNAL</th>
+                  <th style="background-color: rgba(0,0,0,0.1);">Form Number:</th>
+                  <td>${storageData.form_number}</td>
+                  <th rowspan="2" style="background-color: rgba(0,0,0,0.1);">Date Issued:</th>
+                  <td rowspan="2">${new Date().toDateString()}</td>
+                </tr>
+                <tr>
+                  <th style="background-color: rgba(0,0,0,0.1);">Revision Number:</th>
+                  <td>${storageData.revision_number}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    });
+
+    printContent += `
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+
+    printWindow.onload = () => {
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 500);
+    };
+  };
 
   return (
     <PageContainer
@@ -105,152 +430,30 @@ function Trainee() {
       }
       title='Trainee'
       rightSection={
-        <div>
+        <div className='flex items-center'>
           <TextInput
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             leftSection={<IconSearch size={18} />}
             placeholder='Search'
           />
+          <ActionIcon
+            disabled={students.every((v) => !v.checked)}
+            onClick={handlePrint}
+            color='blue'
+            size='lg'
+          >
+            <Tooltip
+              position='bottom'
+              withArrow
+              label={`Print ${students.filter((v) => v.checked).length} Student(s)`}
+            >
+              <IconPrinter size={20} />
+            </Tooltip>
+          </ActionIcon>
         </div>
       }
     >
-      <Portal>
-        <div className='printable'>
-          {selectedStudent && (
-            <div>
-              <div className='flex justify-center'>
-                <img
-                  style={{ height: 100 }}
-                  src='/images/Admin-Logo.png'
-                />
-              </div>
-              <div className='p-8 max-w-4xl mx-auto'>
-                {/* Header Section */}
-                <div className='mb-8 border-y-2 border-gray-300 py-6'>
-                  <h2 className='text-2xl font-semibold mb-4'>
-                    {toProper(selectedStudent.Name)}
-                  </h2>
-                  <div className='grid grid-cols-2 gap-4 text-left max-w-2xl mx-auto'>
-                    <div>
-                      <p>
-                        <strong>Code:</strong> {selectedStudent.course?.Code}
-                      </p>
-                      <p>
-                        <strong>Company:</strong> {selectedStudent.Reg}
-                      </p>
-                      <p>
-                        <strong>Instructor:</strong>{" "}
-                        {selectedStudent.Instructor}
-                      </p>
-                    </div>
-                    <div>
-                      <p>
-                        <strong>Training Date:</strong>{" "}
-                        {convertDateRangeToString(selectedStudent.TrainingD)}
-                      </p>
-                      <p>
-                        <strong>Survey Date:</strong>{" "}
-                        {new Date(selectedStudent.DateN).toDateString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Survey Responses Section */}
-                <div className='mb-8'>
-                  <h3 className='text-xl font-bold mb-4'>Survey Responses</h3>
-                  {staticData.map((criteria, index) => {
-                    const filteredData = scores
-                      .filter(
-                        (v) =>
-                          v.training_id.toString() ===
-                          selectedStudent.id.toString(),
-                      )
-                      .filter((c) => c.question.Criteria === criteria.key);
-
-                    return (
-                      <div
-                        key={index}
-                        className='mb-6 break-inside-avoid'
-                      >
-                        <h4 className='font-semibold text-lg mb-3 text-gray-800'>
-                          {criteria.key}. {criteria.description}
-                          {filteredData.length === 0 && (
-                            <span className='text-sm font-normal text-gray-500'>
-                              {" "}
-                              - No Data Found
-                            </span>
-                          )}
-                        </h4>
-                        {filteredData.map((sc, i) => (
-                          <div
-                            key={i}
-                            className='flex justify-between items-center py-2 px-4 border-b border-gray-200'
-                          >
-                            <span className='flex-1 pr-4'>
-                              {i + 1}. {sc.question.Question}
-                            </span>
-                            <span className='font-bold text-right min-w-20'>
-                              Score: {sc.score}/5
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Additional Feedback Section */}
-                <div className='mb-8'>
-                  <h3 className='text-xl font-bold mb-4'>
-                    Additional Feedback
-                  </h3>
-                  {filteredFeedbacks.length > 0 ? (
-                    <table className='w-full border-collapse border border-gray-800'>
-                      <thead>
-                        <tr className='bg-gray-100'>
-                          <th className='border border-gray-800 p-3 text-left font-bold'>
-                            Question
-                          </th>
-                          <th className='border border-gray-800 p-3 text-left font-bold'>
-                            Answer
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {filteredFeedbacks.map((feedback, i) => (
-                          <tr key={i}>
-                            <td className='border border-gray-800 p-3 align-top'>
-                              {feedback.feedback.QuestionFeedback}
-                            </td>
-                            <td className='border border-gray-800 p-3'>
-                              {feedback.answer || "-"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  ) : (
-                    <p className='text-gray-600 italic'>
-                      No feedback responses found.
-                    </p>
-                  )}
-                </div>
-
-                {/* Footer */}
-                <div className='text-center text-sm text-gray-500 border-t border-gray-300 pt-4 mt-8'>
-                  <p>
-                    Generated on {new Date().toLocaleDateString()} at{" "}
-                    {new Date().toLocaleTimeString()}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-      </Portal>
-
       <Modal
         title={selectedStudent?.Name}
         opened={modalState}
@@ -265,7 +468,7 @@ function Trainee() {
                   leftSection={<IconPrinter size={18} />}
                   variant='outline'
                   size='xs'
-                  onClick={handlePrint}
+                  onClick={handleSinglePrint}
                 >
                   Print
                 </Button>
@@ -331,7 +534,10 @@ function Trainee() {
                 <Table.Tbody>
                   {filteredFeedbacks.map((v, i) => {
                     return (
-                      <Table.Tr key={i}>
+                      <Table.Tr
+                        style={{ verticalAlign: "top" }}
+                        key={i}
+                      >
                         <Table.Td className='text-sm'>
                           {v.feedback.QuestionFeedback}
                         </Table.Td>
@@ -360,6 +566,25 @@ function Trainee() {
       <Table>
         <Table.Thead>
           <Table.Tr>
+            <Table.Th w={10}>
+              <Checkbox
+                checked={filteredStudents.every((v) => v.checked)}
+                onChange={(e) => {
+                  setStudents((curr) =>
+                    curr.map((v) => {
+                      if (search && filteredStudents.length > 0) {
+                        if (filteredStudents.some((fs) => fs.id === v.id)) {
+                          return { ...v, checked: e.currentTarget.checked };
+                        }
+                        return v;
+                      }
+
+                      return { ...v, checked: e.currentTarget.checked };
+                    }),
+                  );
+                }}
+              />
+            </Table.Th>
             <Table.Th>#</Table.Th>
             <Table.Th>Name</Table.Th>
             <Table.Th>Training Date</Table.Th>
@@ -378,6 +603,21 @@ function Trainee() {
                 }}
                 key={i}
               >
+                <Table.Td>
+                  <Checkbox
+                    onChange={(e) => {
+                      setStudents((curr) =>
+                        curr.map((v) => {
+                          if (v.id === stud.id) {
+                            return { ...v, checked: e.currentTarget.checked };
+                          }
+                          return v;
+                        }),
+                      );
+                    }}
+                    checked={stud.checked}
+                  />
+                </Table.Td>
                 <Table.Td>{i + 1}</Table.Td>
                 <Table.Td style={{ minWidth: 150 }}>
                   {toProper(stud.Name)}
