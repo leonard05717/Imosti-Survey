@@ -92,11 +92,21 @@ function Staff() {
         }
         return null;
       },
+      Contact: (v) => {
+        if (v.toString().length !== 10 && v.toString().length !== 11) {
+          return "Contact Number should be 10 or 11 digits";
+        }
+        if (!v.toString().match(/^0|9/)) {
+          return "Contact Number should start with 0 or 9";
+        }
+        return null;
+      },
     },
   });
 
   async function submitStaffAccount(data) {
     try {
+      return console.log(data);
       setSubmitLoading(true);
       console.log(data);
       if (data.type === "add") {
@@ -295,6 +305,7 @@ function Staff() {
             maxLength={11}
             allowDecimal={false}
             allowNegative={false}
+            allowLeadingZeros
             required
             label='Contact Number'
             placeholder='Enter Contact Number'
@@ -305,6 +316,7 @@ function Staff() {
             label='Role'
             placeholder='Enter Role'
             checkIconPosition='right'
+            searchable
             data={[
               { value: "superadmin", label: "Super Admin" },
               { value: "admin", label: "Admin" },
