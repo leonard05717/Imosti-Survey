@@ -42,7 +42,6 @@ import { modals } from "@mantine/modals";
 import ReactToPrint from "react-to-print";
 import PrintableSurvey from "./components/PrintableSurvey";
 import PageContainer from "../components/PageContainer";
-import { useClickOutside } from "@mantine/hooks";
 import { staticData } from "../data";
 
 const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"];
@@ -74,7 +73,6 @@ function Analytics() {
     new Date(),
     new Date(),
   ]);
-  const popupRef = useClickOutside(() => closePrintState());
   const [selectedMonthYear, setSelectedMonthYear] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [selectedDateRange, setSelectedDateRange] = useState([null, null]);
@@ -241,6 +239,7 @@ function Analytics() {
         totalAverage: totalAverage,
         list: list,
         date: date,
+        barChartData: barChartData, // Include current bar chart data
       };
 
       setSurveyData(newSurveyData);
@@ -402,6 +401,8 @@ function Analytics() {
       };
     });
 
+    console.log(barChartData);
+
     setBarChartData(barChartData);
   }, [
     selectedFilter,
@@ -443,6 +444,7 @@ function Analytics() {
             criteria={surveyData.list}
             totalAverage={surveyData.totalAverage}
             date={surveyData.date}
+            barChartData={surveyData.barChartData}
           />
         </div>
       </Portal>
@@ -627,7 +629,7 @@ function Analytics() {
                   </Button>
                 </Popover.Target>
                 <Popover.Dropdown miw={300}>
-                  <div ref={popupRef}>
+                  <div>
                     <div
                       style={{
                         display: "flex",
@@ -721,13 +723,17 @@ function Analytics() {
                 </div>
               ) : (
                 <BarChart
+                  withTooltip
+                  withBarValueLabel
                   h='100%'
                   w='100%'
                   valueFormatter={(v) => v.toFixed(2)}
                   data={barChartData}
-                  dataKey='services'
+                  dataKey='name'
+                  yAxisProps={{
+                    tickCount: 4,
+                  }}
                   series={[{ name: "Average", color: "blue.6" }]}
-                  tickLine='y'
                 />
               )}
             </div>
