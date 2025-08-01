@@ -225,6 +225,12 @@ function Trainee() {
           .footer-table th { 
             background-color: rgba(0,0,0,0.1); 
           }
+          .signature-second-page{
+           position: fixed;
+           bottom: 60px;
+           left: 0; 
+           width: 100%;
+          }
           .content-with-footer { 
             padding-bottom: 50px; 
           }
@@ -350,11 +356,23 @@ function Trainee() {
                       .join("")}
                   </tbody>
                 </table>
+
               `
-                  : '<p style="color: #666; font-style: italic;">No feedback responses found.</p>'
+                  : '<p style="color: #666; font-style: italic;">No feedback responses found.</p>'       
               }
             </div>
           </div>
+          
+              <div class="signature-second-page">
+                <div style= "text-align: center ;">
+                   <div>
+                     <h3><strong>${toProper(selectedStudent.Name)}</strong></h3>
+                   </div>
+                   <div style="margin-top: -10px;">
+                     <p >signature over printed name</p>
+                   </div>
+                 </div
+              </div>
           
           <div class="print-footer">
             <table class="footer-table">

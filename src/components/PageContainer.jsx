@@ -9,6 +9,7 @@ import {
   Loader,
   Menu,
   Modal,
+  NumberInput,
   PasswordInput,
   ScrollAreaAutosize,
   Text,
@@ -34,6 +35,12 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
   const navigate = useNavigate();
   const { setIsOpen } = useDrawer();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [number, Setnumber] = useState("");
+
+
+  const Number = (event) => {
+    Setnumber(event.target.value);
+  };
 
   const accountForm = useForm({
     mode: "controlled",
@@ -77,27 +84,33 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
 
   async function saveAccountEventHandler(values) {
     try {
+      
       setLoadingUpdate(true);
 
       console.log(values);
+       
 
-      const { data: updatedData } = await supabase
-        .from("Staff-Info")
-        .update({
-          First_Name: values.First_Name,
-          Last_Name: values.Last_Name,
-          Email: values.Email,
-          Status: values.Status,
-          Contact: values.Contact,
-          Password: values.Password ? values.Password : undefined,
-        })
-        .eq("id", values.id)
-        .select()
-        .single();
-
-      accountForm.setFieldValue("Password", "");
-      localStorage.setItem("data", JSON.stringify(updatedData));
-      window.alert("Update Account Successfully!");
+        
+          const { data: updatedData } = await supabase
+          .from("Staff-Info")
+          .update({
+            First_Name: values.First_Name,
+            Last_Name: values.Last_Name,
+            Email: values.Email,
+            Status: values.Status,
+            Contact: values.Contact,
+            Password: values.Password ? values.Password : undefined,
+          })
+          .eq("id", values.id)
+          .select()
+          .single();
+  
+        accountForm.setFieldValue("Password", "");
+        localStorage.setItem("data", JSON.stringify(updatedData));
+        window.alert("Update Account Successfully!");
+      
+      
+          
     } catch (error) {
       window.alert("Save error:", error.message);
     } finally {
@@ -206,6 +219,7 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
             </Group>
 
             <TextInput
+              type="email"
               label='Email'
               required
               placeholder='Enter your email'
@@ -213,12 +227,17 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
             />
 
             <Group grow>
-              <TextInput
-                label='Contact Number'
-                placeholder='e.g. 09123456789'
-                required
-                {...accountForm.getInputProps("Contact")}
-              />
+             <NumberInput
+            hideControls
+            maxLength={11}
+            allowDecimal={false}
+            allowNegative={false}
+            minLength={11}
+            required
+            label='Contact Number'
+            placeholder='e.g. 09123456789'
+            {...accountForm.getInputProps("Contact")}
+          />
               <TextInput
                 label='Role'
                 readOnly

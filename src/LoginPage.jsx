@@ -81,6 +81,7 @@ function LoginPage() {
         .from("Staff-Info")
         .select()
         .eq("Email", email)
+        .eq("Status","Active")
         .eq("Password", password);
 
       if (loginError) {
