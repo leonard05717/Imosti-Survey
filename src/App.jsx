@@ -214,7 +214,7 @@ function App() {
             <Image
               h={70}
               w={70}
-              src='../Picture/Logo.png'
+              src='./Picture/Admin-Logo.png'
               alt='Avatar'
             />
           </AspectRatio>
