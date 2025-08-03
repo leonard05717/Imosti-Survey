@@ -214,7 +214,7 @@ function App() {
             <Image
               h={70}
               w={70}
-              src='./Picture/Admin-Logo.png'
+              src='./public/images/Admin-Logo.png'
               alt='Avatar'
             />
           </AspectRatio>
@@ -240,7 +240,7 @@ function App() {
             <AspectRatio>
               <Image
                 h='100%'
-                src='../Picture/Admin-Logo.png'
+                 src='./public/images/Admin-Logo.png'
                 alt='Avatar'
               />
             </AspectRatio>
