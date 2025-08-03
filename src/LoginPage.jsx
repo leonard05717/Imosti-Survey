@@ -149,7 +149,7 @@ function LoginPage() {
           <AspectRatio>
             <Image
               h='100%'
-              src='../Picture/Admin-Logo.png'
+              src='../images/Admin-Logo.png'
               alt='Avatar'
             />
           </AspectRatio>
