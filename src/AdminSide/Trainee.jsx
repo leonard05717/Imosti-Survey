@@ -42,6 +42,7 @@ function Trainee() {
   const [scores, setScores] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const navigate = useNavigate();
+  const [Criterias , setCriterias] = useState([]);
   const [search, setSearch] = useState("");
   const [courses, setCourses] = useState([]);
   const [storageData, setStorageData] = useState({
@@ -83,7 +84,9 @@ function Trainee() {
         revisionData.find((r) => r.key === "issued_date")?.value || "",
     });
     const courseData = (await supabase.from("Course").select("*")).data;
+    const CriteriaData = (await supabase.from("Criteria-Questioner").select()).data;
     setCourses(courseData);
+    setCriterias(CriteriaData)
     setScores(scoreData);
     setFeedbacks(feedbackData);
     setStudents(studentData.map((v) => ({ ...v, checked: false })));
@@ -272,15 +275,15 @@ function Trainee() {
 
             <div class="survey-section">
               <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Survey Responses</h3>
-              ${staticData
+              ${Criterias
                 .map((criteria) => {
                   const filteredData = studentScores.filter(
-                    (c) => c.question.Criteria === criteria.key,
+                    (c) => c.question.Criteria === criteria.label,
                   );
                   return `
                     <div style="margin-bottom: 25px;">
                       <div class="criteria-title">
-                        ${criteria.key}. ${criteria.description}
+                        ${criteria.label}. ${criteria.CQuestion}
                         ${filteredData.length === 0 ? '<span style="font-size: 14px; font-weight: normal; color: #666;"> - No Data Found</span>' : ""}
                       </div>
                       ${filteredData
@@ -429,9 +432,9 @@ function Trainee() {
       const criteriaAverages = {};
       const questionAverages = {};
 
-      staticData.forEach((criteria) => {
+      Criterias.forEach((criteria) => {
         const criteriaScores = checkedScores.filter(
-          (score) => score.question?.Criteria === criteria.key,
+          (score) => score.question?.Criteria === criteria.label,
         );
 
         if (criteriaScores.length > 0) {
@@ -439,7 +442,7 @@ function Trainee() {
             (sum, score) => sum + score.score,
             0,
           );
-          criteriaAverages[criteria.key] = (
+          criteriaAverages[criteria.label] = (
             total / criteriaScores.length
           ).toFixed(2);
 
@@ -467,11 +470,11 @@ function Trainee() {
             questionAverages[questionId] = {
               question: questionData.question,
               average: avg.toFixed(2),
-              criteria: criteria.key,
+              criteria: criteria.label,
             };
           });
         } else {
-          criteriaAverages[criteria.key] = "0.00";
+          criteriaAverages[criteria.label] = "0.00";
         }
       });
 
@@ -611,12 +614,12 @@ function Trainee() {
               </tr>
             </thead>
             <tbody>
-              ${staticData
+              ${Criterias
                 .map(
                   (criteria) => `
                 <tr>
-                  <th style="text-align: left;">${criteria.key}. ${criteria.description}</th>
-                  <td style="text-align: right; padding-right: 20px">${criteriaAverages[criteria.key] || "0.00"}</td>
+                  <th style="text-align: left;">${criteria.label}. ${criteria.CQuestion}</th>
+                  <td style="text-align: right; padding-right: 20px">${criteriaAverages[criteria.label] || "0.00"}</td>
                 </tr>
               `,
                 )
@@ -629,16 +632,16 @@ function Trainee() {
                 </td>
               </tr>
 
-              ${staticData
+              ${Criterias
                 .map((criteria) => {
                   const criteriaQuestions = Object.values(
                     questionAverages,
-                  ).filter((q) => q.criteria === criteria.key);
+                  ).filter((q) => q.criteria === criteria.label);
 
                   if (criteriaQuestions.length === 0) return "";
 
                   return `
-                  <tr><td class="criteria-title">${criteria.key}. ${criteria.description}</td><td></td></tr>
+                  <tr><td class="criteria-title">${criteria.label}. ${criteria.CQuestion}</td><td></td></tr>
                   ${criteriaQuestions
                     .map(
                       (q, index) => `
@@ -832,15 +835,15 @@ function Trainee() {
 
             <div class="survey-section">
               <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Survey Responses</h3>
-              ${staticData
+              ${Criterias
                 .map((criteria) => {
                   const filteredData = studentScores.filter(
-                    (c) => c.question.Criteria === criteria.key,
+                    (c) => c.question.Criteria === criteria.label,
                   );
                   return `
                     <div style="margin-bottom: 25px;">
                       <div class="criteria-title">
-                        ${criteria.key}. ${criteria.description}
+                        ${criteria.label}. ${criteria.CQuestion}
                         ${filteredData.length === 0 ? '<span style="font-size: 14px; font-weight: normal; color: #666;"> - No Data Found</span>' : ""}
                       </div>
                       ${filteredData
@@ -1048,14 +1051,14 @@ function Trainee() {
               </p>
             </div>
             <div className='pt-3'>
-              {staticData.map((v, i) => {
+              {Criterias.map((v, i) => {
                 const filteredData = scores
                   .filter(
                     (v) =>
                       v.training_id.toString() ===
                       selectedStudent.id.toString(),
                   )
-                  .filter((c) => c.question.Criteria === v.key);
+                  .filter((c) => c.question.Criteria === v.label);
 
                 return (
                   <div
@@ -1063,7 +1066,7 @@ function Trainee() {
                     className='mb-5'
                   >
                     <h3 className='font-semibold text-gray-800 mb-2'>
-                      {v.key}. {v.description}{" "}
+                      {v.label}. {v.CQuestion}{" "}
                       {filteredData.length === 0 && (
                         <Text size='sm'>- No Data Found</Text>
                       )}

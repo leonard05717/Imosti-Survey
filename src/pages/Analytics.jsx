@@ -77,7 +77,7 @@ function Analytics() {
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [selectedDateRange, setSelectedDateRange] = useState([null, null]);
   const [selectedFilter, setSelectedFilter] = useState("Today");
-
+  const [Criterias , setCriterias] = useState([])
   const [barChartData, setBarChartData] = useState([]);
   const [selectedCourseCode, setSelectedCourseCode] = useState(null);
   const [loadingPrint, setLoadingPrint] = useState(false);
@@ -191,13 +191,13 @@ function Analytics() {
         return created >= start && created <= end;
       });
 
-      const crs = staticData.reduce((acc, item) => {
-        acc[item.key] = {
+      const crs = Criterias.reduce((acc, item) => {
+        acc[item.label] = {
           sum: 0,
           len: 0,
           average: 0,
           questions: [],
-          name: `${item.key}. ${item.description}`,
+          name: `${item.label}. ${item.CQuestion}`,
         };
         return acc;
       }, {});
@@ -209,9 +209,9 @@ function Analytics() {
         }
       });
 
-      staticData.forEach((key) => {
-        if (crs[key.key]) {
-          crs[key.key].average = crs[key.key].sum / crs[key.key].len || 0;
+      Criterias.forEach((key) => {
+        if (crs[key.label]) {
+          crs[key.label].average = crs[key.label].sum / crs[key.label].len || 0;
         }
       });
 
@@ -268,11 +268,14 @@ function Analytics() {
 
       const studentData = (await supabase.from("Info-Training").select()).data;
       const courseData = (await supabase.from("Course").select()).data;
+      const CriteriaData = (await supabase.from("Criteria-Questioner").select()).data;
 
       const courseCount =
         (await supabase.from("Course").select("*")).data.length || 0;
       const surveyCount =
         (await supabase.from("Info-Training").select("*")).data.length || 0;
+
+      setCriterias(CriteriaData)  
 
       setMainData({
         scores: scoreData,
@@ -371,13 +374,13 @@ function Analytics() {
       return trainingDate >= start && trainingDate <= end;
     });
 
-    const grouped = staticData.reduce((acc, item) => {
-      acc[item.key] = 0;
+    const grouped = Criterias.reduce((acc, item) => {
+      acc[item.label] = 0;
       return acc;
     }, {});
 
-    const count = staticData.reduce((acc, item) => {
-      acc[item.key] = 0;
+    const count = Criterias.reduce((acc, item) => {
+      acc[item.label] = 0;
       return acc;
     }, {});
 
@@ -389,15 +392,15 @@ function Analytics() {
       }
     });
 
-    const average = staticData.reduce((acc, item) => {
-      acc[item.key] = count[item.key] ? grouped[item.key] / count[item.key] : 0;
+    const average = Criterias.reduce((acc, item) => {
+      acc[item.label] = count[item.label] ? grouped[item.label] / count[item.label] : 0;
       return acc;
     }, {});
 
-    const barChartData = staticData.map((item) => {
+    const barChartData = Criterias.map((item) => {
       return {
-        name: `${item.key}. ${item.description}`,
-        Average: average[item.key],
+        name: `${item.label}. ${item.CQuestion}`,
+        Average: average[item.label],
       };
     });
 

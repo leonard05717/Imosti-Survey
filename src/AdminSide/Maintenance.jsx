@@ -36,10 +36,19 @@ function Maintenance() {
   const [
     EditCriteria,
     { open: openEditCriteria, close: closeEditCriteria },
-  ] = useDisclosure(false)
+  ] = useDisclosure(false);
+  const [
+    CriteriaAdd,
+    { open: openCriteriaAdd, close: closeCriteriaAdd },
+  ] = useDisclosure(false);
+  
   const [
     deleteFeedbackState,
     { open: openDeleteFeedbackState, close: closeDeleteFeedbackState },
+  ] = useDisclosure(false);
+  const [
+    deleteCriteriaState,
+    { open: openDeleteCriteriaState, close: closeDeleteCriteriaState },
   ] = useDisclosure(false);
   const [selectedDeleteId, setSelectedDeleteId] = useState(null);
   const [selectedFeedbackDeleteId, setSelectedFeedbackDeleteId] =
@@ -47,11 +56,13 @@ function Maintenance() {
   const [selectedIDCriteria, setselectedIDCriteria] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteFeedbackLoading, setDeleteFeedbackLoading] = useState(false);
+  const [deleteCriteriaLoading, setDeleteCriteriaLoading] = useState(false);
   const [feedbacks, setFeedbacks] = useState([]);
   const [submitFeedbackLoading, setSubmitFeedbackLoading] = useState(false);
   const [CriteriaQ , setCriteriaQ] = useState([]);
   const [submitCretiraLoading, setsubmitCretiraLoading] = useState(false);
   const [CriteriaT, setCriteriaT] = useState("")
+  const [labeladd, setlabeladd] = useState("")
 
   const evaluationForm = useForm({
     mode: "controlled",
@@ -65,6 +76,14 @@ function Maintenance() {
     mode: "controlled",
     initialValues: {
       feedback: "",
+    },
+  });
+
+  const CriteriaForm = useForm({
+    mode: "controlled",
+    initialValues: {
+      Criterias: "",
+      label:"",
     },
   });
 
@@ -119,13 +138,42 @@ function Maintenance() {
     }
   }
 
+  async function submitCriteriaAdd(Criterias) {
+    try {
+      setSubmitFeedbackLoading(true);
+
+      const { error: insertError } = await supabase
+        .from("Criteria-Questioner")
+        .insert({
+          CQuestion: Criterias.Criterias,
+          label: Criterias.label,
+          created_at: new Date(),
+        });
+
+      if (insertError) {
+        console.log(`Something Error: ${insertError.message}`);
+        return;
+      }
+      await fetchData();
+      CriteriaForm.setFieldValue("Criterias", "");
+      CriteriaForm.setFieldValue("label", "");
+      console.log("Success");
+      closeCriteriaAdd();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSubmitFeedbackLoading(false);
+    }
+  }
+
   async function SubmitCriteriaEdit() {
     if (!selectedIDCriteria) return;
     setsubmitCretiraLoading(true);
     const { error: deleteError } = await supabase
       .from("Criteria-Questioner")
       .update({
-        CQuestion : CriteriaT
+        CQuestion : CriteriaT,
+        label : labeladd 
       })
       .eq("id", selectedIDCriteria);
     if (deleteError) {
@@ -137,6 +185,24 @@ function Maintenance() {
     closeEditCriteria();
     console.log("Edit Success");
     setsubmitCretiraLoading(false);
+  }
+
+  async function deleteCriteria() {
+    if (!selectedIDCriteria) return;
+    setDeleteCriteriaLoading(true);
+    const { error: deleteError } = await supabase
+      .from("Criteria-Questioner")
+      .delete()
+      .eq("id", selectedIDCriteria);
+    if (deleteError) {
+      setDeleteCriteriaLoading(false);
+      console.log(`Something Error: ${deleteError.message}`);
+      return;
+    }
+    await fetchData();
+    closeDeleteCriteriaState();
+    console.log("Delete Success");
+    setDeleteCriteriaLoading(false);
   }
 
   async function deleteEventHandler() {
@@ -282,7 +348,8 @@ function Maintenance() {
           </Button>
         </form>
       </Modal>
-        {/*Criteria*/}
+
+        {/*Criteria Edit*/}
       <Modal
         radius={20}
         centered='true'
@@ -310,6 +377,18 @@ function Maintenance() {
         </div>
       
           <div className='Response'>
+          <TextInput
+              required
+              minLength={1}
+              id='Addlabel'
+              onChange={(e) => {
+                setlabeladd(e.target.value)
+              }}
+              radius='md'        
+              placeholder={CriteriaQ.filter((v) => v.id === selectedIDCriteria).map((c) =>{
+                 return c.label;
+              })}
+            />
         
             <TextInput
               required
@@ -333,6 +412,100 @@ function Maintenance() {
             Save
           </Button>
      
+      </Modal>
+
+        {/*Add Criteria */}
+      <Modal
+        radius={20}
+        centered='true'
+        opened={CriteriaAdd}
+        onClose={() => {
+          closeCriteriaAdd();
+        }}
+      >
+        <div style={{ display: "flex" }}>
+          <AspectRatio
+            ratio={1}
+            flex='0 0 200px'
+          >
+            <Image
+              h={70}
+              w={70}
+              src='/images/Logo.png'
+              alt='Avatar'
+            />
+          </AspectRatio>
+          <div className='Aspect-text'>
+            International Maritime & Offshore{" "}
+            <div className='Aspect-text2'> Safety Training Institute</div>
+          </div>
+        </div>
+        <form onSubmit={CriteriaForm.onSubmit(submitCriteriaAdd)}>
+          <div className='Response'>
+          <TextInput
+              required
+              id='Addlabel'
+              {...CriteriaForm.getInputProps("label")}
+              radius='md'
+              placeholder='e.g A-Z'
+              maxLength={1}
+            />
+            <TextInput
+              required
+              id='AddQuestion'
+              {...CriteriaForm.getInputProps("Criterias")}
+              radius='md'
+              placeholder='Enter Criteria Questioner'
+            />
+            
+          </div>
+          <Button
+            loading={submitCretiraLoading}
+            className='Button-done'
+            type='submit'
+            style={{ width: "fit-content" }}
+          >
+            Add
+          </Button>
+        </form>
+      </Modal>
+      
+      {/* Delete Criteria */}
+      <Modal
+        radius={20}
+        centered='true'
+        opened={deleteCriteriaState}
+        onClose={() => {
+          closeDeleteCriteriaState();
+        }}
+      >
+        <div style={{ display: "flex" }}>
+          <AspectRatio
+            ratio={1}
+            flex='0 0 200px'
+          >
+            <Image
+              h={70}
+              w={70}
+              src='/images/Logo.png'
+              alt='Avatar'
+            />
+          </AspectRatio>
+          <div className='Aspect-text'>
+            International Maritime & Offshore{" "}
+            <div className='Aspect-text2'> Safety Training Institute</div>
+          </div>
+        </div>
+        <div className='Response'></div>
+        <div style={{ display: "flex", justifyContent: "space-evenly" }}>
+          <Button onClick={closeDeleteCriteriaState}>NO</Button>
+          <Button
+            onClick={deleteCriteria}
+            loading={deleteCriteriaLoading}
+          >
+            Yes
+          </Button>
+        </div>
       </Modal>
 
       {/* add Feedback */}
@@ -420,8 +593,8 @@ function Maintenance() {
         </div>
       </Modal>
 
-      {staticData.map((data, i) => {
-        const items = questions.filter((v) => v.Criteria === data.key);
+      {CriteriaQ.map((data, i) => {
+        const items = questions.filter((v) => v.Criteria === data.label);
 
         return (
           <div
@@ -450,20 +623,20 @@ function Maintenance() {
                 fw='bold'
                 size='lg'
               >
-                {data.key}. {data.description}
+                {data.label}. {data.CQuestion}
               </Text>
               <Button
                 size='xs'
                 leftSection={<IconPlus size={18} />}
                 onClick={() => {
                   evaluationForm.setValues({
-                    criteria: data.key,
+                    criteria: data.label,
                     question: "",
                   });
                   openEvaluationState();
                 }}
               >
-                Add {data.description}
+                Add {data.CQuestion}
               </Button>
             </div>
             <div style={{ marginTop: 10 }}>
@@ -600,6 +773,18 @@ function Maintenance() {
           >
             Questioner
           </Text>
+          <Button
+            size='xs'
+            leftSection={<IconPlus size={18} />}
+            onClick={() => {
+              feedbackForm.setValues({
+                feedback: "",
+              });
+              openCriteriaAdd();
+            }}
+          >
+            Add Criteria
+          </Button>
 
         </div>
         <div style={{ marginTop: 10 }}>
@@ -619,6 +804,7 @@ function Maintenance() {
                 <Text size='md'>
                   {CQ.label}. {CQ.CQuestion}
                 </Text>
+                <div style={{display: 'flex' , justifyContent: 'flex-end' , gap: '20px'}}>
                 <ActionIcon
                   onClick={() => {
                     setselectedIDCriteria(CQ.id);
@@ -628,6 +814,17 @@ function Maintenance() {
                 >
                   <IconEdit size={18} />
                 </ActionIcon>
+                
+                <ActionIcon
+                  onClick={() => {
+                    setselectedIDCriteria(CQ.id);
+                    openDeleteCriteriaState();
+                  }}
+                  color='red'
+                >
+                  <IconTrash size={18} />
+                </ActionIcon>
+                </div>
               </div>
             );
           })}

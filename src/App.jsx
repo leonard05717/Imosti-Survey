@@ -583,7 +583,7 @@ function App() {
                   >
                     <Table.Tbody>
                       <Table.Tr>
-                        <Table.Th>Full Name:</Table.Th>
+                        <Table.Th>Learners Name:</Table.Th>
                         <Table.Td>{Name}</Table.Td>
                       </Table.Tr>
                       <Table.Tr>
@@ -604,7 +604,7 @@ function App() {
                         <Table.Td>{valuenowDate.toDateString()}</Table.Td>
                       </Table.Tr>
                       <Table.Tr>
-                        <Table.Th>Instructor:</Table.Th>
+                        <Table.Th>Instructor Name:</Table.Th>
                         <Table.Td>{Instructor}</Table.Td>
                       </Table.Tr>
                       <Table.Tr>
