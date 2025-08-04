@@ -267,22 +267,18 @@ function App() {
               {/* 1st */}
               <Stepper.Step
                 label='First step'
-                description='Get Information'
+                description='Fill up Information'
               >
                 <div className=''>
                   <div className='text-center font-black text-xl pb-5'>
-                    Fillup All Information
+                    Fill up all Information
                   </div>
-                  <div className='font-semibold'>INSTRUCTION:</div>
-                  <div className='mb-5'>
-                    Please Mark the Circle that applies and corresponds to your
-                    assessment of each item.
-                  </div>
+                  
 
                   <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
                     <div className='space-y-3'>
                       <TextInput
-                        label='Full Name'
+                        label='Learners Name'
                         onChange={NameTrasfer}
                         className='input'
                         type='text'
@@ -294,7 +290,7 @@ function App() {
                         onChange={InstructorTrasfer}
                         id='Instructor'
                         className='input'
-                        label='Instructor'
+                        label='Instructor Name'
                         type='text'
                         placeholder='Enter Instructor'
                         required
@@ -314,7 +310,7 @@ function App() {
                     <div className='space-y-3'>
                       <DatePickerInput
                         type='range'
-                        label='Pick dates range'
+                        label='Training Date'
                         placeholder='Pick dates range'
                         value={Trainingvalue}
                         onChange={setTrainingValue}
@@ -382,7 +378,7 @@ function App() {
               {/* 2nd */}
               <Stepper.Step
                 label='Second step'
-                description='Check Survey'
+                description='Training Evaluation'
               >
                 <div className='text-center font-black text-xl pb-5'>
                   Survey Form
@@ -596,6 +592,10 @@ function App() {
                               ?.Code
                           }
                         </Table.Td>
+                      </Table.Tr>
+                      <Table.Tr>
+                        <Table.Th>Company:</Table.Th>
+                        <Table.Td>{RegNo}</Table.Td>
                       </Table.Tr>
                       <Table.Tr>
                         <Table.Th>Date:</Table.Th>

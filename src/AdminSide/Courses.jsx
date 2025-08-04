@@ -177,7 +177,7 @@ function Courses() {
           <Table.Thead>
             <Table.Tr>
               <Table.Th>#</Table.Th>
-              <Table.Th>Code</Table.Th>
+              <Table.Th>Product Title and Code</Table.Th>
               <Table.Th>Course</Table.Th>
               <Table.Th>View</Table.Th>
             </Table.Tr>

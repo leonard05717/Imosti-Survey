@@ -106,7 +106,7 @@ function Staff() {
 
   async function submitStaffAccount(data) {
     try {
-      return console.log(data);
+     console.log(data);
       setSubmitLoading(true);
       console.log(data);
       if (data.type === "add") {
@@ -284,12 +284,14 @@ function Staff() {
               required
               label='First Name'
               placeholder='Enter First Name'
+              minLength={2}
             />
             <TextInput
               {...staffForm.getInputProps("Last_Name")}
               required
               label='Last Name'
               placeholder='Enter Last Name'
+              minLength={2}
             />
           </Group>
           <TextInput

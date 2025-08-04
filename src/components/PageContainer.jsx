@@ -57,6 +57,17 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
       Contact: account?.Contact || "",
       Password: "",
     },
+    validate: {
+      Contact: (v) => {
+        if (v.toString().length !== 10 && v.toString().length !== 11) {
+          return "Contact Number should be 10 or 11 digits";
+        }
+        if (!v.toString().match(/^0|9/)) {
+          return "Contact Number should start with 0 or 9";
+        }
+        return null;
+      },
+    },
   });
   const [img, setImg] = useState(account?.profile || "");
   const [loadingUpdate, setLoadingUpdate] = useState(false);
@@ -87,9 +98,12 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
       
       setLoadingUpdate(true);
 
+
+
+      
       console.log(values);
        
-
+      
         
           const { data: updatedData } = await supabase
           .from("Staff-Info")
@@ -108,6 +122,8 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
         accountForm.setFieldValue("Password", "");
         localStorage.setItem("data", JSON.stringify(updatedData));
         window.alert("Update Account Successfully!");
+      
+  
       
       
           
@@ -206,12 +222,14 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
             <Group grow>
               <TextInput
                 label='First Name'
+                minLength={2}
                 required
                 placeholder='Enter your first name'
                 {...accountForm.getInputProps("First_Name")}
               />
               <TextInput
                 label='Last Name'
+                minLength={2}
                 required
                 placeholder='Enter your last name'
                 {...accountForm.getInputProps("Last_Name")}
@@ -228,15 +246,15 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
 
             <Group grow>
              <NumberInput
+             {...accountForm.getInputProps("Contact")}
             hideControls
             maxLength={11}
             allowDecimal={false}
             allowNegative={false}
-            minLength={11}
+            allowLeadingZeros
             required
             label='Contact Number'
             placeholder='e.g. 09123456789'
-            {...accountForm.getInputProps("Contact")}
           />
               <TextInput
                 label='Role'
