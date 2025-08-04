@@ -13,7 +13,7 @@ import {
   Text,
   TextInput,
 } from "@mantine/core";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconEdit, IconPlus, IconTrash } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { useForm } from "@mantine/form";
 
@@ -34,16 +34,24 @@ function Maintenance() {
     { open: openDeleteEvaluationState, close: closeDeleteEvaluationState },
   ] = useDisclosure(false);
   const [
+    EditCriteria,
+    { open: openEditCriteria, close: closeEditCriteria },
+  ] = useDisclosure(false)
+  const [
     deleteFeedbackState,
     { open: openDeleteFeedbackState, close: closeDeleteFeedbackState },
   ] = useDisclosure(false);
   const [selectedDeleteId, setSelectedDeleteId] = useState(null);
   const [selectedFeedbackDeleteId, setSelectedFeedbackDeleteId] =
     useState(null);
+  const [selectedIDCriteria, setselectedIDCriteria] = useState(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deleteFeedbackLoading, setDeleteFeedbackLoading] = useState(false);
   const [feedbacks, setFeedbacks] = useState([]);
   const [submitFeedbackLoading, setSubmitFeedbackLoading] = useState(false);
+  const [CriteriaQ , setCriteriaQ] = useState([]);
+  const [submitCretiraLoading, setsubmitCretiraLoading] = useState(false);
+  const [CriteriaT, setCriteriaT] = useState("")
 
   const evaluationForm = useForm({
     mode: "controlled",
@@ -59,6 +67,8 @@ function Maintenance() {
       feedback: "",
     },
   });
+
+ 
 
   async function submitEvaluationEvent(evaluation) {
     try {
@@ -109,6 +119,26 @@ function Maintenance() {
     }
   }
 
+  async function SubmitCriteriaEdit() {
+    if (!selectedIDCriteria) return;
+    setsubmitCretiraLoading(true);
+    const { error: deleteError } = await supabase
+      .from("Criteria-Questioner")
+      .update({
+        CQuestion : CriteriaT
+      })
+      .eq("id", selectedIDCriteria);
+    if (deleteError) {
+      setsubmitCretiraLoading(false);
+      console.log(`Something Error: ${deleteError.message}`);
+      return;
+    }
+    await fetchData();
+    closeEditCriteria();
+    console.log("Edit Success");
+    setsubmitCretiraLoading(false);
+  }
+
   async function deleteEventHandler() {
     if (!selectedDeleteId) return;
     setDeleteLoading(true);
@@ -147,10 +177,11 @@ function Maintenance() {
 
   async function fetchData() {
     const questionData = (await supabase.from("Questioner").select()).data;
-    const feedbackData = (await supabase.from("Feedback-Question").select())
-      .data;
+    const feedbackData = (await supabase.from("Feedback-Question").select()).data;
+    const CriteriaData = (await supabase.from("Criteria-Questioner").select()).data;
     setQuestions(questionData);
     setFeedbacks(feedbackData);
+    setCriteriaQ(CriteriaData)
     setLoadingPage(false);
   }
 
@@ -250,6 +281,58 @@ function Maintenance() {
             Add
           </Button>
         </form>
+      </Modal>
+        {/*Criteria*/}
+      <Modal
+        radius={20}
+        centered='true'
+        opened={EditCriteria}
+        onClose={() => {
+          closeEditCriteria();
+        }}
+      >
+        <div style={{ display: "flex" }}>
+          <AspectRatio
+            ratio={1}
+            flex='0 0 200px'
+          >
+            <Image
+              h={70}
+              w={70}
+              src='/images/Logo.png'
+              alt='Avatar'
+            />
+          </AspectRatio>
+          <div className='Aspect-text'>
+            International Maritime & Offshore{" "}
+            <div className='Aspect-text2'> Safety Training Institute</div>
+          </div>
+        </div>
+      
+          <div className='Response'>
+        
+            <TextInput
+              required
+              id='AddQuestion'
+              onChange={(e) => {
+                setCriteriaT(e.target.value)
+              }}
+              radius='md'        
+              placeholder={CriteriaQ.filter((v) => v.id === selectedIDCriteria).map((c) =>{
+                 return c.CQuestion;
+              })}
+            />
+            
+          </div>
+          <Button
+            loading={submitCretiraLoading}
+            className='Button-done'
+            style={{ width: "fit-content" }}
+            onClick={SubmitCriteriaEdit}
+          >
+            Save
+          </Button>
+     
       </Modal>
 
       {/* add Feedback */}
@@ -482,6 +565,68 @@ function Maintenance() {
                   color='red'
                 >
                   <IconTrash size={18} />
+                </ActionIcon>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+
+      <div
+        style={{
+          border: "2px solid black",
+          padding: 20,
+          marginBottom: 50,
+        }}
+      >
+        <Text
+          ta='center'
+          fw='bold'
+          size='xl'
+        >
+          Criteria Questioner
+        </Text>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text
+            fw='bold'
+            size='lg'
+          >
+            Questioner
+          </Text>
+
+        </div>
+        <div style={{ marginTop: 10 }}>
+          {CriteriaQ.map((CQ, ii) => {
+            return (
+              <div
+                key={ii}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  border: "1px solid #0005",
+                  padding: 10,
+                  marginBottom: 5,
+                }}
+              >
+                <Text size='md'>
+                  {CQ.label}. {CQ.CQuestion}
+                </Text>
+                <ActionIcon
+                  onClick={() => {
+                    setselectedIDCriteria(CQ.id);
+                    openEditCriteria();
+                  }}
+                  color='blue'
+                >
+                  <IconEdit size={18} />
                 </ActionIcon>
               </div>
             );

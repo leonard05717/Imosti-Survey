@@ -93,12 +93,31 @@ const PrintableSurvey = ({
                     yAxisProps={{
                       tickCount: 4,
                       tickMargin: 100,
+                      tick: {
+                        fontSize: 40,
+                        fontWeight: "bold",
+                       
+                      }
                     }}
+
+                    xAxisProps={{                      
+                      tick: {
+                      fontSize: 35, 
+                      fontWeight: "bold",
+
+                        }
+                    }}
+                    valueLabelProps={{
+                    style:{
+                      fontSize: 35,
+                      color: "black"
+                    }
+                   }}
                     withTooltip={false}
                     valueFormatter={(v) => v.toFixed(2)}
                     data={barChartData}
                     dataKey='name'
-                    series={[{ name: "Average", color: "blue.6" }]}
+                    series={[{ name: "Average", color: "blue.6"  }]}
                     tickLine='y'
                     withBarValueLabel
                   />

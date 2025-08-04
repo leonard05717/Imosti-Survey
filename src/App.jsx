@@ -78,6 +78,7 @@ function App() {
   const [Trainingvalue, setTrainingValue] = useState([null, null]);
   const [courses, setCourses] = useState([]);
   const [loadingPage, setLoadingPage] = useState(true);
+  const [criteria, setcriteria] = useState([]);
 
   const NameTrasfer = (event) => {
     setName(event.target.value);
@@ -91,11 +92,12 @@ function App() {
 
   async function loadData() {
     const questionData = (await supabase.from("Questioner").select()).data;
-    const feedbackData = (await supabase.from("Feedback-Question").select())
-      .data;
+    const feedbackData = (await supabase.from("Feedback-Question").select()).data;
+    const CriteriaData = (await supabase.from("Criteria-Questioner").select()).data;
     const courseData = (await supabase.from("Course").select()).data;
     setQuestions(questionData.map((q) => ({ ...q, value: "" })));
     setFeedbacks(feedbackData.map((f) => ({ ...f, value: "" })));
+    setcriteria(CriteriaData)
     setCourses(courseData);
     setLoadingPage(false);
   }
@@ -430,16 +432,16 @@ function App() {
                       </Table.Tr>
                     </Table.Thead>
                     <Table.Tbody>
-                      {staticData.map((data, i) => {
+                      {criteria.map((data, i) => {
                         const filteredQuestions = questions.filter(
-                          (qs) => qs.Criteria === data.key,
+                          (qs) => qs.Criteria === data.label,
                         );
 
                         return (
                           <React.Fragment key={i}>
                             <Table.Tr>
                               <Table.Th colSpan={6}>
-                                {data.key}. {data.description}
+                                {data.label}. {data.CQuestion}
                               </Table.Th>
                             </Table.Tr>
                             {filteredQuestions.map((question, ix) => {
