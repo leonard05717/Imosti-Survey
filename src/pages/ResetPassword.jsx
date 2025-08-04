@@ -29,7 +29,7 @@ function ResetPassword() {
     },
     validate: {
       password: (value) =>
-        value.length < 6 ? "Password must be at least 6 characters" : null,
+        value.length < 8 ? "Password must be at least 8 characters" : null,
       confirmPassword: (value) =>
         value !== form.values.password ? "Passwords do not match" : null,
     },
@@ -109,7 +109,7 @@ function ResetPassword() {
           <AspectRatio>
             <Image
               h='100%'
-              src='../Picture/Admin-Logo.png'
+              src='../images/Admin-Logo.png'
               alt='Avatar'
             />
           </AspectRatio>
