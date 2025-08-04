@@ -777,8 +777,9 @@ function Maintenance() {
             size='xs'
             leftSection={<IconPlus size={18} />}
             onClick={() => {
-              feedbackForm.setValues({
-                feedback: "",
+              CriteriaForm.setValues({
+                Criterias: "",
+                label: "",
               });
               openCriteriaAdd();
             }}
