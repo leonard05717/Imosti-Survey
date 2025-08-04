@@ -397,7 +397,7 @@ function Analytics() {
       return acc;
     }, {});
 
-    const barChartData = Criterias.map((item) => {
+    const barChartData = Criterias.sort((a, b) => a.label.localeCompare(b.label)).map((item) => {
       return {
         name: `${item.label}. ${item.CQuestion}`,
         Average: average[item.label],

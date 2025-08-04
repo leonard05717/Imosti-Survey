@@ -789,7 +789,7 @@ function Maintenance() {
 
         </div>
         <div style={{ marginTop: 10 }}>
-          {CriteriaQ.map((CQ, ii) => {
+          {CriteriaQ.sort((a , b) => a.label.localeCompare(b.label)).map((CQ, ii) => {
             return (
               <div
                 key={ii}
