@@ -228,12 +228,7 @@ function Trainee() {
           .footer-table th { 
             background-color: rgba(0,0,0,0.1); 
           }
-          .signature-second-page{
-           position: fixed;
-           bottom: 60px;
-           left: 0; 
-           width: 100%;
-          }
+         
           .content-with-footer { 
             padding-bottom: 50px; 
           }
@@ -275,7 +270,7 @@ function Trainee() {
 
             <div class="survey-section">
               <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Survey Responses</h3>
-              ${Criterias
+              ${Criterias.sort((a, b) => a.label.localeCompare(b.label))
                 .map((criteria) => {
                   const filteredData = studentScores.filter(
                     (c) => c.question.Criteria === criteria.label,
@@ -370,16 +365,7 @@ function Trainee() {
             </div>
           </div>
           
-              <div class="signature-second-page">
-                <div style= "text-align: center ;">
-                   <div>
-                     <h3><strong>${toProper(selectedStudent.Name)}</strong></h3>
-                   </div>
-                   <div style="margin-top: -10px;">
-                     <p >signature over printed name</p>
-                   </div>
-                 </div
-              </div>
+             
           
           <div class="print-footer">
             <table class="footer-table">
@@ -541,6 +527,7 @@ function Trainee() {
             padding: 0 30px 30px 30px;
             z-index: 1;
             position: relative;
+            margin-top: -25px;
           }
 
           .course-header {
@@ -557,7 +544,7 @@ function Trainee() {
 
           .course-description {
             font-size: 15px;
-            margin: 5px 0 15px 0;
+            margin: 0 0 5px 0;
           }
 
           table {
@@ -640,7 +627,7 @@ function Trainee() {
                 </td>
               </tr>
 
-              ${Criterias
+              ${Criterias.sort((a, b) => a.label.localeCompare(b.label))
                 .map((criteria) => {
                   const criteriaQuestions = Object.values(
                     questionAverages,
@@ -843,7 +830,7 @@ function Trainee() {
 
             <div class="survey-section">
               <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Survey Responses</h3>
-              ${Criterias
+              ${Criterias.sort((a, b) => a.label.localeCompare(b.label))
                 .map((criteria) => {
                   const filteredData = studentScores.filter(
                     (c) => c.question.Criteria === criteria.label,
