@@ -379,11 +379,15 @@ function Maintenance() {
           <div className='Response'>
           <TextInput
               required
-              minLength={1}
+              maxLength={1}
               id='Addlabel'
               onChange={(e) => {
-                setlabeladd(e.target.value)
+                setlabeladd(e.target.value.toUpperCase())
               }}
+              styles={{
+                   input: {
+                       textTransform: 'uppercase'
+                     }}}
               radius='md'        
               placeholder={CriteriaQ.filter((v) => v.id === selectedIDCriteria).map((c) =>{
                  return c.label;
@@ -449,6 +453,11 @@ function Maintenance() {
               radius='md'
               placeholder='e.g A-Z'
               maxLength={1}
+              styles={{
+                 input: {
+                  textTransform: 'uppercase'
+                       }
+              }}
             />
             <TextInput
               required

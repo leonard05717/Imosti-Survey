@@ -9,6 +9,7 @@ const PrintableSurvey = ({
   totalAverage,
   date,
   barChartData = [],
+  listcriteria = [],
 }) => {
   return (
     <div style={{ color: "#000", fontFamily: "Arial" }}>
@@ -124,8 +125,17 @@ const PrintableSurvey = ({
                 </div>
               </div>
             )}
-        </div>
+                 <div style={{marginTop:'-270px'}}> 
+                 {listcriteria.map((vs) => {
+                  return(
+                    <p style={{fontSize: 14}}>{vs.name}</p>  
+                  )
+                 })}        
+                </div>
+           {console.log(listcriteria)}
+        </div>        
       </div>
+    
 
       {/* Second Page - Data Tables */}
       <div style={{ position: "relative", minHeight: "100vh" }}>

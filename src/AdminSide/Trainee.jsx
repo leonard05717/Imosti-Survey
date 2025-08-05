@@ -312,7 +312,11 @@ function Trainee() {
                   <th style="background-color: rgba(0,0,0,0.1);">Form Number:</th>
                   <td>${storageData.form_number}</td>
                   <th rowspan="2" style="background-color: rgba(0,0,0,0.1);">Date Issued:</th>
-                  <td rowspan="2">${new Date().toDateString()}</td>
+                  <td rowspan="2">${new Date(storageData.issued_date).toLocaleDateString('en-US',{
+                   year: 'numeric',
+                   month: 'long',
+                   day: 'numeric'
+                  })}</td>
                 </tr>
                 <tr>
                   <th style="background-color: rgba(0,0,0,0.1);">Revision Number:</th>
@@ -385,7 +389,11 @@ function Trainee() {
                   <th style="background-color: rgba(0,0,0,0.1);">Form Number:</th>
                   <td>${storageData.form_number}</td>
                   <th rowspan="2" style="background-color: rgba(0,0,0,0.1);">Date Issued:</th>
-                  <td rowspan="2">${new Date(storageData.issued_date).toDateString()}</td>
+                  <td rowspan="2">${new Date(storageData.issued_date).toLocaleDateString('en-US',{
+                   year: 'numeric',
+                   month: 'long',
+                   day: 'numeric'
+                  })}</td>
                 </tr>
                 <tr>
                   <th style="background-color: rgba(0,0,0,0.1);">Revision Number:</th>
@@ -871,7 +879,11 @@ function Trainee() {
                   <th style="background-color: rgba(0,0,0,0.1);">Form Number:</th>
                   <td>${storageData.form_number}</td>
                   <th rowspan="2" style="background-color: rgba(0,0,0,0.1);">Date Issued:</th>
-                  <td rowspan="2">${new Date().toDateString()}</td>
+                  <td rowspan="2">${new Date(storageData.issued_date).toLocaleDateString('en-US',{
+                   year: 'numeric',
+                   month: 'long',
+                   day: 'numeric'
+                  })}</td>
                 </tr>
                 <tr>
                   <th style="background-color: rgba(0,0,0,0.1);">Revision Number:</th>
@@ -932,7 +944,11 @@ function Trainee() {
                   <th style="background-color: rgba(0,0,0,0.1);">Form Number:</th>
                   <td>${storageData.form_number}</td>
                   <th rowspan="2" style="background-color: rgba(0,0,0,0.1);">Date Issued:</th>
-                  <td rowspan="2">${new Date().toDateString()}</td>
+                  <td rowspan="2">${new Date(storageData.issued_date).toLocaleDateString('en-US',{
+                   year: 'numeric',
+                   month: 'long',
+                   day: 'numeric'
+                  })}</td>
                 </tr>
                 <tr>
                   <th style="background-color: rgba(0,0,0,0.1);">Revision Number:</th>

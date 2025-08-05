@@ -8,6 +8,7 @@ function PieCourseItem({ color, label }) {
         alignItems: "center",
         gap: 10,
         marginBottom: 5,
+       
       }}
     >
       <div

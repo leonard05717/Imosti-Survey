@@ -31,7 +31,7 @@ import DashboardItem from "./components/DashboardItem";
 import PieCourseItem from "./components/PieCourseItem";
 import supabase from "../supabase";
 import { useDidUpdate, useDisclosure } from "@mantine/hooks";
-import { startOfDay, endOfDay, isAfter, isBefore } from "date-fns";
+import { startOfDay, endOfDay, isAfter, isBefore, constructFrom } from "date-fns";
 import {
   MonthPicker,
   YearPicker,
@@ -43,6 +43,7 @@ import ReactToPrint from "react-to-print";
 import PrintableSurvey from "./components/PrintableSurvey";
 import PageContainer from "../components/PageContainer";
 import { staticData } from "../data";
+import { sample } from "lodash";
 
 const colors = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF"];
 
@@ -77,6 +78,7 @@ function Analytics() {
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [selectedDateRange, setSelectedDateRange] = useState([null, null]);
   const [selectedFilter, setSelectedFilter] = useState("Today");
+  const [selectedCriteria , setSelectedCriteria] = useState([])
   const [Criterias , setCriterias] = useState([])
   const [barChartData, setBarChartData] = useState([]);
   const [selectedCourseCode, setSelectedCourseCode] = useState(null);
@@ -87,6 +89,7 @@ function Analytics() {
     totalAverage: 0,
     list: [],
     date: "",
+ 
   });
 
   async function printEventHandler() {
@@ -240,6 +243,7 @@ function Analytics() {
         list: list,
         date: date,
         barChartData: barChartData, // Include current bar chart data
+        listcriteria: selectedCriteria
       };
 
       setSurveyData(newSurveyData);
@@ -399,13 +403,21 @@ function Analytics() {
 
     const barChartData = Criterias.sort((a, b) => a.label.localeCompare(b.label)).map((item) => {
       return {
-        name: `${item.label}. ${item.CQuestion}`,
+        name: `${item.label}`,
         Average: average[item.label],
       };
     });
 
-    console.log(barChartData);
+    const listCriterias = Criterias.sort((a, b) => a.label.localeCompare(b.label)).map((item) => {
+      return {
+        name: `${item.label}. ${item.CQuestion}`,
+      };
+    });
 
+    
+
+    console.log(barChartData);
+   setSelectedCriteria(listCriterias);
     setBarChartData(barChartData);
   }, [
     selectedFilter,
@@ -413,7 +425,11 @@ function Analytics() {
     selectedDay,
     selectedDateRange,
     mainData,
+    
+
   ]);
+
+    
 
   const pieChartData = useMemo(() => {
     return mainData.courses.map((course, index) => {
@@ -448,6 +464,8 @@ function Analytics() {
             totalAverage={surveyData.totalAverage}
             date={surveyData.date}
             barChartData={surveyData.barChartData}
+            listcriteria={surveyData.listcriteria}
+           
           />
         </div>
       </Portal>
