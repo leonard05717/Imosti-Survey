@@ -261,9 +261,10 @@ function Staff() {
       </Modal>
 
       <Modal
-        title='Add or Edit Staff'
+        title={<span style={{ color: 'white' }}>Add or Edit Staff</span>}
         opened={modalState}
         onClose={closeModalState}
+        
       >
         <form
           onSubmit={staffForm.onSubmit(submitStaffAccount)}

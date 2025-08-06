@@ -32,6 +32,7 @@ import { staticData } from "../data";
 import "./styles/courseinfo.style.css";
 import { toProper } from "../helpers/helper";
 import { DatePicker, MonthPicker, YearPicker } from "@mantine/dates";
+import AdminMainPage from "./AdminMainPage";
 
 function convertDateRangeToString(dateRange) {
   const [f, s] = dateRange.substring(2, dateRange.length - 2).split('","');
@@ -55,7 +56,7 @@ function Trainee() {
   const [courses, setCourses] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("Select");
   const [comfirmdelete , setcomfirmdelete] = useState();
-  const [mapingAdmin , setmapingAdmin] = useState();
+  const [mapingAdmin , setmapingAdmin] = useState([]);
   const [selectedDateRange, setSelectedDateRange] = useState([null, null], [null]);
   const [filterState, { open: openFilterState, close: closeFilterState }] =
     useDisclosure(false);
@@ -1073,9 +1074,10 @@ function Trainee() {
       }
     >
       <Modal
-        title={selectedStudent?.Name}
+        title={<span style={{ color: 'white' }}>{selectedStudent?.Name}</span>}
         opened={modalState}
         onClose={closeModalState}
+       
       >
         {selectedStudent && (
           <div>
@@ -1284,16 +1286,18 @@ function Trainee() {
           </div>
       </Modal>
 
-      <Button
+          <Button
           onClick={() => {
             openDeleteRecord();
           }}
           size='xs'
           leftSection={<IconTrash size={19} />}
           mb={10}
-        >
+          
+        > 
           Delete
         </Button>
+
       <Table>
         <Table.Thead>
           <Table.Tr>

@@ -180,7 +180,7 @@ function CourseInfo() {
       <html>
         <head>
           <meta charset="UTF-8" />
-          <title>Survey Average Report</title>
+          <title>Evaluation Average Report</title>
           <style>
             body {
               font-family: Arial, sans-serif;
@@ -284,7 +284,7 @@ function CourseInfo() {
           <div class="divider"></div>
           <div class="content">
             <div class="course-header">
-              <p class="course-title">${checkedStudents.length} Trainees Survey</p>
+              <p class="course-title">${checkedStudents.length} Trainees Evaluation</p>
               <p>${new Date().toDateString()}</p>
             </div>
             <p class="course-description">
@@ -374,7 +374,7 @@ function CourseInfo() {
        <!DOCTYPE html>
        <html>
        <head>
-         <title>${toProper(selectedStudent.Name)} - Survey Report</title>
+         <title>${toProper(selectedStudent.Name)} - Evaluation Report</title>
          <style>
            @page {
              size: A4;
@@ -508,13 +508,13 @@ function CourseInfo() {
                  </div>
                  <div>
                    <p><strong>Training Date:</strong> ${convertDateRangeToString(selectedStudent.TrainingD)}</p>
-                   <p><strong>Survey Date:</strong> ${new Date(selectedStudent.DateN).toDateString()}</p>
+                   <p><strong>Evaluation Date:</strong> ${new Date(selectedStudent.DateN).toDateString()}</p>
                  </div>
                </div>
              </div>
  
              <div class="survey-section">
-               <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Survey Responses</h3>
+               <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Evaluation Responses</h3>
                ${listCriteria
                  .map((criteria) => {
                    const filteredData = studentScores.filter(
@@ -793,13 +793,13 @@ function CourseInfo() {
                   </div>
                   <div>
                     <p><strong>Training Date:</strong> ${convertDateRangeToString(student.TrainingD)}</p>
-                    <p><strong>Survey Date:</strong> ${new Date(student.DateN).toDateString()}</p>
+                    <p><strong>Evaluation Date:</strong> ${new Date(student.DateN).toDateString()}</p>
                   </div>
                 </div>
               </div>
   
               <div class="survey-section">
-                <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Survey Responses</h3>
+                <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Evaluation Responses</h3>
                 ${listCriteria
                   .map((criteria) => {
                     const filteredData = studentScores.filter(
@@ -973,7 +973,7 @@ function CourseInfo() {
       }
     >
       <Modal
-        title={selectedStudent?.Name}
+        title={<span style={{ color: 'white' }}>{selectedStudent?.Name}</span>}
         opened={modalState}
         onClose={closeModalState}
       >
