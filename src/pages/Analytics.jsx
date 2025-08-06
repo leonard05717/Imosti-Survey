@@ -181,7 +181,7 @@ function Analytics() {
 
       if (selectedCourseCode) {
         selectedCourse = mainData.courses.find(
-          (c) => c.Code === selectedCourseCode,
+          (c) => c.Course === selectedCourseCode,
         );
         if (!selectedCourse) return;
         filteredScores = mainData.scores.filter(
@@ -237,7 +237,7 @@ function Analytics() {
         list.reduce((sum, item) => sum + item.average, 0) / list.length;
 
       const newSurveyData = {
-        title: selectedCourse?.Code || "All Courses",
+        title: selectedCourse?.Course || "All Courses",
         description: selectedCourse?.Course || "Report",
         totalAverage: totalAverage,
         list: list,
@@ -438,7 +438,7 @@ function Analytics() {
       ).length;
 
       return {
-        name: course.Code,
+       
         value: count,
         color: colors[index % colors.length],
       };
@@ -672,13 +672,15 @@ function Analytics() {
                       label='Print By Course'
                       placeholder='Select Course'
                       searchable
-                      value={selectedCourseCode}
+                      value={selectedCourseCode}  
                       clearable
                       onChange={setSelectedCourseCode}
-                      data={mainData.courses.map((c) => ({
-                        label: c.Code,
-                        value: c.Code,
-                      }))}
+                      data={[
+                         ...new Map(mainData.courses.map((c) => [c.Course, { 
+                          label: c.Course, 
+                          value: c.Course 
+                          }])).values(),
+                          ]}
                     />
                     {selectedCourseCode ? (
                       <Button
@@ -804,7 +806,7 @@ function Analytics() {
                         <PieCourseItem
                           key={course.id}
                           color={color}
-                          label={course.Code}
+                          label={course.Course}
                         />
                       );
                     })}

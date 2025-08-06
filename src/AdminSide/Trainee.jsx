@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import PageContainer from "../components/PageContainer";
 import {
   ActionIcon,
+  AspectRatio,
   Button,
   Checkbox,
   Divider,
   LoadingOverlay,
   Menu,
   Modal,
+  PasswordInput,
   Portal,
   ScrollAreaAutosize,
   Table,
@@ -18,15 +20,18 @@ import {
 import supabase from "../supabase";
 import {
   IconArrowLeft,
+  IconChevronDown,
   IconDotsVertical,
   IconPrinter,
   IconSearch,
+  IconTrash,
 } from "@tabler/icons-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDisclosure } from "@mantine/hooks";
 import { staticData } from "../data";
 import "./styles/courseinfo.style.css";
 import { toProper } from "../helpers/helper";
+import { DatePicker, MonthPicker, YearPicker } from "@mantine/dates";
 
 function convertDateRangeToString(dateRange) {
   const [f, s] = dateRange.substring(2, dateRange.length - 2).split('","');
@@ -38,6 +43,9 @@ function Trainee() {
   const [students, setStudents] = useState([]);
   const [modalState, { open: openModalState, close: closeModalState }] =
     useDisclosure(false);
+  
+  const [DeleteRecord, { open: openDeleteRecord, close: closeDeleteRecord }] =
+    useDisclosure(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [scores, setScores] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
@@ -45,11 +53,45 @@ function Trainee() {
   const [Criterias , setCriterias] = useState([]);
   const [search, setSearch] = useState("");
   const [courses, setCourses] = useState([]);
+  const [selectedFilter, setSelectedFilter] = useState("Select");
+  const [comfirmdelete , setcomfirmdelete] = useState();
+  const [mapingAdmin , setmapingAdmin] = useState();
+  const [selectedDateRange, setSelectedDateRange] = useState([null, null], [null]);
+  const [filterState, { open: openFilterState, close: closeFilterState }] =
+    useDisclosure(false);
   const [storageData, setStorageData] = useState({
     revision_number: "",
     form_number: "",
     issued_date: "",
   });
+
+  async function DeleteRecords() {
+    
+    
+    for (const sc of mapingAdmin.filter(v => v.Role === "superadmin")) {
+      if (sc.Password === comfirmdelete) {
+          const { error: deleteError } = await supabase
+              .from("Info-Training")
+              .delete()
+              .gte("DateN", selectedDateRange[0])
+              .lte("DateN", `${new Date(selectedDateRange[1]).getFullYear()}-12-31`);
+
+          if (deleteError) {
+              console.log(`Something Error: ${deleteError.message}`);
+              return;
+          }
+
+          await fetchData();
+          closeDeleteRecord();
+          console.log("Delete Success");
+          console.log(selectedDateRange[0], selectedDateRange[1]);
+          return;
+      }
+  }
+
+  alert("Password Incorrect or not matched with any superadmin.");
+
+  }
 
   async function fetchData() {
     setLoadingPage(true);
@@ -85,6 +127,8 @@ function Trainee() {
     });
     const courseData = (await supabase.from("Course").select("*")).data;
     const CriteriaData = (await supabase.from("Criteria-Questioner").select()).data;
+    const AdminStaff =(await supabase.from("Staff-Info").select()).data;
+    setmapingAdmin(AdminStaff);
     setCourses(courseData);
     setCriterias(CriteriaData)
     setScores(scoreData);
@@ -96,6 +140,7 @@ function Trainee() {
   useEffect(() => {
     fetchData();
   }, []);
+
 
   const filteredStudents = students.filter((v) => {
     if (!search) return true;
@@ -257,7 +302,7 @@ function Trainee() {
               <div class="student-name">${toProper(selectedStudent.Name)}</div>
               <div class="info-grid">
                 <div>
-                  <p><strong>Code:</strong> ${selectedStudent.course?.Code || ""}</p>
+                  <p><strong>Course:</strong> ${selectedStudent.course?.Course || ""}</p>
                   <p><strong>Company:</strong> ${selectedStudent.Reg}</p>
                   <p><strong>Instructor:</strong> ${selectedStudent.Instructor}</p>
                 </div>
@@ -598,7 +643,7 @@ function Trainee() {
             <p>${new Date().toDateString()}</p>
           </div>
           <p class="course-description">
-            - A survey summary based on student feedback and evaluations.
+            - A survey summary based on Company ${search.toLocaleUpperCase()}.
           </p>
 
           <table>
@@ -817,7 +862,7 @@ function Trainee() {
               <div class="student-name">${toProper(student.Name)}</div>
               <div class="info-grid">
                 <div>
-                  <p><strong>Code:</strong> ${student.course?.Code || ""}</p>
+                  <p><strong>Course:</strong> ${student.course?.Course || ""}</p>
                   <p><strong>Company:</strong> ${student.Reg}</p>
                   <p><strong>Instructor:</strong> ${student.Instructor}</p>
                 </div>
@@ -1046,9 +1091,6 @@ function Trainee() {
                   Print
                 </Button>
               </div>
-              <p>
-                <strong>Code -</strong> {selectedStudent.course.Code}
-              </p>
               <p className='mt-2 text-sm'>
                 <strong>Course -</strong> {selectedStudent.course.Course}
               </p>
@@ -1136,6 +1178,122 @@ function Trainee() {
         )}
       </Modal>
 
+         {/*Delete*/}
+         <Modal
+        radius={20}
+        centered='true'
+        opened={DeleteRecord}
+        onClose={() => {
+          closeDeleteRecord();
+        }}
+      >
+
+          <div className='Response'>
+          <Menu
+                arrowSize={15}
+                withArrow
+                styles={{
+                  arrow: {
+                    borderTop: "1px solid #0005",
+                    borderLeft: "1px solid #0005",
+                  },
+                }}
+              >
+                <Menu.Target>
+                  <div
+                    className='clickable-element'
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 5,
+                    }}
+                  >
+                    <span style={{ fontSize: 15 }}>
+                      {selectedFilter === "By Date Range" &&
+                                selectedDateRange[0] &&
+                                selectedDateRange[1]
+                              ? `By Date Range (${new Date(selectedDateRange[0]).toLocaleDateString()} - ${new Date(selectedDateRange[1]).toLocaleDateString()})`
+                              : selectedFilter}
+                    </span>
+                    <IconChevronDown size={18} />
+                  </div>
+                </Menu.Target>
+                <Menu.Dropdown
+                  style={{
+                    border: "1px solid #0005",
+                    boxShadow: "1px 2px 3px #0005",
+                  }}
+                  w={190}
+                >
+                  <Menu.Label>Filter</Menu.Label>
+                    <Menu.Item
+                    onClick={() => {
+                      setSelectedFilter("By Date Range");
+                      setSelectedDateRange([null, null]);
+                      openFilterState();
+                    }}
+                  >
+                    By Specific Year
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            
+            
+          </div>
+          <PasswordInput
+              required
+              type="Password"
+              radius='md'
+              placeholder='Enter Password'
+              onChange={(e) => {
+                setcomfirmdelete(e.target.value)
+              }}
+            />
+          <Button
+            onClick={DeleteRecords}
+            className='Button-done'
+            type='submit'
+            style={{ width: "fit-content" }}
+          >
+            Delete
+          </Button>
+    
+      </Modal>
+
+      {/* Filter Modal */}
+      <Modal
+        opened={filterState}
+        onClose={closeFilterState}
+        title={selectedFilter || "Date Picker"}
+        // size='md'
+        size='sm'
+      >
+        <div className='flex items-center justify-center py-5'>
+         
+          {selectedFilter === "By Date Range" && (
+            <div>
+            <YearPicker 
+            type="range"
+            value={selectedDateRange} 
+            allowSingleDateInRange
+            label='Select Year'
+            onChange={setSelectedDateRange} />
+
+            </div>
+           )}
+          </div>
+      </Modal>
+
+      <Button
+          onClick={() => {
+            openDeleteRecord();
+          }}
+          size='xs'
+          leftSection={<IconTrash size={19} />}
+          mb={10}
+        >
+          Delete
+        </Button>
       <Table>
         <Table.Thead>
           <Table.Tr>

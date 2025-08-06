@@ -38,8 +38,17 @@ function Maintenance() {
     { open: openEditCriteria, close: closeEditCriteria },
   ] = useDisclosure(false);
   const [
+    editCourse,
+    { open: openeditCourse, close: closeeditCourse },
+  ] = useDisclosure(false);
+  const [
     CriteriaAdd,
     { open: openCriteriaAdd, close: closeCriteriaAdd },
+  ] = useDisclosure(false);
+
+  const [
+    CourseAdd,
+    { open: openCourseAdd, close: closeCourseAdd },
   ] = useDisclosure(false);
   
   const [
@@ -49,6 +58,10 @@ function Maintenance() {
   const [
     deleteCriteriaState,
     { open: openDeleteCriteriaState, close: closeDeleteCriteriaState },
+  ] = useDisclosure(false);
+  const [
+    deleteCourse,
+    { open: opendeleteCourse, close: closedeleteCourse },
   ] = useDisclosure(false);
   const [selectedDeleteId, setSelectedDeleteId] = useState(null);
   const [selectedFeedbackDeleteId, setSelectedFeedbackDeleteId] =
@@ -60,6 +73,7 @@ function Maintenance() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [submitFeedbackLoading, setSubmitFeedbackLoading] = useState(false);
   const [CriteriaQ , setCriteriaQ] = useState([]);
+  const [listcourses , setlistcourses] = useState([]);
   const [submitCretiraLoading, setsubmitCretiraLoading] = useState(false);
   const [CriteriaT, setCriteriaT] = useState("")
   const [labeladd, setlabeladd] = useState("")
@@ -84,6 +98,14 @@ function Maintenance() {
     initialValues: {
       Criterias: "",
       label:"",
+    },
+  });
+
+  const CourseForm = useForm({
+    mode: "controlled",
+    initialValues: {
+      Course: "",
+    
     },
   });
 
@@ -166,6 +188,32 @@ function Maintenance() {
     }
   }
 
+  async function submitCourseAdd(Courses) {
+    try {
+      setSubmitFeedbackLoading(true);
+
+      const { error: insertError } = await supabase
+        .from("Course")
+        .insert({
+          Course: Courses.Course,
+          created_at: new Date(),
+        });
+
+      if (insertError) {
+        console.log(`Something Error: ${insertError.message}`);
+        return;
+      }
+      await fetchData();
+      CriteriaForm.setFieldValue("Course", "");
+      console.log("Success");
+      closeCourseAdd();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setSubmitFeedbackLoading(false);
+    }
+  }
+
   async function SubmitCriteriaEdit() {
     if (!selectedIDCriteria) return;
     setsubmitCretiraLoading(true);
@@ -185,6 +233,44 @@ function Maintenance() {
     closeEditCriteria();
     console.log("Edit Success");
     setsubmitCretiraLoading(false);
+  }
+
+  async function SubmiteditCourse() {
+    if (!selectedIDCriteria) return;
+    setsubmitCretiraLoading(true);
+    const { error: deleteError } = await supabase
+      .from("Course")
+      .update({
+        Course : CriteriaT,
+      })
+      .eq("id", selectedIDCriteria);
+    if (deleteError) {
+      setsubmitCretiraLoading(false);
+      console.log(`Something Error: ${deleteError.message}`);
+      return;
+    }
+    await fetchData();
+    closeeditCourse();
+    console.log("Edit Success");
+    setsubmitCretiraLoading(false);
+  }
+
+  async function deleteCourses() {
+    if (!selectedIDCriteria) return;
+    setDeleteCriteriaLoading(true);
+    const { error: deleteError } = await supabase
+      .from("Course")
+      .delete()
+      .eq("id", selectedIDCriteria);
+    if (deleteError) {
+      setDeleteCriteriaLoading(false);
+      console.log(`Something Error: ${deleteError.message}`);
+      return;
+    }
+    await fetchData();
+    closedeleteCourse();
+    console.log("Delete Success");
+    setDeleteCriteriaLoading(false);
   }
 
   async function deleteCriteria() {
@@ -245,6 +331,8 @@ function Maintenance() {
     const questionData = (await supabase.from("Questioner").select()).data;
     const feedbackData = (await supabase.from("Feedback-Question").select()).data;
     const CriteriaData = (await supabase.from("Criteria-Questioner").select()).data;
+    const courselist = (await supabase.from("Course").select()).data;
+    setlistcourses(courselist)
     setQuestions(questionData);
     setFeedbacks(feedbackData);
     setCriteriaQ(CriteriaData)
@@ -602,6 +690,146 @@ function Maintenance() {
         </div>
       </Modal>
 
+      {/*Edit Course*/}
+      <Modal
+        radius={20}
+        centered='true'
+        opened={editCourse}
+        onClose={() => {
+          closeeditCourse();
+        }}
+      >
+        <div style={{ display: "flex" }}>
+          <AspectRatio
+            ratio={1}
+            flex='0 0 200px'
+          >
+            <Image
+              h={70}
+              w={70}
+              src='/images/Logo.png'
+              alt='Avatar'
+            />
+          </AspectRatio>
+          <div className='Aspect-text'>
+            International Maritime & Offshore{" "}
+            <div className='Aspect-text2'> Safety Training Institute</div>
+          </div>
+        </div>
+      
+          <div className='Response'>
+            <TextInput
+              required
+              id='AddCourse'
+              onChange={(e) => {
+                setCriteriaT(e.target.value)
+              }}
+              radius='md'        
+              placeholder={listcourses.filter((v) => v.id === selectedIDCriteria).map((c) =>{
+                 return c.Course;
+              })}
+            />
+            
+          </div>
+          <Button
+            loading={submitCretiraLoading}
+            className='Button-done'
+            style={{ width: "fit-content" }}
+            onClick={SubmiteditCourse}
+          >
+            Save
+          </Button>
+     
+      </Modal>
+
+      {/* Delete Course */}
+      <Modal
+        radius={20}
+        centered='true'
+        opened={deleteCourse}
+        onClose={() => {
+          closedeleteCourse();
+        }}
+      >
+        <div style={{ display: "flex" }}>
+          <AspectRatio
+            ratio={1}
+            flex='0 0 200px'
+          >
+            <Image
+              h={70}
+              w={70}
+              src='/images/Logo.png'
+              alt='Avatar'
+            />
+          </AspectRatio>
+          <div className='Aspect-text'>
+            International Maritime & Offshore{" "}
+            <div className='Aspect-text2'> Safety Training Institute</div>
+          </div>
+        </div>
+        <div className='Response'></div>
+        <div style={{ display: "flex", justifyContent: "space-evenly" }}>
+          <Button onClick={closedeleteCourse}>NO</Button>
+          <Button
+            onClick={deleteCourses}
+            loading={deleteCriteriaLoading}
+          >
+            Yes
+          </Button>
+        </div>
+      </Modal>
+
+        {/*Add Course */}
+        <Modal
+        radius={20}
+        centered='true'
+        opened={CourseAdd}
+        onClose={() => {
+          closeCourseAdd();
+        }}
+      >
+        <div style={{ display: "flex" }}>
+          <AspectRatio
+            ratio={1}
+            flex='0 0 200px'
+          >
+            <Image
+              h={70}
+              w={70}
+              src='/images/Logo.png'
+              alt='Avatar'
+            />
+          </AspectRatio>
+          <div className='Aspect-text'>
+            International Maritime & Offshore{" "}
+            <div className='Aspect-text2'> Safety Training Institute</div>
+          </div>
+        </div>
+        <form onSubmit={CourseForm.onSubmit(submitCourseAdd)}>
+          <div className='Response'>
+    
+            <TextInput
+              required
+              id='AddQuestion'
+              {...CourseForm.getInputProps("Course")}
+              radius='md'
+              placeholder='Enter Course'
+            />
+            
+          </div>
+          <Button
+            loading={submitCretiraLoading}
+            className='Button-done'
+            type='submit'
+            style={{ width: "fit-content" }}
+          >
+            Add
+          </Button>
+        </form>
+      </Modal>
+
+
       {CriteriaQ.map((data, i) => {
         const items = questions.filter((v) => v.Criteria === data.label);
 
@@ -682,6 +910,7 @@ function Maintenance() {
         );
       })}
 
+        {/*Feed Back*/}
       <div
         style={{
           border: "2px solid black",
@@ -754,7 +983,7 @@ function Maintenance() {
         </div>
       </div>
 
-
+          {/*Criteria*/}
       <div
         style={{
           border: "2px solid black",
@@ -829,6 +1058,92 @@ function Maintenance() {
                   onClick={() => {
                     setselectedIDCriteria(CQ.id);
                     openDeleteCriteriaState();
+                  }}
+                  color='red'
+                >
+                  <IconTrash size={18} />
+                </ActionIcon>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+          {/*Course*/}
+          <div
+        style={{
+          border: "2px solid black",
+          padding: 20,
+          marginBottom: 50,
+        }}
+      >
+        <Text
+          ta='center'
+          fw='bold'
+          size='xl'
+        >
+          Course List
+        </Text>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <Text
+            fw='bold'
+            size='lg'
+          >
+            Course
+          </Text>
+          <Button
+            size='xs'
+            leftSection={<IconPlus size={18} />}
+            onClick={() => {
+              CourseForm.setValues({
+                Course: "",
+              });
+              openCourseAdd();
+            }}
+          >
+            Add Course
+          </Button>
+
+        </div>
+        <div style={{ marginTop: 10 }}>
+          {listcourses.sort((a , b) => a.Course.localeCompare(b.Course)).map((CQ, ii) => {
+            return (
+              <div
+                key={ii}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  border: "1px solid #0005",
+                  padding: 10,
+                  marginBottom: 5,
+                }}
+              >
+                <Text size='md'>
+                  {ii+1}. {CQ.Course}
+                </Text>
+                <div style={{display: 'flex' , justifyContent: 'flex-end' , gap: '20px'}}>
+                <ActionIcon
+                  onClick={() => {
+                    setselectedIDCriteria(CQ.id);
+                    openeditCourse();
+                  }}
+                  color='blue'
+                >
+                  <IconEdit size={18} />
+                </ActionIcon>
+                
+                <ActionIcon
+                  onClick={() => {
+                    setselectedIDCriteria(CQ.id);
+                    opendeleteCourse();
                   }}
                   color='red'
                 >

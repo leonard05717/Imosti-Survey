@@ -140,9 +140,9 @@ function App() {
       const { data: singeData, error: trainingError } = await supabase
         .from("Info-Training")
         .insert({
-          Name: Name,
-          Instructor: Instructor,
-          Reg: RegNo,
+          Name: Name.toUpperCase(),
+          Instructor: Instructor.toUpperCase(),
+          Reg: RegNo.toUpperCase(),
           TrainingD: Trainingvalue,
           DateN: valuenowDate,
           course_id: Course,
@@ -340,7 +340,7 @@ function App() {
                         required
                         placeholder='Select Course'
                         data={courses.map((v) => ({
-                          label: v.Code,
+                          label: v.Course,
                           value: v.id.toString(),
                         }))}
                         clearable
@@ -591,7 +591,7 @@ function App() {
                         <Table.Td>
                           {
                             courses.find((v) => v.id.toString() === Course)
-                              ?.Code
+                              ?.Course
                           }
                         </Table.Td>
                       </Table.Tr>

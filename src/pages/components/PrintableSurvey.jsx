@@ -124,14 +124,19 @@ const PrintableSurvey = ({
                   />
                 </div>
               </div>
-            )}
-                 <div style={{marginTop:'-270px'}}> 
-                 {listcriteria.map((vs) => {
-                  return(
-                    <p style={{fontSize: 14}}>{vs.name}</p>  
-                  )
-                 })}        
-                </div>
+            )}  
+               
+                    
+                  
+                     <div style={{marginTop:'-270px'}}> 
+                     <h3 style={{fontWeight: 'bold'}}>Criteria :</h3>
+                     {listcriteria.map((vs) => {
+                      return(
+                       <p style={{fontSize: 14}}>{vs.name}</p>  
+                     )
+                      })}        
+                   </div>
+                
            {console.log(listcriteria)}
         </div>        
       </div>
@@ -157,7 +162,7 @@ const PrintableSurvey = ({
           }}
         >
           <img
-            style={{ height: 70 }}
+            style={{ height: 50 }}
             src='/images/Admin-Logo.png'
           />
         </div>
@@ -171,7 +176,7 @@ const PrintableSurvey = ({
                 justifyContent: "space-between",
               }}
             >
-              <p style={{ margin: 0, fontWeight: "bold", fontSize: "20px" }}>
+              <p style={{ margin: 0, fontWeight: "bold", fontSize: "20px" , marginTop: "-10px" }}>
                 {courseTitle} - Detailed Results
               </p>
               <p>{date}</p>

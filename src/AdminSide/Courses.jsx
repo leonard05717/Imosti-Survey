@@ -23,6 +23,7 @@ function Courses() {
     useDisclosure(false);
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [loadingPage, setLoadingPage] = useState(true);
+  const [Criterias , setCriterias] = useState([]);
 
   async function fetchData() {
     setLoadingPage(true);
@@ -33,6 +34,9 @@ function Courses() {
         .select("*, question:Questioner(*), traning:Info-Training(*)")
     ).data;
     const questionData = (await supabase.from("Questioner").select()).data;
+    const criteriaData = (await supabase.from("Criteria-Questioner").select()).data;
+
+    setCriterias(criteriaData)
     setScores(scoreData);
     setQuestions(questionData);
     setCourses(courseData);
@@ -91,11 +95,11 @@ function Courses() {
                   <Table.Th ta='center'>Average</Table.Th>
                 </Table.Thead>
                 <Table.Tbody>
-                  {staticData.map((data, i) => {
+                  {Criterias.map((data, i) => {
                     const filteredScores = scores.filter(
                       (s) =>
                         s.traning.course_id === selectedCourse.id &&
-                        data.key === s.question.Criteria,
+                        data.label === s.question.Criteria,
                     );
 
                     const sum = filteredScores.reduce((t, c) => {
@@ -107,7 +111,7 @@ function Courses() {
                     return (
                       <Table.Tr key={i}>
                         <Table.Th>
-                          {data.key}. {data.description}
+                          {data.label}. {data.CQuestion}
                         </Table.Th>
                         <Table.Td ta='center'>
                           {ave ? ave.toFixed(2) : 0}
@@ -119,17 +123,17 @@ function Courses() {
               </Table>
             </div>
 
-            {staticData.map((data, i) => {
+            {Criterias.map((data, i) => {
               return (
                 <div
                   key={i}
                   className='mb-4'
                 >
                   <p className='font-bold text-lg mb-1'>
-                    {data.key}. {data.description}
+                    {data.label}. {data.CQuestion}
                   </p>
                   {questions
-                    .filter((q) => q.Criteria === data.key)
+                    .filter((q) => q.Criteria === data.label)
                     .map((question, i) => {
                       // filtered
                       const filteredScores = scores.filter(
@@ -177,7 +181,6 @@ function Courses() {
           <Table.Thead>
             <Table.Tr>
               <Table.Th>#</Table.Th>
-              <Table.Th>Product Title and Code</Table.Th>
               <Table.Th>Course</Table.Th>
               <Table.Th>View</Table.Th>
             </Table.Tr>
@@ -187,9 +190,7 @@ function Courses() {
               .filter((c) => {
                 if (!search) return true;
                 const text = search.toLowerCase().trim();
-                const len = text.length;
                 return (
-                  c.Code.toLowerCase().substring(0, len) === text ||
                   c.Course.toLowerCase().includes(text)
                 );
               })
@@ -197,7 +198,6 @@ function Courses() {
                 return (
                   <Table.Tr key={course.id}>
                     <Table.Td>{i + 1}</Table.Td>
-                    <Table.Td style={{ minWidth: 200 }}>{course.Code}</Table.Td>
                     <Table.Td style={{ minWidth: 350 }}>
                       <Link
                         style={{ color: "black", textDecoration: "none" }}

@@ -281,7 +281,7 @@ function CourseInfo() {
               <p>${new Date().toDateString()}</p>
             </div>
             <p class="course-description">
-              - ${crs?.Code}
+              - ${crs?.Course}
             </p>
   
             <table>
@@ -495,7 +495,7 @@ function CourseInfo() {
                <div class="student-name">${toProper(selectedStudent.Name)}</div>
                <div class="info-grid">
                  <div>
-                   <p><strong>Code:</strong> ${selectedStudent.course?.Code || ""}</p>
+                   <p><strong>Course:</strong> ${selectedStudent.course?.Course || ""}</p>
                    <p><strong>Company:</strong> ${selectedStudent.Reg}</p>
                    <p><strong>Instructor:</strong> ${selectedStudent.Instructor}</p>
                  </div>
@@ -780,7 +780,7 @@ function CourseInfo() {
                 <div class="student-name">${toProper(student.Name)}</div>
                 <div class="info-grid">
                   <div>
-                    <p><strong>Code:</strong> ${student.course?.Code || ""}</p>
+                    <p><strong>Course:</strong> ${student.course?.Course|| ""}</p>
                     <p><strong>Company:</strong> ${student.Reg}</p>
                     <p><strong>Instructor:</strong> ${student.Instructor}</p>
                   </div>
@@ -953,7 +953,7 @@ function CourseInfo() {
           visible={loadingPage}
         />
       }
-      title={crs ? `Courses - ${crs.Code}` : "..."}
+      title={crs ? `Courses - ${crs.Course}` : "..."}
       rightSection={
         <div>
           <TextInput
@@ -984,9 +984,6 @@ function CourseInfo() {
                   Print
                 </Button>
               </div>
-              <p>
-                <strong>Code -</strong> {selectedStudent.course.Code}
-              </p>
               <p className='mt-2 text-sm'>
                 <strong>Course -</strong> {selectedStudent.course.Course}
               </p>
