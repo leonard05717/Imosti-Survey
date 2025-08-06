@@ -42,6 +42,7 @@ function CourseInfo() {
   const [scores, setScores] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const navigate = useNavigate();
+  const [listCriteria , setlistCriteria] = useState([])
   const [search, setSearch] = useState("");
   const [courses, setCourses] = useState([]);
   const [storageData, setStorageData] = useState({
@@ -81,6 +82,8 @@ function CourseInfo() {
       form_number:
         revisionData.find((r) => r.key === "form_number")?.value || "",
     });
+    const CriteriaData = (await supabase.from("Criteria-Questioner").select()).data;
+    setlistCriteria(CriteriaData);
     setCourses(courseData);
     setScores(scoreData);
     setFeedbacks(feedbackData);
@@ -110,9 +113,9 @@ function CourseInfo() {
       const criteriaAverages = {};
       const questionAverages = {};
 
-      staticData.forEach((criteria) => {
+      listCriteria.forEach((criteria) => {
         const criteriaScores = checkedScores.filter(
-          (score) => score.question?.Criteria === criteria.key,
+          (score) => score.question?.Criteria === criteria.label,
         );
 
         if (criteriaScores.length > 0) {
@@ -120,7 +123,7 @@ function CourseInfo() {
             (sum, score) => sum + score.score,
             0,
           );
-          criteriaAverages[criteria.key] = (
+          criteriaAverages[criteria.label] = (
             total / criteriaScores.length
           ).toFixed(2);
 
@@ -148,11 +151,11 @@ function CourseInfo() {
             questionAverages[questionId] = {
               question: questionData.question,
               average: avg.toFixed(2),
-              criteria: criteria.key,
+              criteria: criteria.label,
             };
           });
         } else {
-          criteriaAverages[criteria.key] = "0.00";
+          criteriaAverages[criteria.label] = "0.00";
         }
       });
 
@@ -198,8 +201,9 @@ function CourseInfo() {
             .logo-container {
               display: grid;
               place-items: center;
-              margin-top: 20px;
+              margin-top: -15px;
               z-index: 1;
+              margin-bottom: -20px;
             }
   
             .divider {
@@ -217,6 +221,8 @@ function CourseInfo() {
               display: flex;
               justify-content: space-between;
               align-items: center;
+              margin-top: -35px;
+              
             }
   
             .course-title {
@@ -227,7 +233,7 @@ function CourseInfo() {
   
             .course-description {
               font-size: 15px;
-              margin: 5px 0 15px 0;
+              margin: 0 0 5px 0;
             }
   
             table {
@@ -252,7 +258,8 @@ function CourseInfo() {
   
             .criteria-title {
               font-weight: bold;
-              padding-top: 10px;
+              padding-top: -5px;
+              margin-top: -35px;
             }
   
             .total-average {
@@ -272,7 +279,7 @@ function CourseInfo() {
         <body>
           <img class="watermark" src="/images/Logo.png" alt="Watermark" />
           <div class="logo-container">
-            <img src="/images/Admin-Logo.png" alt="Logo" style="height: 70px;" />
+            <img src="/images/Admin-Logo.png" alt="Logo" style="height: 60px;" />
           </div>
           <div class="divider"></div>
           <div class="content">
@@ -292,12 +299,12 @@ function CourseInfo() {
                 </tr>
               </thead>
               <tbody>
-                ${staticData
+                ${listCriteria.sort((a, b) => a.label.localeCompare(b.label))
                   .map(
                     (criteria) => `
                   <tr>
-                    <th style="text-align: left;">${criteria.key}. ${criteria.description}</th>
-                    <td style="text-align: right; padding-right: 20px">${criteriaAverages[criteria.key] || "0.00"}</td>
+                    <th style="text-align: left;">${criteria.label}. ${criteria.CQuestion}</th>
+                    <td style="text-align: right; padding-right: 20px">${criteriaAverages[criteria.label] || "0.00"}</td>
                   </tr>
                 `,
                   )
@@ -310,16 +317,16 @@ function CourseInfo() {
                   </td>
                 </tr>
   
-                ${staticData
+                ${listCriteria.sort((a, b) => a.label.localeCompare(b.label))
                   .map((criteria) => {
                     const criteriaQuestions = Object.values(
                       questionAverages,
-                    ).filter((q) => q.criteria === criteria.key);
+                    ).filter((q) => q.criteria === criteria.label);
 
                     if (criteriaQuestions.length === 0) return "";
 
                     return `
-                    <tr><td class="criteria-title">${criteria.key}. ${criteria.description}</td><td></td></tr>
+                    <tr><td class="criteria-title">${criteria.label}. ${criteria.CQuestion}</td><td></td></tr>
                     ${criteriaQuestions
                       .map(
                         (q, index) => `
@@ -508,15 +515,15 @@ function CourseInfo() {
  
              <div class="survey-section">
                <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Survey Responses</h3>
-               ${staticData
+               ${listCriteria
                  .map((criteria) => {
                    const filteredData = studentScores.filter(
-                     (c) => c.question.Criteria === criteria.key,
+                     (c) => c.question.Criteria === criteria.label,
                    );
                    return `
                      <div style="margin-bottom: 25px;">
                        <div class="criteria-title">
-                         ${criteria.key}. ${criteria.description}
+                         ${criteria.label}. ${criteria.CQuestion}
                          ${filteredData.length === 0 ? '<span style="font-size: 14px; font-weight: normal; color: #666;"> - No Data Found</span>' : ""}
                        </div>
                        ${filteredData
@@ -793,15 +800,15 @@ function CourseInfo() {
   
               <div class="survey-section">
                 <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Survey Responses</h3>
-                ${staticData
+                ${listCriteria
                   .map((criteria) => {
                     const filteredData = studentScores.filter(
-                      (c) => c.question.Criteria === criteria.key,
+                      (c) => c.question.Criteria === criteria.label,
                     );
                     return `
                       <div style="margin-bottom: 25px;">
                         <div class="criteria-title">
-                          ${criteria.key}. ${criteria.description}
+                          ${criteria.label}. ${criteria.CQuestion}
                           ${filteredData.length === 0 ? '<span style="font-size: 14px; font-weight: normal; color: #666;"> - No Data Found</span>' : ""}
                         </div>
                         ${filteredData
@@ -974,7 +981,7 @@ function CourseInfo() {
           <div>
             <div className='pt-5'>
               <div className='mb-2 flex items-center justify-between'>
-                <p className='text-xl font-black'>Survey Details</p>
+                <p className='text-xl font-black'>Evaluation Details</p>
                 <Button
                   leftSection={<IconPrinter size={18} />}
                   variant='outline'
@@ -989,14 +996,14 @@ function CourseInfo() {
               </p>
             </div>
             <div className='pt-3'>
-              {staticData.map((v, ixx) => {
+              {listCriteria.map((v, ixx) => {
                 const filteredData = scores
                   .filter(
                     (v) =>
                       v.training_id.toString() ===
                       selectedStudent.id.toString(),
                   )
-                  .filter((c) => c.question.Criteria === v.key);
+                  .filter((c) => c.question.Criteria === v.label);
 
                 return (
                   <div
@@ -1004,7 +1011,7 @@ function CourseInfo() {
                     key={ixx}
                   >
                     <h3 className='font-semibold text-gray-800 mb-2'>
-                      {v.key}. {v.description}{" "}
+                      {v.label}. {v.CQuestion}{" "}
                       {filteredData.length === 0 && (
                         <Text size='sm'>- No Data Found</Text>
                       )}

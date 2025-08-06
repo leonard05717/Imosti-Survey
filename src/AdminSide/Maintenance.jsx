@@ -830,7 +830,7 @@ function Maintenance() {
       </Modal>
 
 
-      {CriteriaQ.map((data, i) => {
+      {CriteriaQ.sort((a, b) => a.label.localeCompare(b.label)).map((data, i) => {
         const items = questions.filter((v) => v.Criteria === data.label);
 
         return (

@@ -1081,7 +1081,7 @@ function Trainee() {
           <div>
             <div className='pt-5'>
               <div className='mb-2 flex items-center justify-between'>
-                <p className='text-xl font-black'>Survey Details</p>
+                <p className='text-xl font-black'>Evaluation Details</p>
                 <Button
                   leftSection={<IconPrinter size={18} />}
                   variant='outline'

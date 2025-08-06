@@ -74,7 +74,7 @@ function Courses() {
       >
         {selectedCourse && (
           <div>
-            <p className='text-xl font-black mt-4 mb-2'>Survey Details</p>
+            <p className='text-xl font-black mt-4 mb-2'>Evaluation Details</p>
             <div>
               <strong>Course -</strong> {selectedCourse.Course}
             </div>

@@ -95,14 +95,14 @@ function Analytics() {
   async function printEventHandler() {
     try {
       setLoadingPrint(true);
-
+      
       const questions = (await supabase.from("Questioner").select()).data;
 
       let start;
       let end;
       let date = "";
       const now = new Date();
-
+     
       switch (selectedFilter) {
         case "Today":
           start = new Date(now);
@@ -175,11 +175,13 @@ function Analytics() {
         default:
           return;
       }
+    
 
-      let filteredScores = mainData.scores;
+      let filteredScores =  mainData.scores;
       let selectedCourse = null;
 
       if (selectedCourseCode) {
+
         selectedCourse = mainData.courses.find(
           (c) => c.Course === selectedCourseCode,
         );
@@ -188,6 +190,7 @@ function Analytics() {
           (s) => s.traning.course_id === selectedCourse.id,
         );
       }
+  
 
       filteredScores = filteredScores.filter((s) => {
         const created = new Date(s.traning.DateN);
@@ -417,6 +420,8 @@ function Analytics() {
     
 
     console.log(barChartData);
+    console.log(mainData.courses);
+    console.log(mainData.scores);
    setSelectedCriteria(listCriterias);
     setBarChartData(barChartData);
   }, [
@@ -438,7 +443,7 @@ function Analytics() {
       ).length;
 
       return {
-       
+        name: course.Course,
         value: count,
         color: colors[index % colors.length],
       };

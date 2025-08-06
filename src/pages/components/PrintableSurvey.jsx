@@ -114,6 +114,7 @@ const PrintableSurvey = ({
                       color: "black"
                     }
                    }}
+                   
                     withTooltip={false}
                     valueFormatter={(v) => v.toFixed(2)}
                     data={barChartData}
@@ -177,7 +178,7 @@ const PrintableSurvey = ({
               }}
             >
               <p style={{ margin: 0, fontWeight: "bold", fontSize: "20px" , marginTop: "-10px" }}>
-                {courseTitle} - Detailed Results
+                {courseTitle}
               </p>
               <p>{date}</p>
             </div>
