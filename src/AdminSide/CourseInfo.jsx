@@ -221,7 +221,7 @@ function CourseInfo() {
               display: flex;
               justify-content: space-between;
               align-items: center;
-              margin-top: -35px;
+              margin-top: -37px;
               
             }
   
