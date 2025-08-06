@@ -74,7 +74,7 @@ const PrintableSurvey = ({
                     textAlign: "center",
                   }}
                 >
-                  Survey Results Chart
+                  Evaluation Results
                 </p>
                 <div
                   style={{

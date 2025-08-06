@@ -123,7 +123,7 @@ function App() {
             size='sm'
             mt={20}
           >
-            Are you sure you want to submit your survey?
+            Are you sure you want to submit your Evaluation?
           </Text>
         ),
         labels: { confirm: "Confirm", cancel: "Cancel" },
@@ -383,7 +383,7 @@ function App() {
                 description='Training Evaluation'
               >
                 <div className='text-center font-black text-xl pb-5'>
-                  Survey Form
+                  Trainee Evaluation Form
                 </div>
                 <div className='font-semibold'>INSTRUCTION:</div>
                 <div className='mb-5'>
@@ -565,7 +565,7 @@ function App() {
                 description='Verify'
               >
                 <div className='text-center font-black text-xl pb-5'>
-                  Survey Confirmation
+                   Confirmation
                 </div>
 
                 <Text
@@ -624,7 +624,7 @@ function App() {
                   mt={20}
                   mb={5}
                 >
-                  Survey Form:
+                  Trainee Evaluation Form:
                 </Text>
 
                 <ScrollAreaAutosize>

@@ -173,7 +173,7 @@ function Trainee() {
       <!DOCTYPE html>
       <html>
       <head>
-        <title>${toProper(selectedStudent.Name)} - Survey Report</title>
+        <title>${toProper(selectedStudent.Name)} - Evaluation Report</title>
         <style>
           @page {
             size: A4;
@@ -308,13 +308,13 @@ function Trainee() {
                 </div>
                 <div>
                   <p><strong>Training Date:</strong> ${convertDateRangeToString(selectedStudent.TrainingD)}</p>
-                  <p><strong>Survey Date:</strong> ${new Date(selectedStudent.DateN).toDateString()}</p>
+                  <p><strong>Evaluation Date:</strong> ${new Date(selectedStudent.DateN).toDateString()}</p>
                 </div>
               </div>
             </div>
 
             <div class="survey-section">
-              <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Survey Responses</h3>
+              <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Evaluation Responses</h3>
               ${Criterias.sort((a, b) => a.label.localeCompare(b.label))
                 .map((criteria) => {
                   const filteredData = studentScores.filter(
@@ -538,7 +538,7 @@ function Trainee() {
     <html>
       <head>
         <meta charset="UTF-8" />
-        <title>Survey Average Report</title>
+        <title>Evaluation Average Report</title>
         <style>
           body {
             font-family: Arial, sans-serif;
@@ -639,11 +639,11 @@ function Trainee() {
         <div class="divider"></div>
         <div class="content">
           <div class="course-header">
-            <p class="course-title">${checkedStudents.length} Trainees Survey</p>
+            <p class="course-title">${checkedStudents.length} Trainees Evaluation</p>
             <p>${new Date().toDateString()}</p>
           </div>
           <p class="course-description">
-            - A survey summary based on Company ${search.toLocaleUpperCase()}.
+            - A Evaluation summary based on Company ${search.toLocaleUpperCase()}.
           </p>
 
           <table>
@@ -868,13 +868,13 @@ function Trainee() {
                 </div>
                 <div>
                   <p><strong>Training Date:</strong> ${convertDateRangeToString(student.TrainingD)}</p>
-                  <p><strong>Survey Date:</strong> ${new Date(student.DateN).toDateString()}</p>
+                  <p><strong>Evaluation Date:</strong> ${new Date(student.DateN).toDateString()}</p>
                 </div>
               </div>
             </div>
 
             <div class="survey-section">
-              <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Survey Responses</h3>
+              <h3 style="font-size: 20px; font-weight: bold; margin-bottom: 15px;">Evaluation Responses</h3>
               ${Criterias.sort((a, b) => a.label.localeCompare(b.label))
                 .map((criteria) => {
                   const filteredData = studentScores.filter(
