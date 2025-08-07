@@ -97,51 +97,40 @@ const PrintableSurvey = ({
                       tick: {
                         fontSize: 40,
                         fontWeight: "bold",
-                       
-                      }
+                      },
                     }}
-
-                    xAxisProps={{                      
+                    xAxisProps={{
                       tick: {
-                      fontSize: 35, 
-                      fontWeight: "bold",
-
-                        }
+                        fontSize: 35,
+                        fontWeight: "bold",
+                      },
                     }}
                     valueLabelProps={{
-                    style:{
-                      fontSize: 35,
-                      color: "black"
-                    }
-                   }}
-                   
+                      style: {
+                        fontSize: 35,
+                        color: "black",
+                      },
+                    }}
                     withTooltip={false}
                     valueFormatter={(v) => v.toFixed(2)}
                     data={barChartData}
                     dataKey='name'
-                    series={[{ name: "Average", color: "blue.6"  }]}
+                    series={[{ name: "Average", color: "blue.6" }]}
                     tickLine='y'
                     withBarValueLabel
                   />
                 </div>
               </div>
-            )}  
-               
-                    
-                  
-                     <div style={{marginTop:'-270px'}}> 
-                     <h3 style={{fontWeight: 'bold'}}>Criteria :</h3>
-                     {listcriteria.map((vs) => {
-                      return(
-                       <p style={{fontSize: 14}}>{vs.name}</p>  
-                     )
-                      })}        
-                   </div>
-                
-           {console.log(listcriteria)}
-        </div>        
+            )}
+
+          <div style={{ marginTop: "-270px" }}>
+            <h3 style={{ fontWeight: "bold" }}>Criteria :</h3>
+            {listcriteria.map((vs) => {
+              return <p style={{ fontSize: 14 }}>{vs.name}</p>;
+            })}
+          </div>
+        </div>
       </div>
-    
 
       {/* Second Page - Data Tables */}
       <div style={{ position: "relative", minHeight: "100vh" }}>
@@ -177,7 +166,14 @@ const PrintableSurvey = ({
                 justifyContent: "space-between",
               }}
             >
-              <p style={{ margin: 0, fontWeight: "bold", fontSize: "20px" , marginTop: "-10px" }}>
+              <p
+                style={{
+                  margin: 0,
+                  fontWeight: "bold",
+                  fontSize: "20px",
+                  marginTop: "-10px",
+                }}
+              >
                 {courseTitle}
               </p>
               <p>{date}</p>

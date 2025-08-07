@@ -1,6 +1,7 @@
 import { BarChart, PieChart } from "@mantine/charts";
 import {
   ActionIcon,
+  ActionIconGroupSection,
   Button,
   Checkbox,
   CloseButton,
@@ -31,7 +32,13 @@ import DashboardItem from "./components/DashboardItem";
 import PieCourseItem from "./components/PieCourseItem";
 import supabase from "../supabase";
 import { useDidUpdate, useDisclosure } from "@mantine/hooks";
-import { startOfDay, endOfDay, isAfter, isBefore, constructFrom } from "date-fns";
+import {
+  startOfDay,
+  endOfDay,
+  isAfter,
+  isBefore,
+  constructFrom,
+} from "date-fns";
 import {
   MonthPicker,
   YearPicker,
@@ -78,8 +85,8 @@ function Analytics() {
   const [selectedDay, setSelectedDay] = useState(new Date());
   const [selectedDateRange, setSelectedDateRange] = useState([null, null]);
   const [selectedFilter, setSelectedFilter] = useState("Today");
-  const [selectedCriteria , setSelectedCriteria] = useState([])
-  const [Criterias , setCriterias] = useState([])
+  const [selectedCriteria, setSelectedCriteria] = useState([]);
+  const [Criterias, setCriterias] = useState([]);
   const [barChartData, setBarChartData] = useState([]);
   const [selectedCourseCode, setSelectedCourseCode] = useState(null);
   const [loadingPrint, setLoadingPrint] = useState(false);
@@ -89,20 +96,19 @@ function Analytics() {
     totalAverage: 0,
     list: [],
     date: "",
- 
   });
 
   async function printEventHandler() {
     try {
       setLoadingPrint(true);
-      
+
       const questions = (await supabase.from("Questioner").select()).data;
 
       let start;
       let end;
       let date = "";
       const now = new Date();
-     
+
       switch (selectedFilter) {
         case "Today":
           start = new Date(now);
@@ -175,22 +181,23 @@ function Analytics() {
         default:
           return;
       }
-    
 
-      let filteredScores =  mainData.scores;
+      let filteredScores = mainData.scores;
       let selectedCourse = null;
 
       if (selectedCourseCode) {
-
         selectedCourse = mainData.courses.find(
           (c) => c.Course === selectedCourseCode,
         );
-        if (!selectedCourse) return;
-        filteredScores = mainData.scores.filter(
-          (s) => s.traning.course_id === selectedCourse.id,
-        );
+
+        console.log(selectedCourseCode);
+
+        if (selectedCourse) {
+          filteredScores = mainData.scores.filter(
+            (s) => s.traning.course_id === selectedCourse.id,
+          );
+        }
       }
-  
 
       filteredScores = filteredScores.filter((s) => {
         const created = new Date(s.traning.DateN);
@@ -246,7 +253,7 @@ function Analytics() {
         list: list,
         date: date,
         barChartData: barChartData, // Include current bar chart data
-        listcriteria: selectedCriteria
+        listcriteria: selectedCriteria,
       };
 
       setSurveyData(newSurveyData);
@@ -275,14 +282,15 @@ function Analytics() {
 
       const studentData = (await supabase.from("Info-Training").select()).data;
       const courseData = (await supabase.from("Course").select()).data;
-      const CriteriaData = (await supabase.from("Criteria-Questioner").select()).data;
+      const CriteriaData = (await supabase.from("Criteria-Questioner").select())
+        .data;
 
       const courseCount =
         (await supabase.from("Course").select("*")).data.length || 0;
       const surveyCount =
         (await supabase.from("Info-Training").select("*")).data.length || 0;
 
-      setCriterias(CriteriaData)  
+      setCriterias(CriteriaData);
 
       setMainData({
         scores: scoreData,
@@ -376,9 +384,18 @@ function Analytics() {
     const filtered = mainData.scores.filter((item) => {
       const dateN = item.traning?.DateN;
       if (!dateN) return false;
-
       const trainingDate = new Date(dateN);
-      return trainingDate >= start && trainingDate <= end;
+      const crs = mainData.courses.find(
+        (cr) => cr.Course === selectedCourseCode,
+      );
+
+      if (!crs) return trainingDate >= start && trainingDate <= end;
+
+      return (
+        crs.id === item.traning?.course_id &&
+        trainingDate >= start &&
+        trainingDate <= end
+      );
     });
 
     const grouped = Criterias.reduce((acc, item) => {
@@ -400,29 +417,30 @@ function Analytics() {
     });
 
     const average = Criterias.reduce((acc, item) => {
-      acc[item.label] = count[item.label] ? grouped[item.label] / count[item.label] : 0;
+      acc[item.label] = count[item.label]
+        ? grouped[item.label] / count[item.label]
+        : 0;
       return acc;
     }, {});
 
-    const barChartData = Criterias.sort((a, b) => a.label.localeCompare(b.label)).map((item) => {
+    const barChartData = Criterias.sort((a, b) =>
+      a.label.localeCompare(b.label),
+    ).map((item) => {
       return {
         name: `${item.label}`,
         Average: average[item.label],
       };
     });
 
-    const listCriterias = Criterias.sort((a, b) => a.label.localeCompare(b.label)).map((item) => {
+    const listCriterias = Criterias.sort((a, b) =>
+      a.label.localeCompare(b.label),
+    ).map((item) => {
       return {
         name: `${item.label}. ${item.CQuestion}`,
       };
     });
 
-    
-
-    console.log(barChartData);
-    console.log(mainData.courses);
-    console.log(mainData.scores);
-   setSelectedCriteria(listCriterias);
+    setSelectedCriteria(listCriterias);
     setBarChartData(barChartData);
   }, [
     selectedFilter,
@@ -430,11 +448,8 @@ function Analytics() {
     selectedDay,
     selectedDateRange,
     mainData,
-    
-
+    selectedCourseCode,
   ]);
-
-    
 
   const pieChartData = useMemo(() => {
     return mainData.courses.map((course, index) => {
@@ -470,7 +485,6 @@ function Analytics() {
             date={surveyData.date}
             barChartData={surveyData.barChartData}
             listcriteria={surveyData.listcriteria}
-           
           />
         </div>
       </Portal>
@@ -644,15 +658,13 @@ function Analytics() {
                 }}
               >
                 <Popover.Target>
-                  <Button
+                  <ActionIcon
                     onClick={openPrintState}
-                    size='xs'
-                    leftSection={<IconPrinter size={17} />}
                     variant='subtle'
                     color='dark'
                   >
-                    Print
-                  </Button>
+                    <IconDotsVertical size={20} />
+                  </ActionIcon>
                 </Popover.Target>
                 <Popover.Dropdown miw={300}>
                   <div>
@@ -674,18 +686,23 @@ function Analytics() {
                     <Divider my={10} />
                     <Select
                       checkIconPosition='right'
-                      label='Print By Course'
+                      label='Filter By Course'
                       placeholder='Select Course'
                       searchable
-                      value={selectedCourseCode}  
+                      value={selectedCourseCode}
                       clearable
                       onChange={setSelectedCourseCode}
                       data={[
-                         ...new Map(mainData.courses.map((c) => [c.Course, { 
-                          label: c.Course, 
-                          value: c.Course 
-                          }])).values(),
-                          ]}
+                        ...new Map(
+                          mainData.courses.map((c) => [
+                            c.Course,
+                            {
+                              label: c.Course,
+                              value: c.Course,
+                            },
+                          ]),
+                        ).values(),
+                      ]}
                     />
                     {selectedCourseCode ? (
                       <Button
