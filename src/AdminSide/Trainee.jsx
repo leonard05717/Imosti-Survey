@@ -67,15 +67,24 @@ function Trainee() {
   });
 
   async function DeleteRecords() {
+
     
+    const checkedStudents = students.filter((student) => student.checked);
+
+    const studentIds = checkedStudents.map(s => s.id);
+
+    if(students.every((v) => !v.checked)){
+      console.log("No Student Checked");
+      alert("You need atleas 1 Student Check");
+      return;
+    }
     
     for (const sc of mapingAdmin.filter(v => v.Role === "superadmin")) {
       if (sc.Password === comfirmdelete) {
           const { error: deleteError } = await supabase
               .from("Info-Training")
               .delete()
-              .gte("DateN", selectedDateRange[0])
-              .lte("DateN", `${new Date(selectedDateRange[1]).getFullYear()}-12-31`);
+              .in("id", studentIds);
 
           if (deleteError) {
               console.log(`Something Error: ${deleteError.message}`);
@@ -86,6 +95,7 @@ function Trainee() {
           closeDeleteRecord();
           console.log("Delete Success");
           console.log(selectedDateRange[0], selectedDateRange[1]);
+          console.log(checkedStudents);
           return;
       }
   }
@@ -136,6 +146,7 @@ function Trainee() {
     setFeedbacks(feedbackData);
     setStudents(studentData.map((v) => ({ ...v, checked: false })));
     setLoadingPage(false);
+
   }
 
   useEffect(() => {
