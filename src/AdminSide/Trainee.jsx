@@ -36,7 +36,9 @@ import AdminMainPage from "./AdminMainPage";
 
 function convertDateRangeToString(dateRange) {
   const [f, s] = dateRange.substring(2, dateRange.length - 2).split('","');
-  return `${new Date(f).toDateString()} to ${new Date(s).toDateString()}`;
+  const options = { year: 'numeric', month: 'short', day: '2-digit' };
+return `${new Date(f).toLocaleDateString('en-US', options)} to ${new Date(s).toLocaleDateString('en-US', options)}`;
+
 }
 function Trainee() {
   const { id: course_id } = useParams();
@@ -1376,7 +1378,11 @@ function Trainee() {
                   {toProper(stud.Instructor)}
                 </Table.Td>
                 <Table.Td style={{ minWidth: 150 }}>
-                  {new Date(stud.DateN).toDateString()}
+                {new Date(stud.DateN).toLocaleDateString('en-US', {
+                     year: 'numeric',
+                     month: 'short',
+                      day: '2-digit'
+                })}
                 </Table.Td>
                 <Table.Td>
                   <ActionIcon

@@ -182,7 +182,7 @@ function App() {
       if (feedbackError) {
         return window.alert(`Insert Feedback Error: ${feedbackError.message}`);
       }
-
+        console.log(questionData)
       setIsModalOpen(true);
       reset();
     } catch (error) {
