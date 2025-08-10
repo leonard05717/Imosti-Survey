@@ -1207,54 +1207,7 @@ function Trainee() {
         }}
       >
         <div className='Response'>
-          <Menu
-            arrowSize={15}
-            withArrow
-            styles={{
-              arrow: {
-                borderTop: "1px solid #0005",
-                borderLeft: "1px solid #0005",
-              },
-            }}
-          >
-            <Menu.Target>
-              <div
-                className='clickable-element'
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 5,
-                }}
-              >
-                <span style={{ fontSize: 15 }}>
-                  {selectedFilter === "By Date Range" &&
-                  selectedDateRange[0] &&
-                  selectedDateRange[1]
-                    ? `By Date Range (${new Date(selectedDateRange[0]).toLocaleDateString()} - ${new Date(selectedDateRange[1]).toLocaleDateString()})`
-                    : selectedFilter}
-                </span>
-                <IconChevronDown size={18} />
-              </div>
-            </Menu.Target>
-            <Menu.Dropdown
-              style={{
-                border: "1px solid #0005",
-                boxShadow: "1px 2px 3px #0005",
-              }}
-              w={190}
-            >
-              <Menu.Label>Filter</Menu.Label>
-              <Menu.Item
-                onClick={() => {
-                  setSelectedFilter("By Date Range");
-                  setSelectedDateRange([null, null]);
-                  openFilterState();
-                }}
-              >
-                By Specific Year
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
+        <Text fw={700}>Confirm Deletion</Text>
         </div>
         <PasswordInput
           required
@@ -1305,6 +1258,8 @@ function Trainee() {
         size='xs'
         leftSection={<IconTrash size={19} />}
         mb={10}
+        disabled={mapingAdmin.every((ve) => ve.Role !== "superadmin")}
+      
       >
         Delete
       </Button>

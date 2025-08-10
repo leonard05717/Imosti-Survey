@@ -95,7 +95,7 @@ function Courses() {
                   <Table.Th ta='center'>Average</Table.Th>
                 </Table.Thead>
                 <Table.Tbody>
-                  {Criterias.map((data, i) => {
+                  {Criterias.sort((a, b) => a.label.localeCompare(b.label)).map((data, i) => {
                     const filteredScores = scores.filter(
                       (s) =>
                         s.traning.course_id === selectedCourse.id &&
@@ -123,7 +123,7 @@ function Courses() {
               </Table>
             </div>
 
-            {Criterias.map((data, i) => {
+            {Criterias.sort((a, b) => a.label.localeCompare(b.label)).map((data, i) => {
               return (
                 <div
                   key={i}
