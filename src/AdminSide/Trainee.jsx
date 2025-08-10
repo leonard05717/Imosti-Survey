@@ -77,7 +77,7 @@ function Trainee() {
 
     if (students.every((v) => !v.checked)) {
       console.log("No Student Checked");
-      alert("You need atleas 1 Student Check");
+      alert("You need at least 1 Student Check");
       return;
     }
 
@@ -1258,8 +1258,7 @@ function Trainee() {
         size='xs'
         leftSection={<IconTrash size={19} />}
         mb={10}
-        disabled={mapingAdmin.every((ve) => ve.Role !== "superadmin")}
-      
+        disabled={!mapingAdmin.some(v => v.Role === "superadmin")}
       >
         Delete
       </Button>
