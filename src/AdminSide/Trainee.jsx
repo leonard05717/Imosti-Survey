@@ -36,9 +36,8 @@ import AdminMainPage from "./AdminMainPage";
 
 function convertDateRangeToString(dateRange) {
   const [f, s] = dateRange.substring(2, dateRange.length - 2).split('","');
-  const options = { year: 'numeric', month: 'short', day: '2-digit' };
-return `${new Date(f).toLocaleDateString('en-US', options)} to ${new Date(s).toLocaleDateString('en-US', options)}`;
-
+  const options = { year: "numeric", month: "short", day: "2-digit" };
+  return `${new Date(f).toLocaleDateString("en-US", options)} to ${new Date(s).toLocaleDateString("en-US", options)}`;
 }
 function Trainee() {
   const { id: course_id } = useParams();
@@ -46,20 +45,23 @@ function Trainee() {
   const [students, setStudents] = useState([]);
   const [modalState, { open: openModalState, close: closeModalState }] =
     useDisclosure(false);
-  
+
   const [DeleteRecord, { open: openDeleteRecord, close: closeDeleteRecord }] =
     useDisclosure(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [scores, setScores] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const navigate = useNavigate();
-  const [Criterias , setCriterias] = useState([]);
+  const [Criterias, setCriterias] = useState([]);
   const [search, setSearch] = useState("");
   const [courses, setCourses] = useState([]);
   const [selectedFilter, setSelectedFilter] = useState("Select");
-  const [comfirmdelete , setcomfirmdelete] = useState();
-  const [mapingAdmin , setmapingAdmin] = useState([]);
-  const [selectedDateRange, setSelectedDateRange] = useState([null, null], [null]);
+  const [comfirmdelete, setcomfirmdelete] = useState();
+  const [mapingAdmin, setmapingAdmin] = useState([]);
+  const [selectedDateRange, setSelectedDateRange] = useState(
+    [null, null],
+    [null],
+  );
   const [filterState, { open: openFilterState, close: closeFilterState }] =
     useDisclosure(false);
   const [storageData, setStorageData] = useState({
@@ -69,41 +71,38 @@ function Trainee() {
   });
 
   async function DeleteRecords() {
-
-    
     const checkedStudents = students.filter((student) => student.checked);
 
-    const studentIds = checkedStudents.map(s => s.id);
+    const studentIds = checkedStudents.map((s) => s.id);
 
-    if(students.every((v) => !v.checked)){
+    if (students.every((v) => !v.checked)) {
       console.log("No Student Checked");
       alert("You need atleas 1 Student Check");
       return;
     }
-    
-    for (const sc of mapingAdmin.filter(v => v.Role === "superadmin")) {
+
+    for (const sc of mapingAdmin.filter((v) => v.Role === "superadmin")) {
       if (sc.Password === comfirmdelete) {
-          const { error: deleteError } = await supabase
-              .from("Info-Training")
-              .delete()
-              .in("id", studentIds);
+        const { error: deleteError } = await supabase
+          .from("Info-Training")
+          .delete()
+          .in("id", studentIds);
 
-          if (deleteError) {
-              console.log(`Something Error: ${deleteError.message}`);
-              return;
-          }
-
-          await fetchData();
-          closeDeleteRecord();
-          console.log("Delete Success");
-          console.log(selectedDateRange[0], selectedDateRange[1]);
-          console.log(checkedStudents);
+        if (deleteError) {
+          console.log(`Something Error: ${deleteError.message}`);
           return;
+        }
+
+        await fetchData();
+        closeDeleteRecord();
+        console.log("Delete Success");
+        console.log(selectedDateRange[0], selectedDateRange[1]);
+        console.log(checkedStudents);
+        return;
       }
-  }
+    }
 
-  alert("Password Incorrect or not matched with any superadmin.");
-
+    alert("Password Incorrect or not matched with any superadmin.");
   }
 
   async function fetchData() {
@@ -139,22 +138,22 @@ function Trainee() {
         revisionData.find((r) => r.key === "issued_date")?.value || "",
     });
     const courseData = (await supabase.from("Course").select("*")).data;
-    const CriteriaData = (await supabase.from("Criteria-Questioner").select()).data;
-    const AdminStaff =(await supabase.from("Staff-Info").select()).data;
+    const CriteriaData = (
+      await supabase.from("Criteria-Questioner").select().order("label")
+    ).data;
+    const AdminStaff = (await supabase.from("Staff-Info").select()).data;
     setmapingAdmin(AdminStaff);
     setCourses(courseData);
-    setCriterias(CriteriaData)
+    setCriterias(CriteriaData);
     setScores(scoreData);
     setFeedbacks(feedbackData);
     setStudents(studentData.map((v) => ({ ...v, checked: false })));
     setLoadingPage(false);
-
   }
 
   useEffect(() => {
     fetchData();
   }, []);
-
 
   const filteredStudents = students.filter((v) => {
     if (!search) return true;
@@ -366,10 +365,12 @@ function Trainee() {
                   <th style="background-color: rgba(0,0,0,0.1);">Form Number:</th>
                   <td>${storageData.form_number}</td>
                   <th rowspan="2" style="background-color: rgba(0,0,0,0.1);">Date Issued:</th>
-                  <td rowspan="2">${new Date(storageData.issued_date).toLocaleDateString('en-US',{
-                   year: 'numeric',
-                   month: 'long',
-                   day: 'numeric'
+                  <td rowspan="2">${new Date(
+                    storageData.issued_date,
+                  ).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}</td>
                 </tr>
                 <tr>
@@ -419,7 +420,7 @@ function Trainee() {
                 </table>
 
               `
-                  : '<p style="color: #666; font-style: italic;">No feedback responses found.</p>'       
+                  : '<p style="color: #666; font-style: italic;">No feedback responses found.</p>'
               }
             </div>
           </div>
@@ -434,10 +435,12 @@ function Trainee() {
                   <th style="background-color: rgba(0,0,0,0.1);">Form Number:</th>
                   <td>${storageData.form_number}</td>
                   <th rowspan="2" style="background-color: rgba(0,0,0,0.1);">Date Issued:</th>
-                  <td rowspan="2">${new Date(storageData.issued_date).toLocaleDateString('en-US',{
-                   year: 'numeric',
-                   month: 'long',
-                   day: 'numeric'
+                  <td rowspan="2">${new Date(
+                    storageData.issued_date,
+                  ).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}</td>
                 </tr>
                 <tr>
@@ -668,16 +671,14 @@ function Trainee() {
               </tr>
             </thead>
             <tbody>
-              ${Criterias
-                .map(
-                  (criteria) => `
+              ${Criterias.map(
+                (criteria) => `
                 <tr>
                   <th style="text-align: left;">${criteria.label}. ${criteria.CQuestion}</th>
                   <td style="text-align: right; padding-right: 20px">${criteriaAverages[criteria.label] || "0.00"}</td>
                 </tr>
               `,
-                )
-                .join("")}
+              ).join("")}
               <tr>
                 <td colspan="2" style="text-align: right;">
                   <div style="width: 100%; display: flex; justify-content: end;">
@@ -925,10 +926,12 @@ function Trainee() {
                   <th style="background-color: rgba(0,0,0,0.1);">Form Number:</th>
                   <td>${storageData.form_number}</td>
                   <th rowspan="2" style="background-color: rgba(0,0,0,0.1);">Date Issued:</th>
-                  <td rowspan="2">${new Date(storageData.issued_date).toLocaleDateString('en-US',{
-                   year: 'numeric',
-                   month: 'long',
-                   day: 'numeric'
+                  <td rowspan="2">${new Date(
+                    storageData.issued_date,
+                  ).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}</td>
                 </tr>
                 <tr>
@@ -990,10 +993,12 @@ function Trainee() {
                   <th style="background-color: rgba(0,0,0,0.1);">Form Number:</th>
                   <td>${storageData.form_number}</td>
                   <th rowspan="2" style="background-color: rgba(0,0,0,0.1);">Date Issued:</th>
-                  <td rowspan="2">${new Date(storageData.issued_date).toLocaleDateString('en-US',{
-                   year: 'numeric',
-                   month: 'long',
-                   day: 'numeric'
+                  <td rowspan="2">${new Date(
+                    storageData.issued_date,
+                  ).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
                   })}</td>
                 </tr>
                 <tr>
@@ -1087,10 +1092,9 @@ function Trainee() {
       }
     >
       <Modal
-        title={<span style={{ color: 'white' }}>{selectedStudent?.Name}</span>}
+        title={<span style={{ color: "white" }}>{selectedStudent?.Name}</span>}
         opened={modalState}
         onClose={closeModalState}
-       
       >
         {selectedStudent && (
           <div>
@@ -1193,8 +1197,8 @@ function Trainee() {
         )}
       </Modal>
 
-         {/*Delete*/}
-         <Modal
+      {/*Delete*/}
+      <Modal
         radius={20}
         centered='true'
         opened={DeleteRecord}
@@ -1202,77 +1206,73 @@ function Trainee() {
           closeDeleteRecord();
         }}
       >
-
-          <div className='Response'>
+        <div className='Response'>
           <Menu
-                arrowSize={15}
-                withArrow
-                styles={{
-                  arrow: {
-                    borderTop: "1px solid #0005",
-                    borderLeft: "1px solid #0005",
-                  },
+            arrowSize={15}
+            withArrow
+            styles={{
+              arrow: {
+                borderTop: "1px solid #0005",
+                borderLeft: "1px solid #0005",
+              },
+            }}
+          >
+            <Menu.Target>
+              <div
+                className='clickable-element'
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
                 }}
               >
-                <Menu.Target>
-                  <div
-                    className='clickable-element'
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 5,
-                    }}
-                  >
-                    <span style={{ fontSize: 15 }}>
-                      {selectedFilter === "By Date Range" &&
-                                selectedDateRange[0] &&
-                                selectedDateRange[1]
-                              ? `By Date Range (${new Date(selectedDateRange[0]).toLocaleDateString()} - ${new Date(selectedDateRange[1]).toLocaleDateString()})`
-                              : selectedFilter}
-                    </span>
-                    <IconChevronDown size={18} />
-                  </div>
-                </Menu.Target>
-                <Menu.Dropdown
-                  style={{
-                    border: "1px solid #0005",
-                    boxShadow: "1px 2px 3px #0005",
-                  }}
-                  w={190}
-                >
-                  <Menu.Label>Filter</Menu.Label>
-                    <Menu.Item
-                    onClick={() => {
-                      setSelectedFilter("By Date Range");
-                      setSelectedDateRange([null, null]);
-                      openFilterState();
-                    }}
-                  >
-                    By Specific Year
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-            
-            
-          </div>
-          <PasswordInput
-              required
-              type="Password"
-              radius='md'
-              placeholder='Enter Password'
-              onChange={(e) => {
-                setcomfirmdelete(e.target.value)
+                <span style={{ fontSize: 15 }}>
+                  {selectedFilter === "By Date Range" &&
+                  selectedDateRange[0] &&
+                  selectedDateRange[1]
+                    ? `By Date Range (${new Date(selectedDateRange[0]).toLocaleDateString()} - ${new Date(selectedDateRange[1]).toLocaleDateString()})`
+                    : selectedFilter}
+                </span>
+                <IconChevronDown size={18} />
+              </div>
+            </Menu.Target>
+            <Menu.Dropdown
+              style={{
+                border: "1px solid #0005",
+                boxShadow: "1px 2px 3px #0005",
               }}
-            />
-          <Button
-            onClick={DeleteRecords}
-            className='Button-done'
-            type='submit'
-            style={{ width: "fit-content" }}
-          >
-            Delete
-          </Button>
-    
+              w={190}
+            >
+              <Menu.Label>Filter</Menu.Label>
+              <Menu.Item
+                onClick={() => {
+                  setSelectedFilter("By Date Range");
+                  setSelectedDateRange([null, null]);
+                  openFilterState();
+                }}
+              >
+                By Specific Year
+              </Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
+        </div>
+        <PasswordInput
+          required
+          type='Password'
+          radius='md'
+          placeholder='Enter Password'
+          onChange={(e) => {
+            setcomfirmdelete(e.target.value);
+          }}
+        />
+        <Button
+          onClick={DeleteRecords}
+          className='Button-done'
+          type='submit'
+          style={{ width: "fit-content" }}
+        >
+          Delete
+        </Button>
       </Modal>
 
       {/* Filter Modal */}
@@ -1284,32 +1284,30 @@ function Trainee() {
         size='sm'
       >
         <div className='flex items-center justify-center py-5'>
-         
           {selectedFilter === "By Date Range" && (
             <div>
-            <YearPicker 
-            type="range"
-            value={selectedDateRange} 
-            allowSingleDateInRange
-            label='Select Year'
-            onChange={setSelectedDateRange} />
-
+              <YearPicker
+                type='range'
+                value={selectedDateRange}
+                allowSingleDateInRange
+                label='Select Year'
+                onChange={setSelectedDateRange}
+              />
             </div>
-           )}
-          </div>
+          )}
+        </div>
       </Modal>
 
-          <Button
-          onClick={() => {
-            openDeleteRecord();
-          }}
-          size='xs'
-          leftSection={<IconTrash size={19} />}
-          mb={10}
-          
-        > 
-          Delete
-        </Button>
+      <Button
+        onClick={() => {
+          openDeleteRecord();
+        }}
+        size='xs'
+        leftSection={<IconTrash size={19} />}
+        mb={10}
+      >
+        Delete
+      </Button>
 
       <Table>
         <Table.Thead>
@@ -1378,11 +1376,11 @@ function Trainee() {
                   {toProper(stud.Instructor)}
                 </Table.Td>
                 <Table.Td style={{ minWidth: 150 }}>
-                {new Date(stud.DateN).toLocaleDateString('en-US', {
-                     year: 'numeric',
-                     month: 'short',
-                      day: '2-digit'
-                })}
+                  {new Date(stud.DateN).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "2-digit",
+                  })}
                 </Table.Td>
                 <Table.Td>
                   <ActionIcon

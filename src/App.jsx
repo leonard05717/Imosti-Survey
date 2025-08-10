@@ -64,8 +64,9 @@ function App() {
   const [feedbacks, setFeedbacks] = useState([]);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
   const [active, setActive] = useState(0);
-  const nextStep = () =>
+  const nextStep = () => {
     setActive((current) => (current < 3 ? current + 1 : current));
+  };
   const prevStep = () =>
     setActive((current) => (current > 0 ? current - 1 : current));
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -92,12 +93,14 @@ function App() {
 
   async function loadData() {
     const questionData = (await supabase.from("Questioner").select()).data;
-    const feedbackData = (await supabase.from("Feedback-Question").select()).data;
-    const CriteriaData = (await supabase.from("Criteria-Questioner").select()).data;
+    const feedbackData = (await supabase.from("Feedback-Question").select())
+      .data;
+    const CriteriaData = (await supabase.from("Criteria-Questioner").select())
+      .data;
     const courseData = (await supabase.from("Course").select()).data;
     setQuestions(questionData.map((q) => ({ ...q, value: "" })));
     setFeedbacks(feedbackData.map((f) => ({ ...f, value: "" })));
-    setcriteria(CriteriaData)
+    setcriteria(CriteriaData);
     setCourses(courseData);
     setLoadingPage(false);
   }
@@ -144,7 +147,7 @@ function App() {
           Instructor: Instructor.toUpperCase(),
           Reg: RegNo.toUpperCase(),
           TrainingD: Trainingvalue,
-          DateN: valuenowDate,
+          DateN: new Date(valuenowDate).toDateString(),
           course_id: Course,
         })
         .select("*")
@@ -159,7 +162,7 @@ function App() {
         question_id: qs.id,
         score: qs.value,
         training_id: singeData.id,
-        created_at: new Date(),
+        created_at: new Date(valuenowDate).toDateString(),
       }));
 
       const { error: scoreError } = await supabase
@@ -182,7 +185,7 @@ function App() {
       if (feedbackError) {
         return window.alert(`Insert Feedback Error: ${feedbackError.message}`);
       }
-        console.log(questionData)
+
       setIsModalOpen(true);
       reset();
     } catch (error) {
@@ -242,7 +245,7 @@ function App() {
             <AspectRatio>
               <Image
                 h='100%'
-                 src='../images/Admin-Logo.png'
+                src='../images/Admin-Logo.png'
                 alt='Avatar'
               />
             </AspectRatio>
@@ -275,7 +278,6 @@ function App() {
                   <div className='text-center font-black text-xl pb-5'>
                     Fill up all Information
                   </div>
-                  
 
                   <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
                     <div className='space-y-3'>
@@ -565,7 +567,7 @@ function App() {
                 description='Verify'
               >
                 <div className='text-center font-black text-xl pb-5'>
-                   Confirmation
+                  Confirmation
                 </div>
 
                 <Text

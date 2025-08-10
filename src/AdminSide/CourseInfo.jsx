@@ -29,8 +29,8 @@ import { toProper } from "../helpers/helper";
 
 function convertDateRangeToString(dateRange) {
   const [f, s] = dateRange.substring(2, dateRange.length - 2).split('","');
-  const options = { year: 'numeric', month: 'short', day: '2-digit' };
-return `${new Date(f).toLocaleDateString('en-US', options)} to ${new Date(s).toLocaleDateString('en-US', options)}`;
+  const options = { year: "numeric", month: "short", day: "2-digit" };
+  return `${new Date(f).toLocaleDateString("en-US", options)} to ${new Date(s).toLocaleDateString("en-US", options)}`;
 }
 
 function CourseInfo() {
@@ -43,7 +43,7 @@ function CourseInfo() {
   const [scores, setScores] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const navigate = useNavigate();
-  const [listCriteria , setlistCriteria] = useState([])
+  const [listCriteria, setlistCriteria] = useState([]);
   const [search, setSearch] = useState("");
   const [courses, setCourses] = useState([]);
   const [storageData, setStorageData] = useState({
@@ -63,7 +63,7 @@ function CourseInfo() {
     const scoreData = (
       await supabase
         .from("scores")
-        .select("*, question:Questioner(*), traning:Info-Training(*)")
+        .select("*, question:question_id(*), traning:training_id(*)")
     ).data;
     const feedbackData = (
       await supabase
@@ -83,7 +83,9 @@ function CourseInfo() {
       form_number:
         revisionData.find((r) => r.key === "form_number")?.value || "",
     });
-    const CriteriaData = (await supabase.from("Criteria-Questioner").select()).data;
+    const CriteriaData = (
+      await supabase.from("Criteria-Questioner").select().order("label")
+    ).data;
     setlistCriteria(CriteriaData);
     setCourses(courseData);
     setScores(scoreData);
@@ -300,7 +302,8 @@ function CourseInfo() {
                 </tr>
               </thead>
               <tbody>
-                ${listCriteria.sort((a, b) => a.label.localeCompare(b.label))
+                ${listCriteria
+                  .sort((a, b) => a.label.localeCompare(b.label))
                   .map(
                     (criteria) => `
                   <tr>
@@ -318,7 +321,8 @@ function CourseInfo() {
                   </td>
                 </tr>
   
-                ${listCriteria.sort((a, b) => a.label.localeCompare(b.label))
+                ${listCriteria
+                  .sort((a, b) => a.label.localeCompare(b.label))
                   .map((criteria) => {
                     const criteriaQuestions = Object.values(
                       questionAverages,
@@ -788,7 +792,7 @@ function CourseInfo() {
                 <div class="student-name">${toProper(student.Name)}</div>
                 <div class="info-grid">
                   <div>
-                    <p><strong>Course:</strong> ${student.course?.Course|| ""}</p>
+                    <p><strong>Course:</strong> ${student.course?.Course || ""}</p>
                     <p><strong>Company:</strong> ${student.Reg}</p>
                     <p><strong>Instructor:</strong> ${student.Instructor}</p>
                   </div>
@@ -974,7 +978,7 @@ function CourseInfo() {
       }
     >
       <Modal
-        title={<span style={{ color: 'white' }}>{selectedStudent?.Name}</span>}
+        title={<span style={{ color: "white" }}>{selectedStudent?.Name}</span>}
         opened={modalState}
         onClose={closeModalState}
       >
@@ -1004,7 +1008,11 @@ function CourseInfo() {
                       v.training_id.toString() ===
                       selectedStudent.id.toString(),
                   )
-                  .filter((c) => c.question.Criteria === v.label);
+                  .filter(
+                    (c) =>
+                      c.question.Criteria.toLowerCase() ===
+                      v.label.toLowerCase(),
+                  );
 
                 return (
                   <div
@@ -1190,7 +1198,11 @@ function CourseInfo() {
                   {toProper(stud.Instructor)}
                 </Table.Td>
                 <Table.Td style={{ minWidth: 150 }}>
-                {new Date(stud.DateN).toLocaleDateString('en-US', {year: 'numeric',month: 'short',day: '2-digit'})}
+                  {new Date(stud.DateN).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "2-digit",
+                  })}
                 </Table.Td>
                 <Table.Td>
                   <ActionIcon
