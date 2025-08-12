@@ -95,40 +95,65 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
 
   async function saveAccountEventHandler(values) {
     try {
-      
       setLoadingUpdate(true);
-
-
-
-      
-      console.log(values);
-       
-      
-        
-          const { data: updatedData } = await supabase
-          .from("Staff-Info")
-          .update({
-            First_Name: values.First_Name,
-            Last_Name: values.Last_Name,
-            Email: values.Email,
-            Status: values.Status,
-            Contact: values.Contact,
-            Password: values.Password ? values.Password : undefined,
-          })
-          .eq("id", values.id)
-          .select()
-          .single();
   
-        accountForm.setFieldValue("Password", "");
-        localStorage.setItem("data", JSON.stringify(updatedData));
-        window.alert("Update Account Successfully!");
-      
+      // Step 1: Check if email already exists (and is not the same record being updated)
+      const { data: existingEmail, error: emailError } = await supabase
+        .from("Staff-Info")
+        .select("id")
+        .eq("Email", values.Email)
+        .neq("id", values.id) 
+        .single();
   
-      
-      
-          
-    } catch (error) {
-      window.alert("Save error:", error.message);
+      if (emailError && emailError.code !== "PGRST116") {
+        console.error(emailError);
+        window.alert("Error checking email. Please try again.");
+        setLoadingUpdate(false);
+        return;
+      }
+  
+      if (existingEmail) {
+        // Email already in use
+        window.alert("This email is already taken. Please use another one.");
+        setLoadingUpdate(false);
+        return;
+      }
+
+      if (values.Password && values.Password.trim() === "") {
+        window.alert("Password cannot be empty or spaces only.");
+        setLoadingUpdate(false);
+        return;
+    }
+  
+      // Step 2: Update record if email is unique
+      const { data: updatedData, error: updateError } = await supabase
+        .from("Staff-Info")
+        .update({
+          First_Name: values.First_Name,
+          Last_Name: values.Last_Name,
+          Email: values.Email,
+          Status: values.Status,
+          Contact: values.Contact,
+          Password: values.Password ? values.Password : undefined,
+        })
+        .eq("id", values.id)
+        .select()
+        .single();
+  
+      if (updateError) {
+        console.error(updateError);
+        window.alert("Error updating account.");
+        setLoadingUpdate(false);
+        return;
+      }
+  
+      accountForm.setFieldValue("Password", "");
+      localStorage.setItem("data", JSON.stringify(updatedData));
+      window.alert("Update Account Successfully!");
+      setIsModalOpen(false)
+    } catch (err) {
+      console.error(err);
+      window.alert("An error occurred.");
     } finally {
       setLoadingUpdate(false);
     }
@@ -226,6 +251,10 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
                 required
                 placeholder='Enter your first name'
                 {...accountForm.getInputProps("First_Name")}
+                onChange={(e) => {
+                const value = e.target.value.replace(/[0-9]/g, ""); 
+                accountForm.setFieldValue("First_Name", value);
+                 }}
               />
               <TextInput
                 label='Last Name'
@@ -233,6 +262,10 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
                 required
                 placeholder='Enter your last name'
                 {...accountForm.getInputProps("Last_Name")}
+                onChange={(e) => {
+                const value = e.target.value.replace(/[0-9]/g, ""); 
+                accountForm.setFieldValue("Last_Name", value);
+                }}
               />
             </Group>
 
@@ -266,6 +299,7 @@ function PageContainer({ children, title, rightSection, outsideChildren }) {
             <PasswordInput
               label='New Password'
               placeholder='Enter New Password'
+              minLength={8}
               {...accountForm.getInputProps("Password")}
             />
 

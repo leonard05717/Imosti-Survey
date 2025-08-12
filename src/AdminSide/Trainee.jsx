@@ -1258,7 +1258,8 @@ function Trainee() {
         size='xs'
         leftSection={<IconTrash size={19} />}
         mb={10}
-        disabled={!mapingAdmin.some(v => v.Role === "superadmin")}
+        disabled={mapingAdmin.every((v) => v.Role !== "superadmin")}
+      
       >
         Delete
       </Button>

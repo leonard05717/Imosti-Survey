@@ -131,7 +131,13 @@ function Staff() {
         await fetchData();
         window.alert("Add New Account Successfully!");
         staffForm.reset();
-      } else {
+      } 
+      else {
+        if (data.Password && data.Password.trim() === "") {
+          window.alert("Password cannot be empty or spaces only.");
+          setSubmitLoading(false);
+          return;
+           }
         const { error: updateError } = await supabase
           .from("Staff-Info")
           .update({
@@ -213,7 +219,7 @@ function Staff() {
           Add
         </Button>
       }
-    >
+    > {/*Active or Inactive */}
       <Modal
         radius={20}
         centered='true'
@@ -286,6 +292,10 @@ function Staff() {
               label='First Name'
               placeholder='Enter First Name'
               minLength={2}
+              onChange={(e) => {
+              const value = e.target.value.replace(/[0-9]/g, ""); 
+              staffForm.setFieldValue("First_Name", value);
+            }}
             />
             <TextInput
               {...staffForm.getInputProps("Last_Name")}
@@ -293,6 +303,10 @@ function Staff() {
               label='Last Name'
               placeholder='Enter Last Name'
               minLength={2}
+              onChange={(e) => {
+              const value = e.target.value.replace(/[0-9]/g, ""); 
+              staffForm.setFieldValue("Last_Name", value);
+            }}
             />
           </Group>
           <TextInput
@@ -354,11 +368,13 @@ function Staff() {
             description={`Default Password: ${DEFAULT_PASSWORD}`}
             label='Password'
             placeholder='Enter Password'
+            minLength={8}
           />
           <PasswordInput
             {...staffForm.getInputProps("ConfirmPassword")}
             label='Confirm Password'
             placeholder='Enter Confirm Password'
+            minLength={8}
           />
           <Button
             mt={10}

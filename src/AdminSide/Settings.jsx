@@ -177,9 +177,9 @@ function Settings() {
                     }
                     variant='unstyled'
                     {...analyticForm.getInputProps("issued_date")}
-                    style={{
+                     style={{
                       borderBottom: "1px solid #0004",
-                    }}
+                      }}
                   />
                 </Table.Td>
               </Table.Tr>
@@ -191,6 +191,9 @@ function Settings() {
               loading={loading}
               disabled={
                 loading ||
+                 !analyticForm.values.form_number.trim() || 
+                 !analyticForm.values.revision_number.trim() ||
+                 !analyticForm.values.issued_date.trim() ||
                 (analyticForm.values.form_number ===
                   previousValues.form_number &&
                   analyticForm.values.revision_number ===

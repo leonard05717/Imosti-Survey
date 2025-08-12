@@ -353,9 +353,11 @@ function Maintenance() {
         />
       }
     >
+      {/* Delete Question */}
       <Modal
         radius={20}
         centered='true'
+        title={<span style={{ color: "white" , paddingLeft: '155px' }}>Delete Question</span>}
         opened={deleteEvaluationState}
         onClose={() => {
           closeDeleteEvaluationState();
@@ -390,8 +392,10 @@ function Maintenance() {
         </div>
       </Modal>
 
+        {/* AddQuestion*/}
       <Modal
         radius={20}
+        title={<span style={{ color: "white" , paddingLeft: '155px' }}>Add Question</span>}
         centered='true'
         opened={evaluationState}
         onClose={() => {
@@ -441,6 +445,7 @@ function Maintenance() {
       <Modal
         radius={20}
         centered='true'
+        title={<span style={{ color: "white" , paddingLeft: '155px' }}>Edit Criteria</span>}
         opened={EditCriteria}
         onClose={() => {
           closeEditCriteria();
@@ -508,6 +513,7 @@ function Maintenance() {
 
         {/*Add Criteria */}
       <Modal
+        title={<span style={{ color: "white" , paddingLeft: '165px' }}>Add Criteria</span>}
         radius={20}
         centered='true'
         opened={CriteriaAdd}
@@ -571,6 +577,7 @@ function Maintenance() {
       <Modal
         radius={20}
         centered='true'
+        title={<span style={{ color: "white" , paddingLeft: '155px' }}>Delete Criteria</span>}
         opened={deleteCriteriaState}
         onClose={() => {
           closeDeleteCriteriaState();
@@ -609,6 +616,7 @@ function Maintenance() {
       <Modal
         radius={20}
         centered='true'
+        title={<span style={{ color: "white" , paddingLeft: '155px' }}>Add Feedback</span>}
         opened={feedbackState}
         onClose={() => {
           closeFeedbackState();
@@ -656,6 +664,7 @@ function Maintenance() {
       <Modal
         radius={20}
         centered='true'
+        title={<span style={{ color: "white" , paddingLeft: '155px' }}>Delete Feedback</span>}
         opened={deleteFeedbackState}
         onClose={() => {
           closeDeleteFeedbackState();
@@ -694,6 +703,7 @@ function Maintenance() {
       <Modal
         radius={20}
         centered='true'
+        title={<span style={{ color: "white" , paddingLeft: '155px' }}>Edit Course</span>}
         opened={editCourse}
         onClose={() => {
           closeeditCourse();
@@ -746,6 +756,7 @@ function Maintenance() {
       <Modal
         radius={20}
         centered='true'
+        title={<span style={{ color: "white" , paddingLeft: '155px' }}>Delete Course</span>}
         opened={deleteCourse}
         onClose={() => {
           closedeleteCourse();
@@ -784,6 +795,7 @@ function Maintenance() {
         <Modal
         radius={20}
         centered='true'
+        title={<span style={{ color: "white" , paddingLeft: '155px' }}>Add Course</span>}
         opened={CourseAdd}
         onClose={() => {
           closeCourseAdd();

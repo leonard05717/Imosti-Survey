@@ -82,10 +82,16 @@ function App() {
   const [criteria, setcriteria] = useState([]);
 
   const NameTrasfer = (event) => {
-    setName(event.target.value);
+     const input = event.target.value;
+     const filtered = input.replace(/[0-9]/g, '');
+     setName(filtered);
+  
   };
   const InstructorTrasfer = (event) => {
-    setInstructor(event.target.value);
+     const input = event.target.value;
+     const filtered = input.replace(/[0-9]/g, '');
+     setInstructor(filtered);
+  
   };
   const RegTrasfer = (event) => {
     setRegNo(event.target.value);
@@ -288,6 +294,7 @@ function App() {
                         type='text'
                         placeholder='Enter Full Name'
                         value={Name}
+                        pattern="[A-Za-z\s]+"
                         required
                       />
                       <TextInput
@@ -365,9 +372,9 @@ function App() {
                       onClick={nextStep}
                       disabled={
                         !(
-                          Name &&
-                          Instructor &&
-                          RegNo &&
+                          Name && Name.trim() &&
+                          Instructor && Instructor.trim() &&
+                          RegNo && RegNo.trim() &&
                           Trainingvalue.every((v) => !!v) &&
                           valuenowDate &&
                           Course
@@ -554,7 +561,7 @@ function App() {
                     Back
                   </Button>
                   <Button
-                    disabled={feedbacks.some((v) => !v.value)}
+                    disabled={feedbacks.some((v) => !v.value || !v.value.trim())}
                     onClick={nextStep}
                   >
                     Next step
