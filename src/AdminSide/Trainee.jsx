@@ -660,7 +660,7 @@ function Trainee() {
             <p>${new Date().toDateString()}</p>
           </div>
           <p class="course-description">
-            - A Evaluation summary based on Company ${search.toLocaleUpperCase()}.
+            - An Evaluation summary based on Company ${checkedStudents[0]?.Reg.toLocaleUpperCase()}.
           </p>
 
           <table>

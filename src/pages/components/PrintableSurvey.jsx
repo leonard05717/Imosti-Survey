@@ -8,6 +8,7 @@ const PrintableSurvey = ({
   criteria,
   totalAverage,
   date,
+  student,
   barChartData = [],
   listcriteria = [],
 }) => {
@@ -58,7 +59,7 @@ const PrintableSurvey = ({
               </p>
               <p>{date}</p>
             </div>
-            <p style={{ fontSize: "15px" }}>- {description}</p>
+            <p style={{ fontSize: "15px" }}>- {student} Trainee Evaluation</p>
           </div>
 
           {/* Bar Chart Section */}
@@ -178,7 +179,7 @@ const PrintableSurvey = ({
               </p>
               <p>{date}</p>
             </div>
-            <p style={{ fontSize: "15px" }}>- {description}</p>
+            <p style={{ fontSize: "15px" }}>- {student} Trainee Evaluation</p>
           </div>
 
           <table style={{ width: "100%", marginBottom: "10px" }}>
@@ -225,6 +226,7 @@ const PrintableSurvey = ({
                         borderTop: "1px solid #0009",
                         width: "fit-content",
                         padding: "6px 20px 0 20px",
+                        fontWeight: "bold",
                       }}
                     >
                       {totalAverage.toFixed(2)}

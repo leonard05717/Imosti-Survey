@@ -96,6 +96,7 @@ function Analytics() {
     totalAverage: 0,
     list: [],
     date: "",
+    student: "",
   });
 
   async function printEventHandler() {
@@ -184,6 +185,8 @@ function Analytics() {
 
       let filteredScores = mainData.scores;
       let selectedCourse = null;
+      let filteredStudents = mainData.students;
+      
 
       if (selectedCourseCode) {
         selectedCourse = mainData.courses.find(
@@ -197,7 +200,15 @@ function Analytics() {
             (s) => s.traning.course_id === selectedCourse.id,
           );
         }
+        if(selectedCourse){
+          filteredStudents = mainData.students.filter(
+            (f) => f.course_id === selectedCourse.id
+
+          )
+        }
       }
+
+      const studentCount = filteredStudents.length;
 
       filteredScores = filteredScores.filter((s) => {
         const created = new Date(s.traning.DateN);
@@ -254,6 +265,7 @@ function Analytics() {
         date: date,
         barChartData: barChartData, // Include current bar chart data
         listcriteria: selectedCriteria,
+        student: studentCount,
       };
 
       setSurveyData(newSurveyData);
@@ -485,6 +497,7 @@ function Analytics() {
             date={surveyData.date}
             barChartData={surveyData.barChartData}
             listcriteria={surveyData.listcriteria}
+            student={surveyData.student}
           />
         </div>
       </Portal>

@@ -287,7 +287,7 @@ function CourseInfo() {
           <div class="divider"></div>
           <div class="content">
             <div class="course-header">
-              <p class="course-title">${checkedStudents.length} Trainees Evaluation</p>
+              <p class="course-title">${checkedStudents.length} Trainee Evaluation</p>
               <p>${new Date().toDateString()}</p>
             </div>
             <p class="course-description">
