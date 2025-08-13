@@ -90,7 +90,7 @@ function App() {
   const InstructorTrasfer = (event) => {
      const input = event.target.value;
      const filtered = input.replace(/[0-9]/g, '');
-     setInstructor(filtered);
+     setName(filtered);
   
   };
   const RegTrasfer = (event) => {
