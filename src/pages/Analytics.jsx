@@ -5,6 +5,7 @@ import {
   Button,
   Checkbox,
   CloseButton,
+  convertCssVariables,
   Divider,
   LoadingOverlay,
   Menu,
@@ -99,6 +100,8 @@ function Analytics() {
     student: "",
   });
 
+  const [stud, setstud] = useState("");
+
   async function printEventHandler() {
     try {
       setLoadingPrint(true);
@@ -187,7 +190,7 @@ function Analytics() {
       let selectedCourse = null;
       let filteredStudents = mainData.students;
       
-
+     
       if (selectedCourseCode) {
         selectedCourse = mainData.courses.find(
           (c) => c.Course === selectedCourseCode,
@@ -265,10 +268,11 @@ function Analytics() {
         date: date,
         barChartData: barChartData, // Include current bar chart data
         listcriteria: selectedCriteria,
-        student: studentCount,
+        student: stud,
       };
 
       setSurveyData(newSurveyData);
+      
 
       await new Promise((res, rej) => {
         window.setTimeout(() => {
@@ -451,7 +455,10 @@ function Analytics() {
         name: `${item.label}. ${item.CQuestion}`,
       };
     });
-
+    const uniqueTrainings = [...new Set(filtered.map(item => item.training_id))];
+    const uniqueTrainingCount = uniqueTrainings.length;
+    console.log("Total unique trainings:", uniqueTrainingCount);
+    setstud(uniqueTrainingCount)
     setSelectedCriteria(listCriterias);
     setBarChartData(barChartData);
   }, [
