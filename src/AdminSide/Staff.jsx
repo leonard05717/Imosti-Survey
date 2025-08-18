@@ -111,6 +111,19 @@ function Staff() {
       console.log(data);
       if (data.type === "add") {
         // add staff
+
+        const { data: existingEmail, error: emailError } = await supabase
+        .from("Staff-Info")
+        .select("Email")
+        .eq("Email", data.Email)
+        .single();
+ 
+      if (existingEmail) {
+        window.alert("Email already exists. Please use a different email.");
+       setSubmitLoading(false);
+          return;
+       }
+       
         const { error: insertError } = await supabase
           .from("Staff-Info")
           .insert({
