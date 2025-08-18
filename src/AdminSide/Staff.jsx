@@ -123,7 +123,7 @@ function Staff() {
        setSubmitLoading(false);
           return;
        }
-       
+
         const { error: insertError } = await supabase
           .from("Staff-Info")
           .insert({
@@ -146,6 +146,21 @@ function Staff() {
         staffForm.reset();
       } 
       else {
+
+        const { data: existingEmailUpdate, error: emailErrorUpdate } = await supabase
+             .from("Staff-Info")
+             .select("Email")
+             .eq("Email", data.Email)
+             .not("id", "eq", data.id)  // Ensure the same email is not used for another account
+             .single();
+
+          if (existingEmailUpdate) {
+          window.alert("Email already exists. Please use a different email.");
+          setSubmitLoading(false);
+          return;
+            }
+
+            
         if (data.Password && data.Password.trim() === "") {
           window.alert("Password cannot be empty or spaces only.");
           setSubmitLoading(false);
