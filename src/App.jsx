@@ -23,6 +23,8 @@ import {
   Text,
   ScrollAreaAutosize,
   LoadingOverlay,
+  ScrollArea,
+  Divider,
 } from "@mantine/core";
 import {
   IconBrandAndroid,
@@ -60,6 +62,7 @@ const ratings = [
 ];
 
 function App() {
+  const [checked, setChecked] = useState(false);
   const [questions, setQuestions] = useState([]);
   const [feedbacks, setFeedbacks] = useState([]);
   const [loadingSubmit, setLoadingSubmit] = useState(false);
@@ -70,6 +73,7 @@ function App() {
   const prevStep = () =>
     setActive((current) => (current > 0 ? current - 1 : current));
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [termsofcondition, settermsofcondition] = useState(false);
 
   const [Name, setName] = useState("");
   const [Instructor, setInstructor] = useState("");
@@ -109,6 +113,7 @@ function App() {
     setcriteria(CriteriaData);
     setCourses(courseData);
     setLoadingPage(false);
+    settermsofcondition(true)
   }
 
   function reset() {
@@ -208,6 +213,196 @@ function App() {
   return (
     <div>
       <LoadingOverlay visible={loadingPage} />
+
+      <Modal
+        radius={20}
+        centered
+        opened={termsofcondition}
+        onClose={settermsofcondition}
+        size="lg"
+        closeOnClickOutside={false}
+        closeOnEscape={false}
+        withCloseButton={false}
+        style={{
+          maxWidth: '80%',
+          width: '100%',
+          height: '80vh',
+          overflowY: 'auto', // Scroll content if needed
+          
+        }}
+      >
+        <div style={{ textAlign: 'center', marginBottom: '20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          {/* Logo */}
+          <img
+            src="/images/Admin-Logo.png" // Replace with your logo path
+            alt="Logo"
+            style={{  width: '300px', height: '70px' }}
+          />
+        </div>
+
+        <h2 style={{ textAlign: 'center' , fontSize: '20px' , fontWeight: 'bold' }}>Privacy Policy</h2>
+
+        <ScrollArea style={{ maxHeight: '1050vh', paddingRight: '15px' }}>
+          <div style={{ padding: '10px' }}>
+           
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+              <strong>We at IMOSTI, Inc.</strong> value and put premium on your privacy. You have the right to know how your personal information is used and protected. This statement outlines several ways of processing the personal information that is shared. On your end, you have the choice to control (to a certain extent), the manner by which your personal information is used.
+            </Text><br></br>
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+            This statement is intended to protect all our clients, both individual and companies, in the same respectful manner.
+            </Text><br></br>
+
+            <Text style={{fontWeight:'bold'}} size="md" weight={500}>
+              Personal Information Collected
+            </Text><br></br>
+            <Text size="sm" style={{ marginBottom: '25px' }}>
+              The type of data that we gather from your inquiry or your company’s recommendation to the actual attendance varies depending on the training course. They include but are not limited to:
+            </Text><br></br>
+            <table className="table-auto w-full text-left border-collapse">
+        <tbody>
+          <tr>
+            <td className="px-3 py-2 align-top">1. Full Name</td>
+            <td className="px-3 py-2 align-top">5. ID Pictures</td>
+            <td className="px-3 py-2 align-top">9. Company/Endorser</td>
+          </tr>
+          <tr>
+            <td className="px-3 py-2 align-top">2. Date of Birth</td>
+            <td className="px-3 py-2 align-top">6. Picture Taken***</td>
+            <td className="px-3 py-2 align-top">10. PPE measurement</td>
+          </tr>
+          <tr>
+            <td className="px-3 py-2 align-top">3. Contact Details*</td>
+            <td className="px-3 py-2 align-top">7. Video Taping****</td>
+            <td className="px-3 py-2 align-top">11. Emergency Contact Number</td>
+          </tr>
+          <tr>
+            <td className="px-3 py-2 align-top">4. Government ID's**</td>
+            <td className="px-3 py-2 align-top">8. Rank or Position</td>
+            <td className="px-3 py-2 align-top">12. Miscellaneous info</td>
+          </tr>
+        </tbody>
+      </table>
+              <Text style={{marginTop:'25px'}} size="md" weight={500}>
+              Phone number, e-mail and mailing addresses ** Passport, SSS or GSIS or UMID *** In the office**** Requirement-based
+              </Text>
+            <Text style={{marginTop:'25px'}} size="md" weight={500}>
+              To provide you with accurate training intervention, there are critical documents that you need to share with us, either physically (photocopy) or electronically (scanned e-copy or image) prior to the start of training.
+            </Text><br></br>
+            <tr>
+              <li>Valid medical certificate</li>
+              <li>Valid certificate of completion</li>
+              <li>Prerequisite training certificates and logs (DP Induction, sea service, DP logs)</li>
+              <li>Sea time confirmation letter (from the company)</li>
+            </tr>
+
+            <Text size="sm" style={{ marginBottom: '10px', marginTop:'25px' }}>
+              Refusal to comply with the requirements would mean that you shall be unable to pursue required training with us.
+            </Text><br></br>
+
+            <Text style={{ marginBottom: '10px',fontWeight:'bold'}} size="md" weight={500}>
+              Additional Personal Data throughout the Duration of Work Relationship with You
+            </Text><br></br>
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+              In the course of our interaction, which could be between now and three years (sometimes beyond), we shall collect your data, including but not limited to your current training interest, history, and similar or related inquiries about our products and services.
+            </Text><br></br>
+
+            <Text size="md" weight={500}>
+              Manner of Collecting Your Personal Data
+            </Text>
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+              When you engage with us, we get your information in several ways — receiving your call or SMS, welcoming you to the office or expressing your interest through e-mail and website. We shall gather your information via:
+            </Text>
+            <tr>
+              <li>Registration form, e-mail, SMS, pre-training questionnaire and evaluation form</li>
+              <li>Referral form</li>
+              <li>Booking confirmation</li>
+              <li>Information shared by your company, family, friend, or business contact</li>
+            </tr><br></br>
+
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+            The sensitive information shall only be provided to a requestor or disclosed to another party when required by law or regulation.
+            </Text>
+
+            <Text size="md" weight={500}>
+              <strong>Notification of Received Information</strong>
+            </Text><br></br>
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+              Personal information that you or your company provides is treated with utmost care. The receiver shall take appropriate steps to notify you on:
+            </Text><br></br>
+            <tr>
+              <li>How and why the information is asked for</li>
+              <li>Who may have access to it</li>
+              <li>Which part shall be shared with whom (case-to-case basis)</li>
+            </tr><br></br>
+
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+              The notice of usage might have been included in the form that you will get and submit to us.
+            </Text>
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+            All personal data and information collected shall only be used as required by IMOSTI, its associate and compliance. No personal information and data shall be shared without express written consent of the owner. Otherwise, all personal information and data will be retained and dispose according to <a href="https://privacy.gov.ph/data-privacy-act/" style={{color:"#046bd2",border:"none",borderBottom:"1px solid #046bd2"}}>R.A. 10173 Data Privacy Act 2012.</a> Click here to view the Certificate of Registration.
+            </Text><br></br>
+
+            <Text size="md" weight={500}>
+              Usage of Your Personal Data
+            </Text>
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+              The information that you provide is used to:
+            </Text><br></br>
+            <tr>
+              <li>Comply with offshore (and maritime) regulation as imposed by regulatory and statutory standards</li>
+              <li>Conform to management system requirement</li>
+              <li>Carry out our mandate arising from partnership between you (or your company) and our company</li>
+              <li>Conduct every day business purpose</li>
+            </tr><br></br>
+
+            <Text size="md" weight={500}>
+              Security of Your Personal Data
+            </Text>
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+              We store your information in paper and electronic forms. The security of your data is very important. That’s why we take reasonable steps to protect them from misuse, loss, unauthorized access or disclosure. We promote safety and avoid critical risks by:
+            </Text><br></br>
+            <tr>
+              <li>Providing training to all team members on confidentiality requirements and data privacy</li>
+              <li>Installing security controls to systems and facilities</li>
+              <li>Identifying key accessors to personal data records</li>
+            </tr><br></br>
+
+            <Text size="md" weight={500}>
+              <strong>Disposing of Personal Data When No Longer Needed</strong>
+            </Text><br></br>
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+              As your training provider partner, we will only retain your personal information for five years, as necessary for training purpose or as required by law and regulation.
+            </Text><br></br>
+
+            <Text size="md" weight={500}>
+              <strong>Clarifications, Queries and Complaints</strong>
+            </Text>
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+              We appreciate your feedback. Contact us through (+63 2) 8893 2790.
+            </Text><br></br>
+            <Text size="sm" style={{ marginBottom: '10px' }}>
+              You may also contact the National Privacy Commission by clicking or visiting info@privacy.gov.ph or complaints@privacy.gov.ph. Its address is 3rd Floor, Core G, GSIS Headquarters Building, Financial Center, Pasay City.
+            </Text>
+
+            <Divider style={{ margin: '20px 0' }} />
+
+          
+            <Checkbox
+              
+               label="I agree to the Privacy Policy and Terms & Conditions"
+               onChange={(e) => setChecked(e.target.checked)}
+               style={{display:'flex' , justifyContent:'center', marginTop: '25px' }}
+               />
+               <div style={{display:'flex' , justifyContent:'center'}}>
+          <Button style={{ marginTop: '10px' }}  disabled={!checked} variant="filled"
+          onClick={() => {
+            settermsofcondition(false);
+          }}
+          >Submit</Button>
+          </div>
+          </div>
+        </ScrollArea>
+      </Modal>
 
       <Modal
         radius={20}
@@ -323,6 +518,7 @@ function App() {
                         type='multiple'
                         label='Training Date'
                         placeholder='Pick dates range'
+                        
                         onChange={setTrainingValue}
                         required
                         clearable
@@ -391,7 +587,7 @@ function App() {
                 description='Learners Evaluation'
               >
                 <div className='text-center font-black text-xl pb-5'>
-                Learners Evaluation Form
+                  Learners Evaluation Form
                 </div>
                 <div className='font-semibold'>INSTRUCTION:</div>
                 <div className='mb-5'>
