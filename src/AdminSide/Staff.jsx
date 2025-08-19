@@ -467,7 +467,7 @@ function Staff() {
                   <Table.Td style={{ textWrap: "nowrap" }}>
                     {st.Role === "admin" && st.role_label
                       ? st.role_label
-                      : "Super Admin"}
+                      : "Admin"}
                   </Table.Td>
                   <Table.Td style={{ minWidth: 100 }}>
                     <Badge
