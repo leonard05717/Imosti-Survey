@@ -389,10 +389,10 @@ function App() {
               {/* 2nd */}
               <Stepper.Step
                 label='Second step'
-                description='Training Evaluation'
+                description='Learners Evaluation'
               >
                 <div className='text-center font-black text-xl pb-5'>
-                  Trainee Evaluation Form
+                Learners Evaluation Form
                 </div>
                 <div className='font-semibold'>INSTRUCTION:</div>
                 <div className='mb-5'>
@@ -633,7 +633,7 @@ function App() {
                   mt={20}
                   mb={5}
                 >
-                  Trainee Evaluation Form:
+                  Learners Evaluation Form:
                 </Text>
 
                 <ScrollAreaAutosize>

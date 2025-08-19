@@ -93,7 +93,7 @@ function Trainee() {
           const { error: deletehistory } = await supabase
           .from("history")
           .insert({
-            transaction: "Delete Lerners Record",
+            transaction: "Delete Learners Record",
             Account: account?.Email,
             created_at: new Date(),
           });
@@ -671,7 +671,7 @@ function Trainee() {
         <div class="divider"></div>
         <div class="content">
           <div class="course-header">
-            <p class="course-title">${checkedStudents.length} Lerners Evaluation</p>
+            <p class="course-title">${checkedStudents.length} Learners Evaluation</p>
             <p>${new Date().toDateString()}</p>
           </div>
           <p class="course-description">
@@ -1055,7 +1055,7 @@ function Trainee() {
           visible={loadingPage}
         />
       }
-      title='Lerners'
+      title='Learners'
       rightSection={
         <div className='flex items-center'>
           <TextInput
@@ -1093,7 +1093,7 @@ function Trainee() {
                 leftSection={<IconPrinter size={20} />}
                 onClick={handlePrint}
               >
-                Print Lerners ({checkedStudents.length})
+                Print Learners ({checkedStudents.length})
               </Menu.Item>
               <Menu.Item
                 leftSection={<IconPrinter size={20} />}
