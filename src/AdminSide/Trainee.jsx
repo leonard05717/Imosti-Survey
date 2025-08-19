@@ -36,9 +36,26 @@ import AdminMainPage from "./AdminMainPage";
 
 
 function convertDateRangeToString(dateRange) {
+  if (!dateRange || typeof dateRange !== "string") return "";
+
   const [f, s] = dateRange.substring(2, dateRange.length - 2).split('","');
-  const options = { year: "numeric", month: "short", day: "2-digit" };
-  return `${new Date(f).toLocaleDateString("en-US", options)} to ${new Date(s).toLocaleDateString("en-US", options)}`;
+
+  const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+  const startDate = new Date(f);
+  const endDate = new Date(s);
+
+  const isStartValid = !isNaN(startDate.getTime());
+  const isEndValid = !isNaN(endDate.getTime());
+
+  if (isStartValid && isEndValid) {
+      return `${startDate.toLocaleDateString("en-US", options)} to ${endDate.toLocaleDateString("en-US", options)}`;
+  } else if (isStartValid) {
+      return `${startDate.toLocaleDateString("en-US", options)}`;
+  } else if (isEndValid) {
+      return `${endDate.toLocaleDateString("en-US", options)}`;
+  } else {
+      return "";
+  }
 }
 function Trainee() {
   const { id: course_id } = useParams();

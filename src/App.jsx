@@ -320,10 +320,9 @@ function App() {
                     </div>
                     <div className='space-y-3'>
                       <DatePickerInput
-                        type='range'
+                        type='multiple'
                         label='Training Date'
                         placeholder='Pick dates range'
-                        value={Trainingvalue}
                         onChange={setTrainingValue}
                         required
                         clearable

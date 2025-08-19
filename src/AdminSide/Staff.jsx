@@ -386,8 +386,8 @@ function Staff() {
             checkIconPosition='right'
             searchable
             data={[
-              { value: "superadmin", label: "Super Admin" },
-              { value: "admin", label: "Admin" },
+              { value: "superadmin", label: "Admin" },
+              { value: "admin", label: "Moderator" },
             ]}
           />
           {staffForm.values.Role === "admin" && (
