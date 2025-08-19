@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PageContainer from "../components/PageContainer";
-import supabase from "../supabase";
+import supabase, { getAccount } from "../supabase";
 import { staticData } from "../data";
 import {
   ActionIcon,
@@ -77,6 +77,7 @@ function Maintenance() {
   const [submitCretiraLoading, setsubmitCretiraLoading] = useState(false);
   const [CriteriaT, setCriteriaT] = useState("")
   const [labeladd, setlabeladd] = useState("")
+  const account = getAccount();
 
   const evaluationForm = useForm({
     mode: "controlled",
@@ -114,15 +115,16 @@ function Maintenance() {
   async function submitEvaluationEvent(evaluation) {
     try {
       setSubmitEvaluationLoading(true);
+
       const { data: criteriaData, error: criteriaError } = await supabase
-          .from('Criteria-Questioner')
-          .select('id')
-          .eq('label', evaluation.criteria);
+         .from('Criteria-Questioner')
+         .select('id')
+         .eq('label', evaluation.criteria);
 
       if (criteriaError) {
-       console.error('Error fetching Criteria ID:', criteriaError);
-        return;
-          }
+         console.error('Error fetching Criteria ID:', criteriaError);
+       return;
+        }
 
         const Criteria_ids = criteriaData[0]?.id;
 
@@ -132,6 +134,20 @@ function Maintenance() {
         created_at: new Date(),
         Criteria_id: Criteria_ids,
       });
+
+      const { error: deletehistory } = await supabase
+      .from("history")
+      .insert({
+        transaction: "Add Criteria Question",
+        Account: account?.Email,
+        created_at: new Date(),
+      });
+
+
+      if (deletehistory) {
+        console.log(`Something Error: ${deletehistory.message}`);
+        return;
+      }
 
       if (insertError) {
         console.log(`Something Error: ${insertError.message}`);
@@ -157,6 +173,21 @@ function Maintenance() {
           QuestionFeedback: feedback.feedback,
           created_at: new Date(),
         });
+
+        const { error: deletehistory } = await supabase
+        .from("history")
+        .insert({
+          transaction: "Add Feedback Question",
+          Account: account?.Email,
+          created_at: new Date(),
+        });
+
+
+         if (deletehistory) {
+          console.log(`Something Error: ${deletehistory.message}`);
+          return;
+        }
+
 
       if (insertError) {
         console.log(`Something Error: ${insertError.message}`);
@@ -184,6 +215,21 @@ function Maintenance() {
           created_at: new Date(),
         });
 
+        const { error: deletehistory } = await supabase
+        .from("history")
+        .insert({
+          transaction: "Add Criteria",
+          Account: account?.Email,
+          created_at: new Date(),
+        });
+
+
+         if (deletehistory) {
+          console.log(`Something Error: ${deletehistory.message}`);
+          return;
+        }
+
+
       if (insertError) {
         console.log(`Something Error: ${insertError.message}`);
         return;
@@ -210,6 +256,18 @@ function Maintenance() {
           Course: Courses.Course,
           created_at: new Date(),
         });
+        const { error: deletehistory } = await supabase
+        .from("history")
+        .insert({
+          transaction: "Add Course",
+          Account: account?.Email,
+          created_at: new Date(),
+        });
+        if (deletehistory) {
+          console.log(`Something Error: ${deletehistory.message}`);
+          return;
+        }
+
 
       if (insertError) {
         console.log(`Something Error: ${insertError.message}`);
@@ -236,6 +294,22 @@ function Maintenance() {
         label : labeladd 
       })
       .eq("id", selectedIDCriteria);
+
+      const { error: deletehistory } = await supabase
+      .from("history")
+      .insert({
+        transaction: "Edit Criteria",
+        Account: account?.Email,
+        created_at: new Date(),
+      });
+
+
+      if (deletehistory) {
+        console.log(`Something Error: ${deletehistory.message}`);
+        return;
+      }
+
+
     if (deleteError) {
       setsubmitCretiraLoading(false);
       console.log(`Something Error: ${deleteError.message}`);
@@ -256,6 +330,21 @@ function Maintenance() {
         Course : CriteriaT,
       })
       .eq("id", selectedIDCriteria);
+
+      const { error: deletehistory } = await supabase
+      .from("history")
+      .insert({
+        transaction: "Edit Course",
+        Account: account?.Email,
+        created_at: new Date(),
+      });
+
+      if (deletehistory) {
+        console.log(`Something Error: ${deletehistory.message}`);
+        return;
+      }
+
+
     if (deleteError) {
       setsubmitCretiraLoading(false);
       console.log(`Something Error: ${deleteError.message}`);
@@ -274,6 +363,18 @@ function Maintenance() {
       .from("Course")
       .delete()
       .eq("id", selectedIDCriteria);
+      const { error: deletehistory } = await supabase
+      .from("history")
+      .insert({
+        transaction: "Delete Course",
+        Account: account?.Email,
+        created_at: new Date(),
+      });
+      if (deletehistory) {
+        console.log(`Something Error: ${deletehistory.message}`);
+        return;
+      }
+
     if (deleteError) {
       setDeleteCriteriaLoading(false);
       console.log(`Something Error: ${deleteError.message}`);
@@ -292,6 +393,22 @@ function Maintenance() {
       .from("Criteria-Questioner")
       .delete()
       .eq("id", selectedIDCriteria);
+
+      const { error: deletehistory } = await supabase
+      .from("history")
+      .insert({
+        transaction: "Delete Criteria",
+        Account: account?.Email,
+        created_at: new Date(),
+      });
+
+
+      if (deletehistory) {
+        console.log(`Something Error: ${deletehistory.message}`);
+        return;
+      }
+
+
     if (deleteError) {
       setDeleteCriteriaLoading(false);
       console.log(`Something Error: ${deleteError.message}`);
@@ -310,6 +427,23 @@ function Maintenance() {
       .from("Questioner")
       .delete()
       .eq("id", selectedDeleteId);
+
+      const { error: deletehistory } = await supabase
+      .from("history")
+      .insert({
+        transaction: "Delete Criteria Question",
+        Account: account?.Email,
+        created_at: new Date(),
+      });
+
+
+      if (deletehistory) {
+        console.log(`Something Error: ${deletehistory.message}`);
+        return;
+      }
+
+
+    
     if (deleteError) {
       setDeleteLoading(false);
       console.log(`Something Error: ${deleteError.message}`);
@@ -328,6 +462,22 @@ function Maintenance() {
       .from("Feedback-Question")
       .delete()
       .eq("id", selectedFeedbackDeleteId);
+
+      const { error: deletehistory } = await supabase
+      .from("history")
+      .insert({
+        transaction: "Delete Feedback Question",
+        Account: account?.Email,
+        created_at: new Date(),
+      });
+
+
+        if (deletehistory) {
+        console.log(`Something Error: ${deletehistory.message}`);
+        return;
+      }
+
+
     if (deleteError) {
       setDeleteFeedbackLoading(false);
       console.log(`Something Error: ${deleteError.message}`);
@@ -344,7 +494,7 @@ function Maintenance() {
     const feedbackData = (await supabase.from("Feedback-Question").select()).data;
     const CriteriaData = (await supabase.from("Criteria-Questioner").select()).data;
     const courselist = (await supabase.from("Course").select()).data;
-    setlistcourses(courselist)
+    setlistcourses(courselist);
     setQuestions(questionData);
     setFeedbacks(feedbackData);
     setCriteriaQ(CriteriaData)

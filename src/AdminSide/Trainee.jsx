@@ -17,7 +17,7 @@ import {
   TextInput,
   Tooltip,
 } from "@mantine/core";
-import supabase from "../supabase";
+import supabase, { getAccount } from "../supabase";
 import {
   IconArrowLeft,
   IconChevronDown,
@@ -33,6 +33,7 @@ import "./styles/courseinfo.style.css";
 import { toProper } from "../helpers/helper";
 import { DatePicker, MonthPicker, YearPicker } from "@mantine/dates";
 import AdminMainPage from "./AdminMainPage";
+
 
 function convertDateRangeToString(dateRange) {
   const [f, s] = dateRange.substring(2, dateRange.length - 2).split('","');
@@ -62,6 +63,7 @@ function Trainee() {
     [null, null],
     [null],
   );
+  const account = getAccount();
   const [filterState, { open: openFilterState, close: closeFilterState }] =
     useDisclosure(false);
   const [storageData, setStorageData] = useState({
@@ -88,11 +90,24 @@ function Trainee() {
           .delete()
           .in("id", studentIds);
 
+          const { error: deletehistory } = await supabase
+          .from("history")
+          .insert({
+            transaction: "Delete Lerners Record",
+            Account: account?.Email,
+            created_at: new Date(),
+          });
+
+          if (deletehistory) {
+            console.log(`Something Error: ${deletehistory.message}`);
+            return;
+          }
+
         if (deleteError) {
           console.log(`Something Error: ${deleteError.message}`);
           return;
         }
-
+      
         await fetchData();
         closeDeleteRecord();
         console.log("Delete Success");

@@ -19,7 +19,7 @@ import {
 import { useForm } from "@mantine/form";
 import { IconEdit, IconPlus } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import supabase from "../supabase";
+import supabase, { getAccount } from "../supabase";
 import { useDisclosure } from "@mantine/hooks";
 import { toProper } from "../helpers/helper";
 
@@ -54,6 +54,7 @@ const accessData = [
 
 // sample
 function Staff() {
+  const account = getAccount();
   const [staffs, setStaffs] = useState([]);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [loadingPage, setLoadingPage] = useState(true);
@@ -109,6 +110,9 @@ function Staff() {
      console.log(data);
       setSubmitLoading(true);
       console.log(data);
+
+     
+
       if (data.type === "add") {
         // add staff
 
@@ -137,6 +141,22 @@ function Staff() {
             role_label: data.Role === "admin" ? data.role_label : null,
             access: data.Role === "admin" ? data.access : null,
           });
+
+
+          const { error: deletehistory } = await supabase
+          .from("history")
+          .insert({
+            transaction: "Add Account",
+            Account: account?.Email,
+            created_at: new Date(),
+          });
+
+
+ 			 if (deletehistory) {
+            console.log(`Something Error: ${deletehistory.message}`);
+            return;
+          }
+
         if (insertError) {
           window.alert(`Something Error: ${insertError.message}`);
           return;
@@ -147,20 +167,8 @@ function Staff() {
       } 
       else {
 
-        const { data: existingEmailUpdate, error: emailErrorUpdate } = await supabase
-             .from("Staff-Info")
-             .select("Email")
-             .eq("Email", data.Email)
-             .not("id", "eq", data.id)  // Ensure the same email is not used for another account
-             .single();
 
-          if (existingEmailUpdate) {
-          window.alert("Email already exists. Please use a different email.");
-          setSubmitLoading(false);
-          return;
-            }
 
-            
         if (data.Password && data.Password.trim() === "") {
           window.alert("Password cannot be empty or spaces only.");
           setSubmitLoading(false);
@@ -179,6 +187,21 @@ function Staff() {
             access: data.access || undefined,
           })
           .eq("id", data.id);
+
+          const { error: deletehistory } = await supabase
+          .from("history")
+          .insert({
+            transaction: "Update Account",
+            Account: account?.Email,
+            created_at: new Date(),
+          });
+
+
+ 			 if (deletehistory) {
+            console.log(`Something Error: ${deletehistory.message}`);
+            return;
+          }
+
         if (updateError) {
           window.alert(`Something Error: ${updateError.message}`);
           return;
