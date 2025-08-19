@@ -318,7 +318,7 @@ function Staff() {
       </Modal>
 
       <Modal
-        title={<span style={{ color: 'white' }}>Add or Edit Staff</span>}
+        title={<span style={{ color: 'white' }}>Add or Edit Account</span>}
         opened={modalState}
         onClose={closeModalState}
         

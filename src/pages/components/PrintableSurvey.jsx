@@ -59,7 +59,7 @@ const PrintableSurvey = ({
               </p>
               <p>{date}</p>
             </div>
-            <p style={{ fontSize: "15px" }}>- {student} Trainee Evaluation</p>
+            <p style={{ fontSize: "15px" }}>- {student} Lerners Evaluation</p>
           </div>
 
           {/* Bar Chart Section */}
@@ -179,7 +179,7 @@ const PrintableSurvey = ({
               </p>
               <p>{date}</p>
             </div>
-            <p style={{ fontSize: "15px" }}>- {student} Trainee Evaluation</p>
+            <p style={{ fontSize: "15px" }}>- {student} Lerners Evaluation</p>
           </div>
 
           <table style={{ width: "100%", marginBottom: "10px" }}>

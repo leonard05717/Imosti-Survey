@@ -1021,7 +1021,7 @@ function Maintenance() {
               fw='bold'
               size='xl'
             >
-              Training Evaluation
+              Criteria Question
             </Text>
             <div
               style={{
@@ -1170,7 +1170,7 @@ function Maintenance() {
           fw='bold'
           size='xl'
         >
-          Criteria Questioner
+          Criteria
         </Text>
         <div
           style={{

@@ -816,7 +816,7 @@ function Analytics() {
             >
               <DashboardItem
                 Icon={IconFileDescription}
-                label='Total Survey'
+                label='Total Evaluation Form'
                 value={dashboardData.totalSurvey}
               />
               <DashboardItem
@@ -834,7 +834,7 @@ function Analytics() {
                     fontWeight: 600,
                   }}
                 >
-                  Training per Course
+                  Learners per Course
                 </div>
                 <div className='md:w-[220px] w-full h-[200px]'>
                   <ScrollAreaAutosize

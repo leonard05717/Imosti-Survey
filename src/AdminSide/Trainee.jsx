@@ -671,7 +671,7 @@ function Trainee() {
         <div class="divider"></div>
         <div class="content">
           <div class="course-header">
-            <p class="course-title">${checkedStudents.length} Trainees Evaluation</p>
+            <p class="course-title">${checkedStudents.length} Lerners Evaluation</p>
             <p>${new Date().toDateString()}</p>
           </div>
           <p class="course-description">
@@ -1055,7 +1055,7 @@ function Trainee() {
           visible={loadingPage}
         />
       }
-      title='Trainee'
+      title='Lerners'
       rightSection={
         <div className='flex items-center'>
           <TextInput
@@ -1093,7 +1093,7 @@ function Trainee() {
                 leftSection={<IconPrinter size={20} />}
                 onClick={handlePrint}
               >
-                Print Trainees ({checkedStudents.length})
+                Print Lerners ({checkedStudents.length})
               </Menu.Item>
               <Menu.Item
                 leftSection={<IconPrinter size={20} />}

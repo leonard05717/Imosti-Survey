@@ -24,7 +24,7 @@ const links = [
     icon: IconCertificate,
   },
   {
-    label: "Trainee",
+    label: "Learners",
     to: "trainee",
     icon: IconSchool,
   },
