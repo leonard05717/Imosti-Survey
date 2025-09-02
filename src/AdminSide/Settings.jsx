@@ -61,7 +61,8 @@ function Settings() {
         }
        
         await fetchData();
-        console.log("delete success")
+        setcomfirmdelete("");
+        console.log("delete success");
         closeDeleteRecord();
         setLoading(false);
         return;
