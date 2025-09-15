@@ -1312,7 +1312,7 @@ function Trainee() {
                         }
                         return v;
                       }
-
+                      
                       return { ...v, checked: e.currentTarget.checked };
                     }),
                   );

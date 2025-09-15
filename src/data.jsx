@@ -18,3 +18,5 @@ const staticData = [
 ];
 
 export { staticData };
+
+

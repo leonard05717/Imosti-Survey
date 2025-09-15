@@ -536,27 +536,6 @@ function Analytics() {
             />
           )}
 
-          {selectedFilter === "By Specific Day" && (
-            <DatePicker
-              value={selectedDay}
-              onChange={setSelectedDay}
-              label='Select Specific Day'
-              maxDate={new Date()}
-            />
-          )}
-
-          {selectedFilter === "By Date Range" && (
-            <div>
-              <DatePicker
-                type='range'
-                label='Select Date Range'
-                placeholder='Pick dates range'
-                value={selectedDateRange}
-                maxDate={new Date()}
-                onChange={setSelectedDateRange}
-              />
-            </div>
-          )}
         </div>
       </Modal>
 
