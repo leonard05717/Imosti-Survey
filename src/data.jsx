@@ -1,3 +1,4 @@
+{/*Sample Data */}
 const staticData = [
   {
     key: "A",
