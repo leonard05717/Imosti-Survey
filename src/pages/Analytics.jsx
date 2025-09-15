@@ -102,6 +102,7 @@ function Analytics() {
 
   const [stud, setstud] = useState("");
 
+  {/*Print */}
   async function printEventHandler() {
     try {
       setLoadingPrint(true);
