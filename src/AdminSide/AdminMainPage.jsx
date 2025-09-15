@@ -59,6 +59,7 @@ export function getFirstLink(access) {
   return null;
 }
 
+{/*Adminpage */}
 function AdminMainPage() {
   const account = getAccount();
   const { isOpen, setIsOpen } = useDrawer();
