@@ -5,7 +5,6 @@ import {
   Button,
   Checkbox,
   CloseButton,
-  convertCssVariables,
   Divider,
   LoadingOverlay,
   Menu,
@@ -102,7 +101,6 @@ function Analytics() {
 
   const [stud, setstud] = useState("");
 
-  {/*Print */}
   async function printEventHandler() {
     try {
       setLoadingPrint(true);
@@ -191,7 +189,7 @@ function Analytics() {
       let selectedCourse = null;
       let filteredStudents = mainData.students;
       
-     
+
       if (selectedCourseCode) {
         selectedCourse = mainData.courses.find(
           (c) => c.Course === selectedCourseCode,
@@ -273,7 +271,6 @@ function Analytics() {
       };
 
       setSurveyData(newSurveyData);
-      
 
       await new Promise((res, rej) => {
         window.setTimeout(() => {
@@ -456,6 +453,7 @@ function Analytics() {
         name: `${item.label}. ${item.CQuestion}`,
       };
     });
+
     const uniqueTrainings = [...new Set(filtered.map(item => item.training_id))];
     const uniqueTrainingCount = uniqueTrainings.length;
     console.log("Total unique trainings:", uniqueTrainingCount);
@@ -537,6 +535,27 @@ function Analytics() {
             />
           )}
 
+          {selectedFilter === "By Specific Day" && (
+            <DatePicker
+              value={selectedDay}
+              onChange={setSelectedDay}
+              label='Select Specific Day'
+              maxDate={new Date()}
+            />
+          )}
+
+          {selectedFilter === "By Date Range" && (
+            <div>
+              <DatePicker
+                type='range'
+                label='Select Date Range'
+                placeholder='Pick dates range'
+                value={selectedDateRange}
+                maxDate={new Date()}
+                onChange={setSelectedDateRange}
+              />
+            </div>
+          )}
         </div>
       </Modal>
 

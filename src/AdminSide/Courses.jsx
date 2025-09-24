@@ -191,7 +191,7 @@ function Courses() {
                 if (!search) return true;
                 const text = search.toLowerCase().trim();
                 return (
-                  c.Course.toLowerCase().includes(text)
+                  c.employee_no.toLowerCase().includes(text)
                 );
               })
               .map((course, i) => {
