@@ -17,11 +17,12 @@ import {
 import { useForm } from "@mantine/form";
 import { usePrevious } from "@mantine/hooks";
 import { useDisclosure } from "@mantine/hooks";
-import supabase from "../supabase";
+import supabase , { getAccount } from "../supabase";
 import { DatePickerInput } from "@mantine/dates";
 import { IconPrinter, IconTrash } from "@tabler/icons-react";
 
 function Settings() {
+  const account = getAccount();
   const [loadingPage, setLoadingPage] = useState(true);
   const [loading, setLoading] = useState(false);
   const [mapingAdmin, setmapingAdmin] = useState([]);
@@ -93,9 +94,23 @@ function Settings() {
         .from("storage")
         .update({ value: values.issued_date })
         .eq("key", "issued_date");
+
+        const { error: deletehistory } = await supabase
+        .from("history")
+        .insert({
+          transaction: "Update Analytic Report Data",
+          Account: account?.Email,
+          created_at: new Date(),
+        });
+        if (deletehistory) {
+          console.log(`Something Error: ${deletehistory.message}`);
+          return;
+        }
+
       if (error || revisionError || issuedDateError) {
         return window.alert("Failed to update storage");
       }
+
       setPreviousValues(values);
     } catch (error) {
       console.error(error);

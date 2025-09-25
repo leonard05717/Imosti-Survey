@@ -77,6 +77,7 @@ function App() {
 
   const [Name, setName] = useState("");
   const [Instructor, setInstructor] = useState("");
+  const [batch, setbatch] = useState("");
   const [Course, setCourse] = useState("");
   const [RegNo, setRegNo] = useState("");
   const [valuenowDate, SetvaluenowDate] = useState(new Date());
@@ -100,6 +101,9 @@ function App() {
   const RegTrasfer = (event) => {
     setRegNo(event.target.value);
   };
+  const batchTrasfer = (event) => {
+    setbatch(event.target.value);
+  };
 
   async function loadData() {
     const questionData = (await supabase.from("Questioner").select()).data;
@@ -117,6 +121,7 @@ function App() {
   }
 
   function reset() {
+    setbatch("");
     setActive(0);
     setName("");
     setInstructor("");
@@ -160,6 +165,7 @@ function App() {
           TrainingD: Trainingvalue,
           DateN: new Date(valuenowDate).toDateString(),
           course_id: Course,
+          batch: batch.trim(),
         })
         .select("*")
         .single();
@@ -412,7 +418,7 @@ function App() {
           setIsModalOpen(false);
         }}
       >
-        <div style={{ display: "flex" }}>
+        <div style={{ display: "flex" , marginLeft: '-15px' }}>
           <AspectRatio
             ratio={1}
             flex='0 0 200px'
@@ -559,6 +565,18 @@ function App() {
                       />
                     </div>
                   </div>
+                  <div style={{display:'flex' , justifyContent:'center'}}>
+                    <TextInput
+                       
+                        label='Batch #'
+                        onChange={batchTrasfer}
+                        className='input'
+                        type='text'
+                        placeholder='Enter Batch Number'
+                        value={batch}
+                        required
+                      />
+                    </div>
                   <Group
                     justify='center'
                     mt='xl'
@@ -572,7 +590,8 @@ function App() {
                           RegNo && RegNo.trim() &&
                           Trainingvalue.every((v) => !!v) &&
                           valuenowDate &&
-                          Course
+                          Course &&
+                          batch && batch.trim()
                         )
                       }
                     >
@@ -818,6 +837,10 @@ function App() {
                             new Date(t).toDateString(),
                           ).join(" to ")}
                         </Table.Td>
+                      </Table.Tr>
+                      <Table.Tr>
+                        <Table.Th>Company:</Table.Th>
+                        <Table.Td>{batch}</Table.Td>
                       </Table.Tr>
                     </Table.Tbody>
                   </Table>
